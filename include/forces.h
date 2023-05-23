@@ -19,14 +19,15 @@ vector_t calculate_unit_vector(vector_t body1, vector_t body2);
  *   that defines the direction the two bodies are colliding in
  * @param aux the auxiliary value passed to create_collision()
  */
-typedef void (*collision_handler_t)
-    (body_t *body1, body_t *body2, vector_t axis, void *aux);
+typedef void (*collision_handler_t)(body_t *body1, body_t *body2, vector_t axis,
+                                    void *aux);
 
 /**
  * Adds a force creator to a scene that applies gravity between two bodies.
  * The force creator will be called each tick
  * to compute the Newtonian gravitational force between the bodies.
- * See https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation#Vector_form.
+ * See
+ * https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation#Vector_form.
  * The force should not be applied when the bodies are very close,
  * because its magnitude blows up as the distance between the bodies goes to 0.
  *
@@ -35,8 +36,8 @@ typedef void (*collision_handler_t)
  * @param body1 the first body
  * @param body2 the second body
  */
-void create_newtonian_gravity(scene_t *scene, double G, body_t *body1, body_t *body2);
-
+void create_newtonian_gravity(scene_t *scene, double G, body_t *body1,
+                              body_t *body2);
 
 /**
  * Adds a force creator to a scene that acts like a spring between two bodies.
@@ -79,14 +80,9 @@ void create_drag(scene_t *scene, double gamma, body_t *body);
  * @param aux an auxiliary value to pass to the handler
  * @param freer if non-NULL, a function to call in order to free aux
  */
-void create_collision(
-    scene_t *scene,
-    body_t *body1,
-    body_t *body2,
-    collision_handler_t handler,
-    void *aux,
-    free_func_t freer
-);
+void create_collision(scene_t *scene, body_t *body1, body_t *body2,
+                      collision_handler_t handler, void *aux,
+                      free_func_t freer);
 
 /**
  * Adds a force creator to a scene that destroys two bodies when they collide.
@@ -100,7 +96,8 @@ void create_collision(
  */
 void create_destructive_collision(scene_t *scene, body_t *body1, body_t *body2);
 
-void create_partial_destructive_collision(scene_t *scene, body_t *body1, body_t *body2);
+void create_partial_destructive_collision(scene_t *scene, body_t *body1,
+                                          body_t *body2);
 
 /**
  * Adds a force creator to a scene that applies impulses
@@ -119,10 +116,6 @@ void create_partial_destructive_collision(scene_t *scene, body_t *body1, body_t 
  * @param body1 the first body
  * @param body2 the second body
  */
-void create_physics_collision(
-    scene_t *scene,
-    double elasticity,
-    body_t *body1,
-    body_t *body2
-);
+void create_physics_collision(scene_t *scene, double elasticity, body_t *body1,
+                              body_t *body2);
 #endif // #ifndef __FORCES_H__

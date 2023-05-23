@@ -1,7 +1,7 @@
 #include "collision.h"
-#include "vector.h"
-#include "polygon.h"
 #include "forces.h"
+#include "polygon.h"
+#include "vector.h"
 #include <assert.h>
 #include <list.h>
 #include <math.h>
@@ -27,7 +27,8 @@ void find_perp_axis(list_t *shape, list_t *axes) {
 }
 
 bool test_intersecting_projections(vector_t p1, vector_t p2) {
-  if ((p1.x <= p2.x && p1.y >= p2.x) || (p2.x >= p1.x && p2.y <= p1.y) || (p1.x <= p2.y && p1.y >= p2.y) || (p2.x <= p1.x && p2.y >= p1.x)) {
+  if ((p1.x <= p2.x && p1.y >= p2.x) || (p2.x >= p1.x && p2.y <= p1.y) ||
+      (p1.x <= p2.y && p1.y >= p2.y) || (p2.x <= p1.x && p2.y >= p1.x)) {
     return true;
   }
   return false;
@@ -50,11 +51,11 @@ vector_t get_projection(list_t *shape, vector_t *axis) {
 }
 
 double calculate_overlap(vector_t p1, vector_t p2) {
-    if (p1.x < p2.x) {
-        return fabs(p2.x - p1.y);
-    } else {
-        return fabs(p1.x - p2.y);
-    }
+  if (p1.x < p2.x) {
+    return fabs(p2.x - p1.y);
+  } else {
+    return fabs(p1.x - p2.y);
+  }
 }
 
 collision_info_t find_collision(list_t *shape1, list_t *shape2) {
@@ -76,7 +77,7 @@ collision_info_t find_collision(list_t *shape1, list_t *shape2) {
       return collision;
     } else {
       double overlap = calculate_overlap(get_projection(shape1, curr_axis),
-                                       get_projection(shape2, curr_axis));
+                                         get_projection(shape2, curr_axis));
       if (overlap < least_overlap) {
         least_overlap = overlap;
         collision.axis = *curr_axis;

@@ -294,9 +294,8 @@ state_t *emscripten_init() {
       list_t *space_invader = make_invader(center, INVADER_RADIUS);
       int *type = malloc(sizeof(int));
       *type = INVADER_TYPE;
-      body_t *invader =
-          body_init_with_info(space_invader, INVADER_MASS, INVADER_COLOR, type,
-                              (free_func_t)free);
+      body_t *invader = body_init_with_info(
+          space_invader, INVADER_MASS, INVADER_COLOR, type, (free_func_t)free);
       body_set_velocity(invader, (vector_t){INVADER_VELOCITY, 0});
       scene_add_body(state->scene, invader);
     }
@@ -312,10 +311,9 @@ void spawn_invader_bullet(state_t *state) {
     bullet_corner.y -= INVADER_RADIUS / 4;
     list_t *bullet = make_bullet(bullet_corner);
     int *type = malloc(sizeof(int));
-    *type = BULLET_TYPE; 
-    body_t *invader_bullet =
-        body_init_with_info(bullet, BULLET_MASS, INVADER_BULLET_COLOR, type,
-                            (free_func_t)free);
+    *type = BULLET_TYPE;
+    body_t *invader_bullet = body_init_with_info(
+        bullet, BULLET_MASS, INVADER_BULLET_COLOR, type, (free_func_t)free);
     body_set_velocity(invader_bullet, (vector_t){0, -1 * BULLET_VELOCITY});
     scene_add_body(state->scene, invader_bullet);
     create_destructive_collision(state->scene, scene_get_body(state->scene, 0),

@@ -1,7 +1,7 @@
+#include "forces.h"
 #include "body.h"
 #include "collision.h"
 #include "scene.h"
-#include "forces.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -126,21 +126,27 @@ void create_drag(scene_t *scene, double gamma, body_t *body) {
                                  (free_func_t)free);
 }
 
-void destructive_collision_handler(body_t *body1, body_t *body2, vector_t axis, void *aux) {
+void destructive_collision_handler(body_t *body1, body_t *body2, vector_t axis,
+                                   void *aux) {
   body_remove(body1);
   body_remove(body2);
 }
 
-void partial_destructive_collision_handler(body_t *body1, body_t *body2, vector_t axis, void *aux) {
+void partial_destructive_collision_handler(body_t *body1, body_t *body2,
+                                           vector_t axis, void *aux) {
   body_remove(body2);
 }
 
-void create_destructive_collision(scene_t *scene, body_t *body1, body_t *body2) {
-  create_collision(scene, body1, body2, destructive_collision_handler, NULL, (free_func_t)free);
+void create_destructive_collision(scene_t *scene, body_t *body1,
+                                  body_t *body2) {
+  create_collision(scene, body1, body2, destructive_collision_handler, NULL,
+                   (free_func_t)free);
 }
 
-void create_partial_destructive_collision(scene_t *scene, body_t *body1, body_t *body2) {
-  create_collision(scene, body1, body2, partial_destructive_collision_handler, NULL, (free_func_t)free);
+void create_partial_destructive_collision(scene_t *scene, body_t *body1,
+                                          body_t *body2) {
+  create_collision(scene, body1, body2, partial_destructive_collision_handler,
+                   NULL, (free_func_t)free);
 }
 
 void impulse_handler(body_t *body1, body_t *body2, vector_t axis, void *aux) {
@@ -165,9 +171,9 @@ void impulse_handler(body_t *body1, body_t *body2, vector_t axis, void *aux) {
 
   // find difference of centroids, take dot product of this with collision axis
   // if positive, then ok, otherwise negate
-  // vector_t diff = vec_subtract(body_get_centroid(body1), body_get_centroid(body2));
-  // double dotprod = vec_dot(impulse, diff);
-  // if (dotprod < 0) {
+  // vector_t diff = vec_subtract(body_get_centroid(body1),
+  // body_get_centroid(body2)); double dotprod = vec_dot(impulse, diff); if
+  // (dotprod < 0) {
   //   impulse = vec_negate(impulse);
   // }
 
@@ -185,7 +191,8 @@ void custom_forcer(store_force_t *storage) {
   //   return;
   // }
 
-  collision_info_t collision_info = find_collision(body_get_shape(body1), body_get_shape(body2));
+  collision_info_t collision_info =
+      find_collision(body_get_shape(body1), body_get_shape(body2));
 
   if (collision_info.collided == false) {
     storage->just_collided = false;
@@ -202,13 +209,17 @@ void custom_forcer(store_force_t *storage) {
   handler(body1, body2, collision_info.axis, aux);
 }
 
-void create_physics_collision(scene_t *scene, double elasticity, body_t *body1, body_t *body2) {
+void create_physics_collision(scene_t *scene, double elasticity, body_t *body1,
+                              body_t *body2) {
   double *constant = malloc(sizeof(double));
   *constant = elasticity;
-  create_collision(scene, body1, body2, impulse_handler, constant, (free_func_t)free);
+  create_collision(scene, body1, body2, impulse_handler, constant,
+                   (free_func_t)free);
 }
 
-void create_collision(scene_t *scene, body_t *body1, body_t *body2, collision_handler_t handler, void *aux, free_func_t freer) {
+void create_collision(scene_t *scene, body_t *body1, body_t *body2,
+                      collision_handler_t handler, void *aux,
+                      free_func_t freer) {
   store_force_t *storage = malloc(sizeof(store_force_t));
   storage->bodies = list_init(2, NULL);
   list_add(storage->bodies, body1);

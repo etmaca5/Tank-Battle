@@ -1,7 +1,7 @@
 #include "tank.h"
+#include "body.h"
 #include "color.h"
 #include "list.h"
-#include "body.h"
 #include "polygon.h"
 #include "sdl_wrapper.h"
 #include <assert.h>
@@ -61,7 +61,7 @@ tank_t *init_default_tank(vector_t center, double side_length,
   size_t *type = malloc(sizeof(size_t));
   *type = tank_type;
   tank->body = body_init_with_info(tank_points, mass, color, type,
-                                    (free_func_t)body_free);
+                                   (free_func_t)body_free);
   tank->health = max_health;
   tank->rotation = 0.0;
   tank->length = side_length;
@@ -74,14 +74,29 @@ tank_t *init_default_tank(vector_t center, double side_length,
   return tank;
 }
 
-body_t *tank_get_body(tank_t *tank){
-    return tank->body;
+body_t *tank_get_body(tank_t *tank) { return tank->body; }
+
+list_t *tank_get_shape(tank_t *tank) { return body_get_shape(tank->body); }
+
+void tank_free(tank_t *tank) {
+  // to be implemented
 }
 
-list_t *tank_get_shape(tank_t *tank){
-    return body_get_shape(tank->body);
+void tank_set_velocity(tank_t *tank, vector_t vel){
+    vector_t *vel_new = malloc(sizeof(vector_t));
+    assert(vel_new != NULL);
+    *vel_new = vel;
+    tank->velocity = vel_new;
+}
+vector_t* tank_get_velocity(tank_t *tank, vector_t vel){
+    return tank->velocity;
 }
 
-void tank_free(tank_t *tank){
-    //to be implemented
+void tank_damage_health(tank_t *tank, double damage){
+    double original_health = tank->health;
+    tank->health = original_health - damage;
 }
+double tank_get_health(tank_t *tank){
+    return tank->health;
+}
+

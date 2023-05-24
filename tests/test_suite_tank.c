@@ -19,9 +19,7 @@ double DEFAULT_ROTATION_SPEED = M_PI / 8;
 // star (from star_init)
 
 // this also tests star_init and star_free
-void test_make_tank() {
-  
-}
+void test_make_tank() {}
 
 int main(int argc, char *argv[]) {
   // Run all tests? True if there are no command-line arguments

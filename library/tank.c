@@ -11,9 +11,7 @@
 typedef struct tank {
   body_t *body;
   size_t type;
-  vector_t *velocity;
   double length;
-  double rotation;
   double health;
 } tank_t;
 
@@ -37,39 +35,32 @@ tank_t *init_default_tank(vector_t center, double side_length,
   assert(point1 != NULL);
   point1->x = center.x + side_length / 2;
   point1->y = center.y + side_length / 2;
-  ;
+  
   list_add(tank_points, point1);
   vector_t *point2 = malloc(sizeof(vector_t));
   assert(point2 != NULL);
   point2->x = center.x - side_length / 2;
   point2->y = center.y + side_length / 2;
-  ;
+  
   list_add(tank_points, point2);
   vector_t *point3 = malloc(sizeof(vector_t));
   assert(point3 != NULL);
   point3->x = center.x - side_length / 2;
   point3->y = center.y - side_length / 2;
-  ;
+  
   list_add(tank_points, point3);
   vector_t *point4 = malloc(sizeof(vector_t));
   assert(point4 != NULL);
   point4->x = center.x + side_length / 2;
   point4->y = center.y - side_length / 2;
-  ;
   list_add(tank_points, point4);
 
   size_t *type = malloc(sizeof(size_t));
   *type = tank_type;
   tank->body = body_init_with_info(tank_points, mass, color, type,
-                                   (free_func_t)body_free);
+                                   (free_func_t)free);
   tank->health = max_health;
-  tank->rotation = 0.0;
   tank->length = side_length;
-
-  vector_t *vel = malloc(sizeof(vector_t));
-  assert(vel != NULL);
-  *vel = VEC_ZERO;
-  tank->velocity = vel;
   tank->type = tank_type;
   return tank;
 }
@@ -79,24 +70,19 @@ body_t *tank_get_body(tank_t *tank) { return tank->body; }
 list_t *tank_get_shape(tank_t *tank) { return body_get_shape(tank->body); }
 
 void tank_free(tank_t *tank) {
-  // to be implemented
+  body_free(tank->body);
+  free(tank);
 }
 
-void tank_set_velocity(tank_t *tank, vector_t vel){
-    vector_t *vel_new = malloc(sizeof(vector_t));
-    assert(vel_new != NULL);
-    *vel_new = vel;
-    tank->velocity = vel_new;
+void tank_set_velocity(tank_t *tank, vector_t vel) {
+  body_set_velocity(tank->body, vel);
 }
-vector_t* tank_get_velocity(tank_t *tank, vector_t vel){
-    return tank->velocity;
+vector_t tank_get_velocity(tank_t *tank) {
+  return body_get_velocity(tank->body);
 }
 
-void tank_damage_health(tank_t *tank, double damage){
-    double original_health = tank->health;
-    tank->health = original_health - damage;
+void tank_damage_health(tank_t *tank, double damage) {
+  double original_health = tank->health;
+  tank->health = original_health - damage;
 }
-double tank_get_health(tank_t *tank){
-    return tank->health;
-}
-
+double tank_get_health(tank_t *tank) { return tank->health; }

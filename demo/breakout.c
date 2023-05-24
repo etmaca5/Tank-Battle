@@ -158,25 +158,25 @@ void add_walls(scene_t *scene) {
   vector_t corner1 = {-WALL_WIDTH, WALL_HEIGHT};
   list_t *wall1_points = make_rectangle(corner1, WALL_WIDTH, WALL_HEIGHT);
   body_t *wall1 = body_init_with_info(wall1_points, WALL_MASS, WALL_COLOR, type,
-                                      (free_func_t)body_free);
+                                      (free_func_t)free);
   scene_add_body(scene, wall1);
 
   vector_t corner2 = {0.0, WALL_HEIGHT + WALL_WIDTH};
   list_t *wall2_points = make_rectangle(corner2, MAX_WIDTH, WALL_WIDTH);
   body_t *wall2 = body_init_with_info(wall2_points, WALL_MASS, WALL_COLOR, type,
-                                      (free_func_t)body_free);
+                                      (free_func_t)free);
   scene_add_body(scene, wall2);
 
   vector_t corner3 = {MAX_WIDTH, WALL_HEIGHT};
   list_t *wall3_points = make_rectangle(corner3, WALL_WIDTH, WALL_HEIGHT);
   body_t *wall3 = body_init_with_info(wall3_points, WALL_MASS, WALL_COLOR, type,
-                                      (free_func_t)body_free);
+                                      (free_func_t)free);
   scene_add_body(scene, wall3);
 
   vector_t corner4 = {0.0, -WALL_WIDTH};
   list_t *wall4_points = make_rectangle(corner4, MAX_WIDTH, WALL_WIDTH);
   body_t *wall4 = body_init_with_info(wall4_points, WALL_MASS, WALL_COLOR, type,
-                                      (free_func_t)body_free);
+                                      (free_func_t)free);
   scene_add_body(scene, wall4);
 }
 

@@ -6,6 +6,16 @@
 
 typedef struct tank tank_t;
 
+tank_t *init_default_tank(vector_t center, double side_length,
+                          vector_t velocity, double mass, rgb_color_t color,
+                          double max_health, size_t tank_type); 
+
+
+body_t *tank_get_body(tank_t *tank);
+
+list_t *tank_get_shape(tank_t *tank);
+
+void tank_free(tank_t *tank);
 
 
 #endif // #ifndef __STAR_H__

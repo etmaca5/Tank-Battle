@@ -6,6 +6,7 @@ demo/damping.c
 demo/spaceinvaders.c
 demo/pegs.c
 demo/breakout.c
+demo/game.c
 include/sdl_wrapper.h
 include/vector.h
 include/polygon.h

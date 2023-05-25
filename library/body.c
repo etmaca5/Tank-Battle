@@ -75,6 +75,8 @@ list_t *body_get_shape(body_t *body) {
 
 vector_t body_get_centroid(body_t *body) { return body->centroid; }
 
+double body_get_rotation(body_t *body) { return body->rotation; }
+
 vector_t body_get_velocity(body_t *body) { return body->velocity; }
 
 vector_t body_get_force(body_t *body) { return body->force; }

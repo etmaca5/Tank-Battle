@@ -72,6 +72,14 @@ vector_t body_get_centroid(body_t *body);
 vector_t body_get_velocity(body_t *body);
 
 /**
+ * Gets the current rotation of a body.
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @return the body's rotation angle
+ */
+double body_get_rotation(body_t *body);
+
+/**
  * Gets the mass of a body.
  *
  * @param body a pointer to a body returned from body_init()

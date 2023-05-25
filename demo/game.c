@@ -9,6 +9,7 @@
 #include "star.h"
 #include "state.h"
 #include "tank.h"
+#include "map.h"
 #include "vector.h"
 #include <assert.h>
 #include <math.h>
@@ -30,7 +31,7 @@ double DEFAULT_TANK_STARTING_HEALTH = 100.0;
 double DEFAULT_TANK_SIDE_LENGTH = 80.0;
 double DEFAULT_TANK_MASS = 100.0;
 
-rgb_color_t PLAYER1_COLOR = {0.5, 0.5, 0.5};
+rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
 
 typedef struct state {
@@ -73,7 +74,8 @@ state_t *emscripten_init() {
   assert(state != NULL);
   state->scene = scene_init();
 
-  vector_t player1_start = (vector_t){MAX_WIDTH_GAME / 6, MAX_HEIGHT_GAME / 2};
+  map_init(state->scene);
+  vector_t player1_start = (vector_t){MAX_WIDTH_GAME / 6, MAX_HEIGHT_GAME - 300.0};
   vector_t player2_start =
       (vector_t){MAX_WIDTH_GAME * 5 / 6, MAX_HEIGHT_GAME / 2};
   // can channge it to choose the type of tank later
@@ -85,6 +87,7 @@ state_t *emscripten_init() {
       PLAYER2_COLOR, DEFAULT_TANK_STARTING_HEALTH, DEFAULT_TANK_TYPE);
   scene_add_body(state->scene, tank_get_body(player1));
   scene_add_body(state->scene, tank_get_body(player2));
+
   return state;
 }
 

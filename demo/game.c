@@ -39,119 +39,137 @@ typedef struct state {
   double time;
 } state_t;
 
-void handler(char key, key_event_type_t type, double held_time,
+void handler1(char key, key_event_type_t type, double held_time,
              state_t *state) {
   body_t *player1 = scene_get_body(state->scene, (size_t)0);
-  body_t *player2 = scene_get_body(state->scene, (size_t)1);
 
   if (type == KEY_PRESSED) {
     switch (key) {
-    case UP_ARROW: {
-      vector_t up_vel = {
-          cos(body_get_rotation(player1)) * DEFAULT_TANK_VELOCITY,
-          sin(body_get_rotation(player1)) * DEFAULT_TANK_VELOCITY};
-      body_set_velocity(player1, up_vel);
-      break;
-    }
-    case DOWN_ARROW: {
-      vector_t down_vel = {
-          cos(body_get_rotation(player1)) * -DEFAULT_TANK_VELOCITY,
-          sin(body_get_rotation(player1)) * -DEFAULT_TANK_VELOCITY};
-      body_set_velocity(player1, down_vel);
-      break;
-    }
-    case RIGHT_ARROW: {
-      double curr_vel_x =
-          body_get_velocity(player1).x / cos(body_get_rotation(player1));
-      double curr_vel_y =
-          body_get_velocity(player1).y / sin(body_get_rotation(player1));
-      body_set_rotation(player1, body_get_rotation(player1) - M_PI / 45);
-      if (body_get_velocity(player1).x != 0 &&
-          body_get_velocity(player1).y != 0) {
-        vector_t vel = {cos(body_get_rotation(player1)) * curr_vel_x,
-                        sin(body_get_rotation(player1)) * curr_vel_y};
-        body_set_velocity(player1, vel);
+      case UP_ARROW: {
+        vector_t up_vel = {
+            cos(body_get_rotation(player1)) * DEFAULT_TANK_VELOCITY,
+            sin(body_get_rotation(player1)) * DEFAULT_TANK_VELOCITY};
+        body_set_velocity(player1, up_vel);
+        break;
       }
-      break;
-    }
-    case LEFT_ARROW: {
-      double curr_vel_x =
-          body_get_velocity(player1).x / cos(body_get_rotation(player1));
-      double curr_vel_y =
-          body_get_velocity(player1).y / sin(body_get_rotation(player1));
-      body_set_rotation(player1, body_get_rotation(player1) + M_PI / 45);
-      if (body_get_velocity(player1).x != 0 &&
-          body_get_velocity(player1).y != 0) {
-        vector_t vel = {cos(body_get_rotation(player1)) * curr_vel_x,
-                        sin(body_get_rotation(player1)) * curr_vel_y};
-        body_set_velocity(player1, vel);
+      case DOWN_ARROW: {
+        vector_t down_vel = {
+            cos(body_get_rotation(player1)) * -DEFAULT_TANK_VELOCITY,
+            sin(body_get_rotation(player1)) * -DEFAULT_TANK_VELOCITY};
+        body_set_velocity(player1, down_vel);
+        break;
       }
-      break;
-    }
-    case 'w': {
-      vector_t up_vel = {
-          cos(body_get_rotation(player2)) * DEFAULT_TANK_VELOCITY,
-          sin(body_get_rotation(player2)) * DEFAULT_TANK_VELOCITY};
-      body_set_velocity(player2, up_vel);
-      break;
-    }
-    case 's': {
-      vector_t down_vel = {
-          cos(body_get_rotation(player2)) * -DEFAULT_TANK_VELOCITY,
-          sin(body_get_rotation(player2)) * -DEFAULT_TANK_VELOCITY};
-      body_set_velocity(player2, down_vel);
-      break;
-    }
-    case 'd': {
-      double curr_vel_x =
-          body_get_velocity(player2).x / cos(body_get_rotation(player2));
-      double curr_vel_y =
-          body_get_velocity(player2).y / sin(body_get_rotation(player2));
-      body_set_rotation(player2, body_get_rotation(player2) - M_PI / 45);
-      if (body_get_velocity(player2).x != 0 &&
-          body_get_velocity(player2).y != 0) {
-        vector_t vel = {cos(body_get_rotation(player2)) * curr_vel_x,
-                        sin(body_get_rotation(player2)) * curr_vel_y};
-        body_set_velocity(player2, vel);
+      case RIGHT_ARROW: {
+        double curr_vel_x =
+            body_get_velocity(player1).x / cos(body_get_rotation(player1));
+        double curr_vel_y =
+            body_get_velocity(player1).y / sin(body_get_rotation(player1));
+        body_set_rotation(player1, body_get_rotation(player1) - M_PI / 45);
+        if (body_get_velocity(player1).x != 0 &&
+            body_get_velocity(player1).y != 0) {
+          vector_t vel = {cos(body_get_rotation(player1)) * curr_vel_x,
+                          sin(body_get_rotation(player1)) * curr_vel_y};
+          body_set_velocity(player1, vel);
+        }
+        break;
       }
-      break;
-    }
-    case 'a': {
-      double curr_vel_x =
-          body_get_velocity(player2).x / cos(body_get_rotation(player2));
-      double curr_vel_y =
-          body_get_velocity(player2).y / sin(body_get_rotation(player2));
-      body_set_rotation(player2, body_get_rotation(player2) + M_PI / 45);
-      if (body_get_velocity(player2).x != 0 &&
-          body_get_velocity(player2).y != 0) {
-        vector_t vel = {cos(body_get_rotation(player2)) * curr_vel_x,
-                        sin(body_get_rotation(player2)) * curr_vel_y};
-        body_set_velocity(player2, vel);
+      case LEFT_ARROW: {
+        double curr_vel_x =
+            body_get_velocity(player1).x / cos(body_get_rotation(player1));
+        double curr_vel_y =
+            body_get_velocity(player1).y / sin(body_get_rotation(player1));
+        body_set_rotation(player1, body_get_rotation(player1) + M_PI / 45);
+        if (body_get_velocity(player1).x != 0 &&
+            body_get_velocity(player1).y != 0) {
+          vector_t vel = {cos(body_get_rotation(player1)) * curr_vel_x,
+                          sin(body_get_rotation(player1)) * curr_vel_y};
+          body_set_velocity(player1, vel);
+        }
+        break;
       }
-      break;
-    }
     }
   }
   if (type == KEY_RELEASED) {
     switch (key) {
-    case UP_ARROW: {
-      body_set_velocity(player1, VEC_ZERO);
-      break;
-    }
-    case DOWN_ARROW: {
-      body_set_velocity(player1, VEC_ZERO);
-      break;
-    }
-    case 'w': {
-      body_set_velocity(player2, VEC_ZERO);
-      break;
-    }
-    case 's': {
-      body_set_velocity(player2, VEC_ZERO);
-      break;
-    }
+      case UP_ARROW: {
+        body_set_velocity(player1, VEC_ZERO);
+        break;
+      }
+      case DOWN_ARROW: {
+        body_set_velocity(player1, VEC_ZERO);
+        break;
+      }
     }
   }
+}
+
+void handler2(char key, key_event_type_t type, double held_time,
+             state_t *state) {
+  body_t *player2 = scene_get_body(state->scene, (size_t)1);
+
+  if (type == KEY_PRESSED) {
+    switch (key) {
+      case 'w': {
+        vector_t up_vel = {
+            cos(body_get_rotation(player2)) * DEFAULT_TANK_VELOCITY,
+            sin(body_get_rotation(player2)) * DEFAULT_TANK_VELOCITY};
+        body_set_velocity(player2, up_vel);
+        break;
+      }
+      case 's': {
+        vector_t down_vel = {
+            cos(body_get_rotation(player2)) * -DEFAULT_TANK_VELOCITY,
+            sin(body_get_rotation(player2)) * -DEFAULT_TANK_VELOCITY};
+        body_set_velocity(player2, down_vel);
+        break;
+      }
+      case 'd': {
+        double curr_vel_x =
+            body_get_velocity(player2).x / cos(body_get_rotation(player2));
+        double curr_vel_y =
+            body_get_velocity(player2).y / sin(body_get_rotation(player2));
+        body_set_rotation(player2, body_get_rotation(player2) - M_PI / 45);
+        if (body_get_velocity(player2).x != 0 &&
+            body_get_velocity(player2).y != 0) {
+          vector_t vel = {cos(body_get_rotation(player2)) * curr_vel_x,
+                          sin(body_get_rotation(player2)) * curr_vel_y};
+          body_set_velocity(player2, vel);
+        }
+        break;
+      }
+      case 'a': {
+        double curr_vel_x =
+            body_get_velocity(player2).x / cos(body_get_rotation(player2));
+        double curr_vel_y =
+            body_get_velocity(player2).y / sin(body_get_rotation(player2));
+        body_set_rotation(player2, body_get_rotation(player2) + M_PI / 45);
+        if (body_get_velocity(player2).x != 0 &&
+            body_get_velocity(player2).y != 0) {
+          vector_t vel = {cos(body_get_rotation(player2)) * curr_vel_x,
+                          sin(body_get_rotation(player2)) * curr_vel_y};
+          body_set_velocity(player2, vel);
+        }
+        break;
+      }
+    }
+  }
+  if (type == KEY_RELEASED) {
+    switch (key) {
+      case 'w': {
+        body_set_velocity(player2, VEC_ZERO);
+        break;
+      }
+      case 's': {
+        body_set_velocity(player2, VEC_ZERO);
+        break;
+      }
+    }
+  }
+}
+
+void handler(char key, key_event_type_t type, double held_time, state_t *state) {
+  handler1(key, type, held_time, state);
+  handler2(key, type, held_time, state);
 }
 
 state_t *emscripten_init() {

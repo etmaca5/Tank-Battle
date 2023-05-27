@@ -173,6 +173,7 @@ state_t *emscripten_init() {
   tank_t *player2 = init_default_tank(
       player2_start, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
       PLAYER2_COLOR, DEFAULT_TANK_STARTING_HEALTH, DEFAULT_TANK_TYPE);
+  body_set_rotation(tank_get_body(player2), M_PI);
   scene_add_body(state->scene, tank_get_body(player1));
   scene_add_body(state->scene, tank_get_body(player2));
   map_init(state->scene);

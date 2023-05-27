@@ -121,6 +121,8 @@ void body_set_centroid(body_t *body, vector_t x);
  */
 void body_set_velocity(body_t *body, vector_t v);
 
+void body_set_rotation_speed(body_t *body, double w);
+
 /**
  * Changes a body's orientation in the plane.
  * The body is rotated about its center of mass.

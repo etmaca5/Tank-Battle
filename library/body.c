@@ -16,6 +16,7 @@ typedef struct body {
   vector_t velocity;
   vector_t centroid;
   double rotation;
+  double rotation_speed;
   rgb_color_t color;
   vector_t force;
   vector_t impulse;
@@ -32,6 +33,7 @@ body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
   body->centroid = polygon_centroid(shape);
   body->color = color;
   body->rotation = 0.0;
+  body->rotation_speed = 0.0;
   body->mass = mass;
   body->force = VEC_ZERO;
   body->impulse = VEC_ZERO;
@@ -98,6 +100,8 @@ void body_set_impulse(body_t *body, vector_t v) { body->impulse = v; }
 
 void body_set_velocity(body_t *body, vector_t v) { body->velocity = v; }
 
+void body_set_rotation_speed(body_t *body, double w) { body->rotation_speed = w; }
+
 void body_set_rotation(body_t *body, double angle) {
   polygon_rotate(body->shape, -1 * body->rotation, body->centroid);
   polygon_rotate(body->shape, angle, body->centroid);
@@ -130,6 +134,9 @@ void body_tick(body_t *body, double dt) {
   vector_t translation = {dt * (average.x), dt * (average.y)};
   polygon_translate(body->shape, translation);
   body->centroid = polygon_centroid(body->shape);
+
+  double change_in_rotation = dt * body->rotation_speed;
+  body_set_rotation(body, body->rotation + change_in_rotation);
 
   // resets impulse and force
   body_set_force(body, VEC_ZERO);

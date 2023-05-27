@@ -30,6 +30,7 @@ double DEFAULT_TANK_VELOCITY = 100.0;
 double DEFAULT_TANK_STARTING_HEALTH = 100.0;
 double DEFAULT_TANK_SIDE_LENGTH = 80.0;
 double DEFAULT_TANK_MASS = 100.0;
+double DEFAULT_TANK_ROTATION_SPEED = M_PI / 2;
 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
@@ -60,31 +61,11 @@ void handler1(char key, key_event_type_t type, double held_time,
       break;
     }
     case RIGHT_ARROW: {
-      double curr_vel_x =
-          body_get_velocity(player1).x / cos(body_get_rotation(player1));
-      double curr_vel_y =
-          body_get_velocity(player1).y / sin(body_get_rotation(player1));
-      body_set_rotation(player1, body_get_rotation(player1) - M_PI / 45);
-      if (body_get_velocity(player1).x != 0 &&
-          body_get_velocity(player1).y != 0) {
-        vector_t vel = {cos(body_get_rotation(player1)) * curr_vel_x,
-                        sin(body_get_rotation(player1)) * curr_vel_y};
-        body_set_velocity(player1, vel);
-      }
+      body_set_rotation_speed(player1, -DEFAULT_TANK_ROTATION_SPEED);
       break;
     }
     case LEFT_ARROW: {
-      double curr_vel_x =
-          body_get_velocity(player1).x / cos(body_get_rotation(player1));
-      double curr_vel_y =
-          body_get_velocity(player1).y / sin(body_get_rotation(player1));
-      body_set_rotation(player1, body_get_rotation(player1) + M_PI / 45);
-      if (body_get_velocity(player1).x != 0 &&
-          body_get_velocity(player1).y != 0) {
-        vector_t vel = {cos(body_get_rotation(player1)) * curr_vel_x,
-                        sin(body_get_rotation(player1)) * curr_vel_y};
-        body_set_velocity(player1, vel);
-      }
+      body_set_rotation_speed(player1, DEFAULT_TANK_ROTATION_SPEED);
       break;
     }
     }
@@ -97,6 +78,14 @@ void handler1(char key, key_event_type_t type, double held_time,
     }
     case DOWN_ARROW: {
       body_set_velocity(player1, VEC_ZERO);
+      break;
+    }
+    case RIGHT_ARROW: {
+      body_set_rotation_speed(player1, 0.0);
+      break;
+    }
+    case LEFT_ARROW: {
+      body_set_rotation_speed(player1, 0.0);
       break;
     }
     }
@@ -124,31 +113,11 @@ void handler2(char key, key_event_type_t type, double held_time,
       break;
     }
     case 'd': {
-      double curr_vel_x =
-          body_get_velocity(player2).x / cos(body_get_rotation(player2));
-      double curr_vel_y =
-          body_get_velocity(player2).y / sin(body_get_rotation(player2));
-      body_set_rotation(player2, body_get_rotation(player2) - M_PI / 45);
-      if (body_get_velocity(player2).x != 0 &&
-          body_get_velocity(player2).y != 0) {
-        vector_t vel = {cos(body_get_rotation(player2)) * curr_vel_x,
-                        sin(body_get_rotation(player2)) * curr_vel_y};
-        body_set_velocity(player2, vel);
-      }
+      body_set_rotation_speed(player2, -DEFAULT_TANK_ROTATION_SPEED);
       break;
     }
     case 'a': {
-      double curr_vel_x =
-          body_get_velocity(player2).x / cos(body_get_rotation(player2));
-      double curr_vel_y =
-          body_get_velocity(player2).y / sin(body_get_rotation(player2));
-      body_set_rotation(player2, body_get_rotation(player2) + M_PI / 45);
-      if (body_get_velocity(player2).x != 0 &&
-          body_get_velocity(player2).y != 0) {
-        vector_t vel = {cos(body_get_rotation(player2)) * curr_vel_x,
-                        sin(body_get_rotation(player2)) * curr_vel_y};
-        body_set_velocity(player2, vel);
-      }
+      body_set_rotation_speed(player2, DEFAULT_TANK_ROTATION_SPEED);
       break;
     }
     }
@@ -161,6 +130,14 @@ void handler2(char key, key_event_type_t type, double held_time,
     }
     case 's': {
       body_set_velocity(player2, VEC_ZERO);
+      break;
+    }
+    case 'a': {
+      body_set_rotation_speed(player2, 0.0);
+      break;
+    }
+    case 'd': {
+      body_set_rotation_speed(player2, 0.0);
       break;
     }
     }

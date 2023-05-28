@@ -108,6 +108,20 @@ void handler1(char key, key_event_type_t type, double held_time,
       body_set_rotation_empty(bullet, body_get_rotation(player1));
       body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
       scene_add_body(state->scene, bullet);
+
+      // create collision with tanks
+      create_partial_destructive_collision(state->scene, scene_get_body(state->scene, 0), bullet);
+      create_partial_destructive_collision(state->scene, scene_get_body(state->scene, 1), bullet);
+
+      // create collision with walls and other bullets
+      for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {
+        body_t *body = scene_get_body(state->scene, i);
+        if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
+          create_destructive_collision(state->scene, body, bullet);
+        } else if (*(size_t *)body_get_info(body) == 3 || *(size_t *)body_get_info(body) == 4) {
+          create_physics_collision(state->scene, 1.0, bullet, body);
+        }
+      }
     }
     }
   }

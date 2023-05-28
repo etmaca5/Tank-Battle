@@ -114,6 +114,10 @@ void body_set_rotation(body_t *body, double angle) {
   body->rotation = angle;
 }
 
+void body_set_rotation_empty(body_t *body, double rotation) {
+  body->rotation = rotation;
+}
+
 void body_combine_mass(body_t *body1, body_t *body2) {
   body1->mass = body1->mass + body2->mass;
 }
@@ -145,6 +149,11 @@ void body_tick(body_t *body, double dt) {
   body_set_rotation(body, body->rotation + change_in_rotation);
   if (body->magnitude != 0) {
     body->velocity = vec_multiply(body->magnitude, (vector_t){cos(body_get_rotation(body)), sin(body_get_rotation(body))});
+  }
+
+  if (*(size_t *)body_get_info(body) == 1) {
+    double angle = atan(body->velocity.y/body->velocity.x);
+    body_set_rotation(body, angle);
   }
 
   // resets impulse and force

@@ -103,6 +103,8 @@ rgb_color_t body_get_color(body_t *body);
  */
 void *body_get_info(body_t *body);
 
+double body_get_magnitude(body_t *);
+
 void body_combine_mass(body_t *body1, body_t *body2);
 /**
  * Translates a body to a new position.
@@ -122,6 +124,8 @@ void body_set_centroid(body_t *body, vector_t x);
 void body_set_velocity(body_t *body, vector_t v);
 
 void body_set_rotation_speed(body_t *body, double w);
+
+void body_set_magnitude(body_t *body, double magnitude);
 
 /**
  * Changes a body's orientation in the plane.

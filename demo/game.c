@@ -32,6 +32,11 @@ double DEFAULT_TANK_SIDE_LENGTH = 80.0;
 double DEFAULT_TANK_MASS = 100.0;
 double DEFAULT_TANK_ROTATION_SPEED = M_PI / 2;
 
+double BULLET_HEIGHT = 25.0;
+double BULLET_WIDTH = 10.0;
+double BULLET_MASS = 5.0;
+double BULLET_VELOCITY = 250.0;
+
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
 
@@ -40,6 +45,34 @@ typedef struct state {
   double time;
 } state_t;
 
+list_t *make_bullet(vector_t edge) {
+  list_t *shape = list_init(4, (free_func_t)free);
+  vector_t *point1 = malloc(sizeof(vector_t));
+  assert(point1 != NULL);
+  point1->x = edge.x;
+  point1->y = edge.y - BULLET_WIDTH / 2;
+  list_add(shape, point1);
+
+  vector_t *point2 = malloc(sizeof(vector_t));
+  assert(point2 != NULL);
+  point2->x = edge.x + BULLET_HEIGHT;
+  point2->y = edge.y - BULLET_WIDTH / 2;
+  list_add(shape, point2);
+
+  vector_t *point3 = malloc(sizeof(vector_t));
+  assert(point3 != NULL);
+  point3->x = edge.x + BULLET_HEIGHT;
+  point3->y = edge.y + BULLET_WIDTH / 2;
+  list_add(shape, point3);
+
+  vector_t *point4 = malloc(sizeof(vector_t));
+  assert(point4 != NULL);
+  point4->x = edge.x;
+  point4->y = edge.y + BULLET_WIDTH / 2;
+  list_add(shape, point4);
+  return shape;
+}
+
 void handler1(char key, key_event_type_t type, double held_time,
               state_t *state) {
   body_t *player1 = scene_get_body(state->scene, (size_t)0);
@@ -47,17 +80,11 @@ void handler1(char key, key_event_type_t type, double held_time,
   if (type == KEY_PRESSED) {
     switch (key) {
     case UP_ARROW: {
-      vector_t up_vel = {
-          cos(body_get_rotation(player1)) * DEFAULT_TANK_VELOCITY,
-          sin(body_get_rotation(player1)) * DEFAULT_TANK_VELOCITY};
-      body_set_velocity(player1, up_vel);
+      body_set_magnitude(player1, DEFAULT_TANK_VELOCITY);
       break;
     }
     case DOWN_ARROW: {
-      vector_t down_vel = {
-          cos(body_get_rotation(player1)) * -DEFAULT_TANK_VELOCITY,
-          sin(body_get_rotation(player1)) * -DEFAULT_TANK_VELOCITY};
-      body_set_velocity(player1, down_vel);
+      body_set_magnitude(player1, -DEFAULT_TANK_VELOCITY);
       break;
     }
     case RIGHT_ARROW: {
@@ -68,16 +95,31 @@ void handler1(char key, key_event_type_t type, double held_time,
       body_set_rotation_speed(player1, DEFAULT_TANK_ROTATION_SPEED);
       break;
     }
+    case SPACE: {
+      vector_t spawn_point = body_get_centroid(player1);
+      list_t *bullet_points = make_bullet(spawn_point);
+      polygon_rotate(bullet_points, body_get_rotation(player1), body_get_centroid(player1));
+      vector_t player_dir = {cos(body_get_rotation(player1)), sin(body_get_rotation(player1))};
+      vector_t move_up = vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2, player_dir);
+      polygon_translate(bullet_points, move_up);
+      int *type = malloc(sizeof(int));
+      *type = BULLET_TYPE;
+      body_t *bullet = body_init_with_info(bullet_points, BULLET_MASS, PLAYER1_COLOR, type, (free_func_t)free);
+      body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
+      scene_add_body(state->scene, bullet);
+    }
     }
   }
   if (type == KEY_RELEASED) {
     switch (key) {
     case UP_ARROW: {
       body_set_velocity(player1, VEC_ZERO);
+      body_set_magnitude(player1, 0.0);
       break;
     }
     case DOWN_ARROW: {
       body_set_velocity(player1, VEC_ZERO);
+      body_set_magnitude(player1, 0.0);
       break;
     }
     case RIGHT_ARROW: {
@@ -99,17 +141,11 @@ void handler2(char key, key_event_type_t type, double held_time,
   if (type == KEY_PRESSED) {
     switch (key) {
     case 'w': {
-      vector_t up_vel = {
-          cos(body_get_rotation(player2)) * DEFAULT_TANK_VELOCITY,
-          sin(body_get_rotation(player2)) * DEFAULT_TANK_VELOCITY};
-      body_set_velocity(player2, up_vel);
+      body_set_magnitude(player2, DEFAULT_TANK_VELOCITY);
       break;
     }
     case 's': {
-      vector_t down_vel = {
-          cos(body_get_rotation(player2)) * -DEFAULT_TANK_VELOCITY,
-          sin(body_get_rotation(player2)) * -DEFAULT_TANK_VELOCITY};
-      body_set_velocity(player2, down_vel);
+      body_set_magnitude(player2, -DEFAULT_TANK_VELOCITY);
       break;
     }
     case 'd': {
@@ -120,16 +156,31 @@ void handler2(char key, key_event_type_t type, double held_time,
       body_set_rotation_speed(player2, DEFAULT_TANK_ROTATION_SPEED);
       break;
     }
+    case 'r': {
+      vector_t spawn_point = body_get_centroid(player2);
+      list_t *bullet_points = make_bullet(spawn_point);
+      polygon_rotate(bullet_points, body_get_rotation(player2), body_get_centroid(player2));
+      vector_t player_dir = {cos(body_get_rotation(player2)), sin(body_get_rotation(player2))};
+      vector_t move_up = vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2, player_dir);
+      polygon_translate(bullet_points, move_up);
+      int *type = malloc(sizeof(int));
+      *type = BULLET_TYPE;
+      body_t *bullet = body_init_with_info(bullet_points, BULLET_MASS, PLAYER2_COLOR, type, (free_func_t)free);
+      body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
+      scene_add_body(state->scene, bullet);
+    }
     }
   }
   if (type == KEY_RELEASED) {
     switch (key) {
     case 'w': {
       body_set_velocity(player2, VEC_ZERO);
+      body_set_magnitude(player2, 0.0);
       break;
     }
     case 's': {
       body_set_velocity(player2, VEC_ZERO);
+      body_set_magnitude(player2, 0.0);
       break;
     }
     case 'a': {

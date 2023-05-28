@@ -23,6 +23,7 @@ typedef struct body {
   void *info;
   free_func_t freer;
   bool is_removed;
+  double magnitude;
 } body_t;
 
 body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
@@ -38,6 +39,7 @@ body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
   body->force = VEC_ZERO;
   body->impulse = VEC_ZERO;
   body->info = NULL;
+  body->magnitude = 0.0;
   body->freer = (free_func_t)free;
   body->is_removed = false;
   return body;
@@ -85,6 +87,8 @@ vector_t body_get_force(body_t *body) { return body->force; }
 
 vector_t body_get_impulse(body_t *body) { return body->impulse; }
 
+double body_get_magnitude(body_t *body) { return body->magnitude; };
+
 void *body_get_info(body_t *body) { return body->info; }
 
 rgb_color_t body_get_color(body_t *body) { return body->color; }
@@ -93,6 +97,8 @@ void body_set_centroid(body_t *body, vector_t x) {
   polygon_translate(body->shape, vec_subtract(x, body->centroid));
   body->centroid = x;
 }
+
+void body_set_magnitude(body_t *body, double magnitude) { body->magnitude = magnitude; }
 
 void body_set_force(body_t *body, vector_t v) { body->force = v; }
 
@@ -137,6 +143,9 @@ void body_tick(body_t *body, double dt) {
 
   double change_in_rotation = dt * body->rotation_speed;
   body_set_rotation(body, body->rotation + change_in_rotation);
+  if (body->magnitude != 0) {
+    body->velocity = vec_multiply(body->magnitude, (vector_t){cos(body_get_rotation(body)), sin(body_get_rotation(body))});
+  }
 
   // resets impulse and force
   body_set_force(body, VEC_ZERO);

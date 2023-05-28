@@ -17,8 +17,8 @@ double RIGHT_WALL = 1520.0;
 
 // obstacle stats 
 double OBSTACLE_MASS = INFINITY;
-int RECTANGLE_OBSTACLE = 0;
-int TRIANGLE_OBSTACLE = 1;
+size_t RECTANGLE_OBSTACLE = 3;
+size_t TRIANGLE_OBSTACLE = 4;
 rgb_color_t OBSTACLE_COLOR_1 = {0.76, 0.76, 0.76};
 rgb_color_t OBSTACLE_COLOR_2 = {0.35, 0.35, 0.35};
 rgb_color_t OBSTACLE_COLOR_3 = {0.57, 0.59, 0.60};

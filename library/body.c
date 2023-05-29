@@ -102,7 +102,9 @@ void body_set_centroid(body_t *body, vector_t x) {
   body->centroid = x;
 }
 
-void body_set_magnitude(body_t *body, double magnitude) { body->magnitude = magnitude; }
+void body_set_magnitude(body_t *body, double magnitude) {
+  body->magnitude = magnitude;
+}
 
 void body_set_force(body_t *body, vector_t v) { body->force = v; }
 
@@ -112,7 +114,9 @@ void body_set_velocity(body_t *body, vector_t v) { body->velocity = v; }
 
 void body_set_time(body_t *body, double time) { body->time = time; }
 
-void body_set_rotation_speed(body_t *body, double w) { body->rotation_speed = w; }
+void body_set_rotation_speed(body_t *body, double w) {
+  body->rotation_speed = w;
+}
 
 void body_set_rotation(body_t *body, double angle) {
   polygon_rotate(body->shape, -1 * body->rotation, body->centroid);
@@ -154,11 +158,13 @@ void body_tick(body_t *body, double dt) {
   double change_in_rotation = dt * body->rotation_speed;
   body_set_rotation(body, body->rotation + change_in_rotation);
   if (body->magnitude != 0) {
-    body->velocity = vec_multiply(body->magnitude, (vector_t){cos(body_get_rotation(body)), sin(body_get_rotation(body))});
+    body->velocity =
+        vec_multiply(body->magnitude, (vector_t){cos(body_get_rotation(body)),
+                                                 sin(body_get_rotation(body))});
   }
 
   if (*(size_t *)body_get_info(body) == 1) {
-    double angle = atan(body->velocity.y/body->velocity.x);
+    double angle = atan(body->velocity.y / body->velocity.x);
     body_set_rotation(body, angle);
   }
 

@@ -6,6 +6,12 @@
 #include "vector.h"
 #include <stdbool.h>
 
+extern const double BULLET_DAMAGE;
+extern const size_t WALL_TYPE;
+extern const size_t BULLET_TYPE;
+extern const size_t DEFAULT_TANK_TYPE;
+extern const size_t HEALTH_BAR_TYPE;
+
 /**
  * A rigid body constrained to the plane.
  * Implemented as a polygon with uniform density.
@@ -89,6 +95,8 @@ double body_get_mass(body_t *body);
 
 double body_get_time(body_t *body);
 
+double body_get_health(body_t *body);
+
 /**
  * Gets the display color of a body.
  *
@@ -125,9 +133,13 @@ void body_set_centroid(body_t *body, vector_t x);
  */
 void body_set_velocity(body_t *body, vector_t v);
 
+void body_set_shape(body_t *body, list_t *shape);
+
 void body_set_rotation_speed(body_t *body, double w);
 
 void body_set_magnitude(body_t *body, double magnitude);
+
+void body_set_health(body_t *body, double health);
 
 /**
  * Changes a body's orientation in the plane.

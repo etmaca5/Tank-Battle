@@ -134,6 +134,9 @@ void destructive_collision_handler(body_t *body1, body_t *body2, vector_t axis,
 
 void partial_destructive_collision_handler(body_t *body1, body_t *body2,
                                            vector_t axis, void *aux) {
+  if (*(size_t *)body_get_info(body2) == BULLET_TYPE) {
+    body_set_health(body1, body_get_health(body1) - BULLET_DAMAGE);
+  }
   body_remove(body2);
 }
 

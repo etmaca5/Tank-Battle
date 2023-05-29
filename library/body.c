@@ -10,6 +10,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+const size_t WALL_TYPE = 0;
+const size_t BULLET_TYPE = 1;
+const size_t DEFAULT_TANK_TYPE = 2;
+const size_t HEALTH_BAR_TYPE = 5;
+const double BULLET_DAMAGE = 10.0;
+
 typedef struct body {
   double mass;
   list_t *shape;
@@ -25,6 +31,7 @@ typedef struct body {
   bool is_removed;
   double magnitude;
   double time;
+  double health;
 } body_t;
 
 body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
@@ -44,6 +51,7 @@ body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
   body->freer = (free_func_t)free;
   body->is_removed = false;
   body->time = INFINITY;
+  body->health = 10.0;
   return body;
 }
 
@@ -91,6 +99,8 @@ vector_t body_get_impulse(body_t *body) { return body->impulse; }
 
 double body_get_time(body_t *body) { return body->time; }
 
+double body_get_health(body_t *body) { return body->health; }
+
 double body_get_magnitude(body_t *body) { return body->magnitude; };
 
 void *body_get_info(body_t *body) { return body->info; }
@@ -107,6 +117,10 @@ void body_set_magnitude(body_t *body, double magnitude) {
 }
 
 void body_set_force(body_t *body, vector_t v) { body->force = v; }
+
+void body_set_shape(body_t *body, list_t *shape) { body->shape = shape; }
+
+void body_set_health(body_t *body, double health) { body->health = health; }
 
 void body_set_impulse(body_t *body, vector_t v) { body->impulse = v; }
 

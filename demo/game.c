@@ -18,12 +18,7 @@
 #include <stdlib.h>
 
 const double MAX_WIDTH_GAME = 1600.0;
-const double MAX_HEIGHT_GAME = 1200.0;
-
-// tank types
-const size_t WALL_TYPE = 0;
-const size_t BULLET_TYPE = 1;
-const size_t DEFAULT_TANK_TYPE = 2;
+const double MAX_HEIGHT_GAME = 1300.0;
 
 // default tank stats
 double DEFAULT_TANK_VELOCITY = 100.0;
@@ -31,6 +26,7 @@ double DEFAULT_TANK_STARTING_HEALTH = 100.0;
 double DEFAULT_TANK_SIDE_LENGTH = 80.0;
 double DEFAULT_TANK_MASS = 100.0;
 double DEFAULT_TANK_ROTATION_SPEED = M_PI / 2;
+double DEFAULT_TANK_MAX_HEALTH = 100.0;
 
 double BULLET_HEIGHT = 25.0;
 double BULLET_WIDTH = 10.0;
@@ -39,6 +35,9 @@ double BULLET_VELOCITY = 250.0;
 double RELOAD_SPEED = 1.0;
 double BULLET_DISAPPEAR_TIME = 10.0;
 
+double HEALTH_BAR_WIDTH = 500.0;
+double HEALTH_BAR_HEIGHT = 100.0;
+
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
 
@@ -46,6 +45,63 @@ typedef struct state {
   scene_t *scene;
   double time;
 } state_t;
+
+list_t *make_health_bar_p1(double health) {
+  list_t *shape = list_init(4, (free_func_t)free);
+
+  vector_t *point1 = malloc(sizeof(vector_t));
+  assert(point1 != NULL);
+  point1->x = health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH;
+  point1->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT;
+  list_add(shape, point1);
+
+  vector_t *point2 = malloc(sizeof(vector_t));
+  assert(point2 != NULL);
+  point2->x = health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH;
+  point2->y = MAX_HEIGHT_GAME;
+  list_add(shape, point2);
+
+  vector_t *point3 = malloc(sizeof(vector_t));
+  assert(point3 != NULL);
+  point3->x = 0.0;
+  point3->y = MAX_HEIGHT_GAME;
+  list_add(shape, point3);
+  vector_t *point4 = malloc(sizeof(vector_t));
+  assert(point4 != NULL);
+  point4->x = 0.0;
+  point4->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT;
+  list_add(shape, point4);
+  return shape;
+}
+
+list_t *make_health_bar_p2(double health) {
+  list_t *shape = list_init(4, (free_func_t)free);
+
+  vector_t *point1 = malloc(sizeof(vector_t));
+  assert(point1 != NULL);
+  point1->x = MAX_WIDTH_GAME - health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH;
+  point1->y = MAX_HEIGHT_GAME;
+  list_add(shape, point1);
+
+  vector_t *point2 = malloc(sizeof(vector_t));
+  assert(point2 != NULL);
+  point2->x = MAX_WIDTH_GAME - health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH;
+  point2->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT;
+  list_add(shape, point2);
+
+  vector_t *point3 = malloc(sizeof(vector_t));
+  assert(point3 != NULL);
+  point3->x = MAX_WIDTH_GAME;
+  point3->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT;
+  list_add(shape, point3);
+
+  vector_t *point4 = malloc(sizeof(vector_t));
+  assert(point4 != NULL);
+  point4->x = MAX_WIDTH_GAME;
+  point4->y = MAX_HEIGHT_GAME;
+  list_add(shape, point4);
+  return shape;
+}
 
 list_t *make_bullet(vector_t edge) {
   list_t *shape = list_init(4, (free_func_t)free);
@@ -264,9 +320,9 @@ state_t *emscripten_init() {
   state->scene = scene_init();
 
   vector_t player1_start =
-      (vector_t){MAX_WIDTH_GAME / 6, MAX_HEIGHT_GAME - 300.0};
+      (vector_t){MAX_WIDTH_GAME / 6, MAX_HEIGHT_GAME - 400.0};
   vector_t player2_start =
-      (vector_t){MAX_WIDTH_GAME * 5 / 6, MAX_HEIGHT_GAME / 2};
+      (vector_t){MAX_WIDTH_GAME * 5 / 6, MAX_HEIGHT_GAME / 2 - 50.0};
   // can channge it to choose the type of tank later
   tank_t *player1 = init_default_tank(
       player1_start, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
@@ -275,9 +331,23 @@ state_t *emscripten_init() {
       player2_start, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
       PLAYER2_COLOR, DEFAULT_TANK_STARTING_HEALTH, DEFAULT_TANK_TYPE);
   body_set_rotation(tank_get_body(player2), M_PI);
+  body_set_health(tank_get_body(player1), DEFAULT_TANK_MAX_HEALTH);
+  body_set_health(tank_get_body(player2), DEFAULT_TANK_MAX_HEALTH);
   scene_add_body(state->scene, tank_get_body(player1));
   scene_add_body(state->scene, tank_get_body(player2));
-  map_init(state->scene);
+
+  // initialize health bars
+  list_t *p1_health_bar_shape = make_health_bar_p1(DEFAULT_TANK_MAX_HEALTH);
+  size_t *type = malloc(sizeof(size_t));
+  *type = HEALTH_BAR_TYPE;
+  body_t *p1_health_bar = body_init_with_info(p1_health_bar_shape, 10.0, PLAYER1_COLOR, type, (free_func_t)free);
+  scene_add_body(state->scene, p1_health_bar);
+
+  list_t *p2_health_bar_shape = make_health_bar_p2(DEFAULT_TANK_MAX_HEALTH);
+  size_t *type2 = malloc(sizeof(size_t));
+  *type2 = HEALTH_BAR_TYPE;
+  body_t *p2_health_bar = body_init_with_info(p2_health_bar_shape, 10.0, PLAYER2_COLOR, type2, (free_func_t)free);
+  scene_add_body(state->scene, p2_health_bar);
 
   for (size_t i = 2; i < scene_bodies(state->scene); i++) {
     create_physics_collision(state->scene, 10.0,
@@ -287,6 +357,8 @@ state_t *emscripten_init() {
                              scene_get_body(state->scene, 1),
                              scene_get_body(state->scene, i));
   }
+
+  map_init(state->scene);
 
   return state;
 }
@@ -312,6 +384,13 @@ void emscripten_main(state_t *state) {
       }
     }
   }
+
+  // update health bar
+  body_t *health_bar_p1 = scene_get_body(state->scene, 2);
+  body_set_shape(health_bar_p1, make_health_bar_p1(body_get_health(player1)));
+
+  body_t *health_bar_p2 = scene_get_body(state->scene, 3);
+  body_set_shape(health_bar_p2, make_health_bar_p2(body_get_health(player2)));
 
   scene_tick(state->scene, dt);
   sdl_render_scene(state->scene);

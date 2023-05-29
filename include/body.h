@@ -87,6 +87,8 @@ double body_get_rotation(body_t *body);
  */
 double body_get_mass(body_t *body);
 
+double body_get_time(body_t *body);
+
 /**
  * Gets the display color of a body.
  *
@@ -158,6 +160,8 @@ void body_add_force(body_t *body, vector_t force);
  * @param impulse the impulse vector to apply
  */
 void body_add_impulse(body_t *body, vector_t impulse);
+
+void body_set_time(body_t *body, double time);
 
 void body_set_rotation_empty(body_t *body, double rotation);
 /**

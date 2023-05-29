@@ -24,6 +24,7 @@ typedef struct body {
   free_func_t freer;
   bool is_removed;
   double magnitude;
+  double time;
 } body_t;
 
 body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
@@ -42,6 +43,7 @@ body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
   body->magnitude = 0.0;
   body->freer = (free_func_t)free;
   body->is_removed = false;
+  body->time = INFINITY;
   return body;
 }
 
@@ -87,6 +89,8 @@ vector_t body_get_force(body_t *body) { return body->force; }
 
 vector_t body_get_impulse(body_t *body) { return body->impulse; }
 
+double body_get_time(body_t *body) { return body->time; }
+
 double body_get_magnitude(body_t *body) { return body->magnitude; };
 
 void *body_get_info(body_t *body) { return body->info; }
@@ -105,6 +109,8 @@ void body_set_force(body_t *body, vector_t v) { body->force = v; }
 void body_set_impulse(body_t *body, vector_t v) { body->impulse = v; }
 
 void body_set_velocity(body_t *body, vector_t v) { body->velocity = v; }
+
+void body_set_time(body_t *body, double time) { body->time = time; }
 
 void body_set_rotation_speed(body_t *body, double w) { body->rotation_speed = w; }
 

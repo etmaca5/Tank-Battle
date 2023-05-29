@@ -17,8 +17,8 @@ double RIGHT_WALL = 1520.0;
 
 // obstacle stats 
 double OBSTACLE_MASS = INFINITY;
-size_t RECTANGLE_OBSTACLE = 3;
-size_t TRIANGLE_OBSTACLE = 4;
+const size_t RECTANGLE_OBSTACLE_TYPE = 3;
+const size_t TRIANGLE_OBSTACLE_TYPE = 4;
 rgb_color_t OBSTACLE_COLOR_1 = {0.76, 0.76, 0.76};
 rgb_color_t OBSTACLE_COLOR_2 = {0.35, 0.35, 0.35};
 rgb_color_t OBSTACLE_COLOR_3 = {0.57, 0.59, 0.60};
@@ -91,7 +91,7 @@ list_t *make_horz_triangle(vector_t bisector_point, double perp_bisector) {
 void spawn_rectangle(scene_t *scene, vector_t corner, double width, double height, rgb_color_t color) {
     list_t *points = make_rectangle(corner, width, height);
     int *type = malloc(sizeof(int));
-    *type = RECTANGLE_OBSTACLE;
+    *type = RECTANGLE_OBSTACLE_TYPE;
     body_t *rectangle = body_init_with_info(points, OBSTACLE_MASS, color, type,
                                             (free_func_t)free);
     scene_add_body(scene, rectangle);
@@ -100,7 +100,7 @@ void spawn_rectangle(scene_t *scene, vector_t corner, double width, double heigh
 void spawn_vert_triangle(scene_t *scene, vector_t bisector_point, double perp_bisector, rgb_color_t color) {
     list_t *points = make_vert_triangle(bisector_point, perp_bisector);
     int *type = malloc(sizeof(int));
-    *type = TRIANGLE_OBSTACLE;
+    *type = TRIANGLE_OBSTACLE_TYPE;
     body_t *triangle = body_init_with_info(points, OBSTACLE_MASS, color, type,
                                             (free_func_t)free);
     scene_add_body(scene, triangle);
@@ -109,7 +109,7 @@ void spawn_vert_triangle(scene_t *scene, vector_t bisector_point, double perp_bi
 void spawn_horz_triangle(scene_t *scene, vector_t bisector_point, double perp_bisector, rgb_color_t color) {
     list_t *points = make_horz_triangle(bisector_point, perp_bisector);
     int *type = malloc(sizeof(int));
-    *type = TRIANGLE_OBSTACLE;
+    *type = TRIANGLE_OBSTACLE_TYPE;
     body_t *triangle = body_init_with_info(points, OBSTACLE_MASS, color, type,
                                             (free_func_t)free);
     scene_add_body(scene, triangle);

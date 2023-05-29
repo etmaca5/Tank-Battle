@@ -21,9 +21,9 @@ const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1200.0;
 
 // tank types
-size_t WALL_TYPE = 0;
-size_t BULLET_TYPE = 1;
-size_t DEFAULT_TANK_TYPE = 2;
+const size_t WALL_TYPE = 0;
+const size_t BULLET_TYPE = 1;
+const size_t DEFAULT_TANK_TYPE = 2;
 
 // default tank stats
 double DEFAULT_TANK_VELOCITY = 100.0;
@@ -108,7 +108,7 @@ void handler1(char key, key_event_type_t type, double held_time,
           vector_t move_up =
               vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2 + 10, player_dir);
           polygon_translate(bullet_points, move_up);
-          int *type = malloc(sizeof(int));
+          size_t *type = malloc(sizeof(size_t));
           *type = BULLET_TYPE;
           body_t *bullet = body_init_with_info(
               bullet_points, BULLET_MASS, PLAYER1_COLOR, type, (free_func_t)free);
@@ -127,8 +127,8 @@ void handler1(char key, key_event_type_t type, double held_time,
             body_t *body = scene_get_body(state->scene, i);
             if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
               create_destructive_collision(state->scene, body, bullet);
-            } else if (*(size_t *)body_get_info(body) == 3 ||
-                      *(size_t *)body_get_info(body) == 4) {
+            } else if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
+                      *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
               create_physics_collision(state->scene, 1.0, bullet, body);
             }
           }
@@ -194,7 +194,7 @@ void handler2(char key, key_event_type_t type, double held_time,
           vector_t move_up =
               vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2 + 10, player_dir);
           polygon_translate(bullet_points, move_up);
-          int *type = malloc(sizeof(int));
+          size_t *type = malloc(sizeof(size_t));
           *type = BULLET_TYPE;
           body_t *bullet = body_init_with_info(
               bullet_points, BULLET_MASS, PLAYER2_COLOR, type, (free_func_t)free);
@@ -213,8 +213,8 @@ void handler2(char key, key_event_type_t type, double held_time,
             body_t *body = scene_get_body(state->scene, i);
             if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
               create_destructive_collision(state->scene, body, bullet);
-            } else if (*(size_t *)body_get_info(body) == 3 ||
-                      *(size_t *)body_get_info(body) == 4) {
+            } else if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
+                      *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
               create_physics_collision(state->scene, 1.0, bullet, body);
             }
           }

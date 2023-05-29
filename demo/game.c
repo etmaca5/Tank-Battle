@@ -37,6 +37,7 @@ double BULLET_WIDTH = 10.0;
 double BULLET_MASS = 5.0;
 double BULLET_VELOCITY = 250.0;
 double RELOAD_SPEED = 1.0;
+double BULLET_DISAPPEAR_TIME = 10.0;
 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
@@ -114,6 +115,7 @@ void handler1(char key, key_event_type_t type, double held_time,
               bullet_points, BULLET_MASS, PLAYER1_COLOR, type, (free_func_t)free);
           body_set_rotation_empty(bullet, body_get_rotation(player1));
           body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
+          body_set_time(bullet, 0.0);
           scene_add_body(state->scene, bullet);
 
           // create collision with tanks
@@ -200,6 +202,7 @@ void handler2(char key, key_event_type_t type, double held_time,
               bullet_points, BULLET_MASS, PLAYER2_COLOR, type, (free_func_t)free);
           body_set_rotation_empty(bullet, body_get_rotation(player2));
           body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
+          body_set_time(bullet, 0.0);
           scene_add_body(state->scene, bullet);
 
           // create collision with tanks
@@ -293,10 +296,22 @@ void emscripten_main(state_t *state) {
   sdl_on_key((key_handler_t)handler);
   state->time += dt;
 
+  // add time to player bodies for reload
   body_t *player1 = scene_get_body(state->scene, 0);
   body_t *player2 = scene_get_body(state->scene, 1);
   body_set_time(player1, body_get_time(player1) + dt);
   body_set_time(player2, body_get_time(player2) + dt);
+
+  // add time to bullet bodies to see if they should disappear
+  for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+    body_t *body = scene_get_body(state->scene, i);
+    if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
+      body_set_time(body, body_get_time(body) + dt);
+      if (body_get_time(body) > BULLET_DISAPPEAR_TIME) {
+        body_remove(body);
+      }
+    }
+  }
 
   scene_tick(state->scene, dt);
   sdl_render_scene(state->scene);

@@ -80,60 +80,60 @@ void handler1(char key, key_event_type_t type, double held_time,
 
   if (type == KEY_PRESSED) {
     switch (key) {
-    case UP_ARROW: {
-      body_set_magnitude(player1, DEFAULT_TANK_VELOCITY);
-      break;
-    }
-    case DOWN_ARROW: {
-      body_set_magnitude(player1, -DEFAULT_TANK_VELOCITY);
-      break;
-    }
-    case RIGHT_ARROW: {
-      body_set_rotation_speed(player1, -DEFAULT_TANK_ROTATION_SPEED);
-      break;
-    }
-    case LEFT_ARROW: {
-      body_set_rotation_speed(player1, DEFAULT_TANK_ROTATION_SPEED);
-      break;
-    }
-    case SPACE: {
-      if (body_get_time(player1) > RELOAD_SPEED) {
-        body_set_time(player1, 0.0);
-        vector_t spawn_point = body_get_centroid(player1);
-        list_t *bullet_points = make_bullet(spawn_point);
-        polygon_rotate(bullet_points, body_get_rotation(player1),
-                       body_get_centroid(player1));
-        vector_t player_dir = {cos(body_get_rotation(player1)),
-                               sin(body_get_rotation(player1))};
-        vector_t move_up =
-            vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2 + 10, player_dir);
-        polygon_translate(bullet_points, move_up);
-        int *type = malloc(sizeof(int));
-        *type = BULLET_TYPE;
-        body_t *bullet = body_init_with_info(
-            bullet_points, BULLET_MASS, PLAYER1_COLOR, type, (free_func_t)free);
-        body_set_rotation_empty(bullet, body_get_rotation(player1));
-        body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
-        scene_add_body(state->scene, bullet);
+      case UP_ARROW: {
+        body_set_magnitude(player1, DEFAULT_TANK_VELOCITY);
+        break;
+      }
+      case DOWN_ARROW: {
+        body_set_magnitude(player1, -DEFAULT_TANK_VELOCITY);
+        break;
+      }
+      case RIGHT_ARROW: {
+        body_set_rotation_speed(player1, -DEFAULT_TANK_ROTATION_SPEED);
+        break;
+      }
+      case LEFT_ARROW: {
+        body_set_rotation_speed(player1, DEFAULT_TANK_ROTATION_SPEED);
+        break;
+      }
+      case SPACE: {
+        if (body_get_time(player1) > RELOAD_SPEED) {
+          body_set_time(player1, 0.0);
+          vector_t spawn_point = body_get_centroid(player1);
+          list_t *bullet_points = make_bullet(spawn_point);
+          polygon_rotate(bullet_points, body_get_rotation(player1),
+                        body_get_centroid(player1));
+          vector_t player_dir = {cos(body_get_rotation(player1)),
+                                sin(body_get_rotation(player1))};
+          vector_t move_up =
+              vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2 + 10, player_dir);
+          polygon_translate(bullet_points, move_up);
+          int *type = malloc(sizeof(int));
+          *type = BULLET_TYPE;
+          body_t *bullet = body_init_with_info(
+              bullet_points, BULLET_MASS, PLAYER1_COLOR, type, (free_func_t)free);
+          body_set_rotation_empty(bullet, body_get_rotation(player1));
+          body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
+          scene_add_body(state->scene, bullet);
 
-        // create collision with tanks
-        create_partial_destructive_collision(
-            state->scene, scene_get_body(state->scene, 0), bullet);
-        create_partial_destructive_collision(
-            state->scene, scene_get_body(state->scene, 1), bullet);
+          // create collision with tanks
+          create_partial_destructive_collision(
+              state->scene, scene_get_body(state->scene, 0), bullet);
+          create_partial_destructive_collision(
+              state->scene, scene_get_body(state->scene, 1), bullet);
 
-        // create collision with walls and other bullets
-        for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {
-          body_t *body = scene_get_body(state->scene, i);
-          if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
-            create_destructive_collision(state->scene, body, bullet);
-          } else if (*(size_t *)body_get_info(body) == 3 ||
-                     *(size_t *)body_get_info(body) == 4) {
-            create_physics_collision(state->scene, 1.0, bullet, body);
+          // create collision with walls and other bullets
+          for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {
+            body_t *body = scene_get_body(state->scene, i);
+            if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
+              create_destructive_collision(state->scene, body, bullet);
+            } else if (*(size_t *)body_get_info(body) == 3 ||
+                      *(size_t *)body_get_info(body) == 4) {
+              create_physics_collision(state->scene, 1.0, bullet, body);
+            }
           }
         }
       }
-    }
     }
   }
   if (type == KEY_RELEASED) {
@@ -166,60 +166,60 @@ void handler2(char key, key_event_type_t type, double held_time,
 
   if (type == KEY_PRESSED) {
     switch (key) {
-    case 'w': {
-      body_set_magnitude(player2, DEFAULT_TANK_VELOCITY);
-      break;
-    }
-    case 's': {
-      body_set_magnitude(player2, -DEFAULT_TANK_VELOCITY);
-      break;
-    }
-    case 'd': {
-      body_set_rotation_speed(player2, -DEFAULT_TANK_ROTATION_SPEED);
-      break;
-    }
-    case 'a': {
-      body_set_rotation_speed(player2, DEFAULT_TANK_ROTATION_SPEED);
-      break;
-    }
-    case 'r': {
-      if (body_get_time(player2) > RELOAD_SPEED) {
-        body_set_time(player2, 0.0);
-        vector_t spawn_point = body_get_centroid(player2);
-        list_t *bullet_points = make_bullet(spawn_point);
-        polygon_rotate(bullet_points, body_get_rotation(player2),
-                       body_get_centroid(player2));
-        vector_t player_dir = {cos(body_get_rotation(player2)),
-                               sin(body_get_rotation(player2))};
-        vector_t move_up =
-            vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2 + 10, player_dir);
-        polygon_translate(bullet_points, move_up);
-        int *type = malloc(sizeof(int));
-        *type = BULLET_TYPE;
-        body_t *bullet = body_init_with_info(
-            bullet_points, BULLET_MASS, PLAYER2_COLOR, type, (free_func_t)free);
-        body_set_rotation_empty(bullet, body_get_rotation(player2));
-        body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
-        scene_add_body(state->scene, bullet);
+      case 'w': {
+        body_set_magnitude(player2, DEFAULT_TANK_VELOCITY);
+        break;
+      }
+      case 's': {
+        body_set_magnitude(player2, -DEFAULT_TANK_VELOCITY);
+        break;
+      }
+      case 'd': {
+        body_set_rotation_speed(player2, -DEFAULT_TANK_ROTATION_SPEED);
+        break;
+      }
+      case 'a': {
+        body_set_rotation_speed(player2, DEFAULT_TANK_ROTATION_SPEED);
+        break;
+      }
+      case 'r': {
+        if (body_get_time(player2) > RELOAD_SPEED) {
+          body_set_time(player2, 0.0);
+          vector_t spawn_point = body_get_centroid(player2);
+          list_t *bullet_points = make_bullet(spawn_point);
+          polygon_rotate(bullet_points, body_get_rotation(player2),
+                        body_get_centroid(player2));
+          vector_t player_dir = {cos(body_get_rotation(player2)),
+                                sin(body_get_rotation(player2))};
+          vector_t move_up =
+              vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2 + 10, player_dir);
+          polygon_translate(bullet_points, move_up);
+          int *type = malloc(sizeof(int));
+          *type = BULLET_TYPE;
+          body_t *bullet = body_init_with_info(
+              bullet_points, BULLET_MASS, PLAYER2_COLOR, type, (free_func_t)free);
+          body_set_rotation_empty(bullet, body_get_rotation(player2));
+          body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
+          scene_add_body(state->scene, bullet);
 
-        // create collision with tanks
-        create_partial_destructive_collision(
-            state->scene, scene_get_body(state->scene, 0), bullet);
-        create_partial_destructive_collision(
-            state->scene, scene_get_body(state->scene, 1), bullet);
+          // create collision with tanks
+          create_partial_destructive_collision(
+              state->scene, scene_get_body(state->scene, 0), bullet);
+          create_partial_destructive_collision(
+              state->scene, scene_get_body(state->scene, 1), bullet);
 
-        // create collision with walls and other bullets
-        for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {
-          body_t *body = scene_get_body(state->scene, i);
-          if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
-            create_destructive_collision(state->scene, body, bullet);
-          } else if (*(size_t *)body_get_info(body) == 3 ||
-                     *(size_t *)body_get_info(body) == 4) {
-            create_physics_collision(state->scene, 1.0, bullet, body);
+          // create collision with walls and other bullets
+          for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {
+            body_t *body = scene_get_body(state->scene, i);
+            if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
+              create_destructive_collision(state->scene, body, bullet);
+            } else if (*(size_t *)body_get_info(body) == 3 ||
+                      *(size_t *)body_get_info(body) == 4) {
+              create_physics_collision(state->scene, 1.0, bullet, body);
+            }
           }
         }
       }
-    }
     }
   }
   if (type == KEY_RELEASED) {

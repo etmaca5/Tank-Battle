@@ -260,4 +260,3 @@ void map_init(scene_t *scene) {
     vector_t bisector_point11 = {LEFT_WALL + 545.0, TOP_WALL - 140.0};
     spawn_vert_triangle(scene, bisector_point11, -180.0, OBSTACLE_COLOR_2);
 }
-

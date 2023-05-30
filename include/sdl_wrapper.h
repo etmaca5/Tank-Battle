@@ -14,7 +14,9 @@ typedef enum {
   UP_ARROW = 2,
   RIGHT_ARROW = 3,
   DOWN_ARROW = 4,
-  SPACE = 5
+  SPACE = 5,
+  MOUSE_CLICK = 6,
+  MOUSE_MOVED = 7,
 } arrow_key_t;
 
 /**
@@ -24,7 +26,7 @@ typedef enum {
  * #define KEY_PRESSED 0
  * #define KEY_RELEASED 1
  */
-typedef enum { KEY_PRESSED, KEY_RELEASED } key_event_type_t;
+typedef enum { KEY_PRESSED, KEY_RELEASED, MOUSE_ENGAGED } key_event_type_t;
 
 /**
  * A keypress handler.
@@ -37,7 +39,7 @@ typedef enum { KEY_PRESSED, KEY_RELEASED } key_event_type_t;
  * @param held_time if a press event, the time the key has been held in seconds
  */
 typedef void (*key_handler_t)(char key, key_event_type_t type, double held_time,
-                              state_t *state);
+                              state_t *state, vector_t loc);
 
 /**
  * Initializes the SDL window and renderer.

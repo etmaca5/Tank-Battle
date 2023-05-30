@@ -143,7 +143,38 @@ bool sdl_is_done(state_t *state) {
       key_event_type_t type =
           event->type == SDL_KEYDOWN ? KEY_PRESSED : KEY_RELEASED;
       double held_time = (timestamp - key_start_timestamp) / MS_PER_S;
-      key_handler(key, type, held_time, state);
+      key_handler(key, type, held_time, state, VEC_ZERO);
+      break;
+    case SDL_MOUSEBUTTONUP:
+      if (key_handler == NULL) {
+        break;
+      }
+      key_event_type_t type_mouse = event->type =
+          SDL_MOUSEBUTTONDOWN ? KEY_PRESSED : KEY_RELEASED;
+      type_mouse = event->type == SDL_MOUSEMOTION ? MOUSE_ENGAGED : type_mouse;
+
+      vector_t loc = (vector_t){event->motion.x, event->motion.y};
+      key = MOUSE_CLICK;
+
+      held_time = (timestamp - key_start_timestamp) / MS_PER_S;
+      key_handler(key, type_mouse, held_time, state, loc);
+      break;
+    case SDL_MOUSEMOTION:
+      if (key_handler == NULL) {
+        break;
+      }
+      // SDL_ShowCursor(true);
+      type_mouse = event->type =
+          SDL_MOUSEBUTTONDOWN ? KEY_PRESSED : KEY_RELEASED;
+      type_mouse = event->type == SDL_MOUSEMOTION ? MOUSE_ENGAGED : type_mouse;
+
+      loc = (vector_t){event->motion.x, event->motion.y};
+      key = MOUSE_MOVED;
+
+      held_time = (timestamp - key_start_timestamp) / MS_PER_S;
+      key_handler(key, type_mouse, held_time, state, loc);
+      break;
+    case SDL_MOUSEBUTTONDOWN:
       break;
     }
   }

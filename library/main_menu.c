@@ -1,13 +1,14 @@
 #include "main_menu.h"
+#include <SDL2/SDL_ttf.h>
 #include "sdl_wrapper.h"
 #include "state.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
-#include <SDL2/SDL_ttf.h>
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
+
 
 //start button dimensions
 int START_BUTTON_WIDTH = 500;
@@ -32,12 +33,6 @@ typedef struct {
 
 bool button_pressed(int x, int y, SDL_Rect rect) {
     return (x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h);
-}
-
-if (TTF_Init() != 0) {
-    printf("TTF_Init Error: %s\n", TTF_GetError());
-    SDL_Quit();
-    return 1;
 }
 
 void main_menu {
@@ -85,6 +80,12 @@ void main_menu {
         }
     }
     
+    TTF_Init();
+    if (TTF_Init() != 0) {
+        printf("TTF_Init Error: %s\n", TTF_GetError());
+        SDL_Quit();
+        return 1;
+    }   
     //don't know if need these lines
     // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     // SDL_RenderClear(renderer);
@@ -101,6 +102,31 @@ void main_menu {
     SDL_Color text_color = {0, 0, 0, 255};
     TTF_Font *font = TTF_OpenFont("lato.ttf", 28);
     
-    SDL_Surface *surface = TTF_RenderText_Solid(font, start_button->text, text_color);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Surface *start_surface = TTF_RenderText_Solid(font, start_button->text, text_color);
+    SDL_Texture *start_texture = SDL_CreateTextureFromSurface(renderer, start_surface);
+    SDL_RenderCopy(renderer, start_texture, NULL, &start_button->rectangle);
+    SDL_FreeSurface(start_surface);
+    SDL_DestroyTexture(start_texture);
+
+    SDL_Surface *options_surface = TTF_RenderText_Solid(font, options_button->text, text_color);
+    SDL_Texture *options_texture = SDL_CreateTextureFromSurface(renderer, options_surface);
+    SDL_RenderCopy(renderer, options_texture, NULL, &options_button->rectangle);
+    SDL_FreeSurface(options_surface);
+    SDL_DestroyTexture(options_texture);
+
+    SDL_Surface *exit_surface = TTF_RenderText_Solid(font, exit_button->text, text_color);
+    SDL_Texture *exit_texture = SDL_CreateTextureFromSurface(renderer, exit_surface);
+    SDL_RenderCopy(renderer, exit_texture, NULL, &exit_button->rectangle);
+    SDL_FreeSurface(exit_surface);
+    SDL_DestroyTexture(exit_texture);
+
+    //free
+    TTF_CloseFont(font);
+    TTF_Quit();
+    free(start_button);
+    free(options_button);
+    free(exit_button);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }

@@ -357,6 +357,8 @@ state_t *emscripten_init() {
   body_t *p2_health_bar = body_init_with_info(p2_health_bar_shape, 10.0, PLAYER2_COLOR, type2, (free_func_t)free);
   scene_add_body(state->scene, p2_health_bar);
 
+  map_init(state->scene);
+
   for (size_t i = 2; i < scene_bodies(state->scene); i++) {
     create_physics_collision(state->scene, 10.0,
                              scene_get_body(state->scene, 0),
@@ -366,7 +368,7 @@ state_t *emscripten_init() {
                              scene_get_body(state->scene, i));
   }
 
-  map_init(state->scene);
+  
 
   return state;
 }

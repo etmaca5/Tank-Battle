@@ -359,7 +359,7 @@ state_t *emscripten_init() {
 
   map_init(state->scene);
 
-  for (size_t i = 2; i < scene_bodies(state->scene); i++) {
+  for (size_t i = 4; i < scene_bodies(state->scene); i++) {
     create_physics_collision(state->scene, 10.0,
                              scene_get_body(state->scene, 0),
                              scene_get_body(state->scene, i));

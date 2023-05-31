@@ -36,40 +36,88 @@ double RELOAD_SPEED = 1.0;
 double BULLET_DISAPPEAR_TIME = 10.0;
 
 double HEALTH_BAR_WIDTH = 500.0;
-double HEALTH_BAR_HEIGHT = 100.0;
+double HEALTH_BAR_HEIGHT = 50.0;
+double HEALTH_BAR_OFFSET_HORIZONTAL = 50.0;
+double HEALTH_BAR_OFFSET_VERTICAL = 25.0;
 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
+rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
+rgb_color_t PLAYER2_COLOR_SIMILAR = {0.0, 0.5, 0.0};
 
 typedef struct state {
   scene_t *scene;
   double time;
 } state_t;
 
+list_t *make_half_circle(vector_t center, double radius) {
+  list_t *shape = list_init(18, (free_func_t)free);
+  for (size_t i = 0; i < 18; i++) {
+    vector_t *point = malloc(sizeof(vector_t));
+    assert(point != NULL);
+    point->x = center.x + radius;
+    point->y = center.y;
+    list_add(shape, point);
+    polygon_rotate(shape, M_PI / 18, center);
+  }
+  vector_t *point = malloc(sizeof(vector_t));
+  assert(point != NULL);
+  point->x = center.x + radius;
+  point->y = center.y;
+  list_add(shape, point);
+  return shape;
+}
+
+list_t *make_heart(vector_t center, double length) {
+  list_t *shape = list_init(100, (free_func_t)free);
+
+  // create first half circle
+  vector_t rotation_area1 = {center.x + length / 2, center.y};
+  list_t *half_circle1 = make_half_circle(rotation_area1, length / 2);
+  // have to use int here since size_t is unsigned
+  for (int i = (int)list_size(half_circle1) - 1; i >= 0; i--) {
+    vector_t *point = list_get(half_circle1, i);
+    list_add(shape, point);
+  }
+
+  // create second half circle
+  vector_t rotation_area2 = {center.x - length / 2, center.y};
+  list_t *half_circle2 = make_half_circle(rotation_area2, length / 2);
+  for (int i = (int)list_size(half_circle2) - 1; i >= 0; i--) {
+    vector_t *point = list_get(half_circle2, i);
+    list_add(shape, point);
+  }
+
+  vector_t *bottom_point = malloc(sizeof(vector_t));
+  *bottom_point = (vector_t){center.x, center.y - length};
+  list_add(shape, bottom_point);
+  return shape;
+}
+
 list_t *make_health_bar_p1(double health) {
   list_t *shape = list_init(4, (free_func_t)free);
 
   vector_t *point1 = malloc(sizeof(vector_t));
   assert(point1 != NULL);
-  point1->x = health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH;
-  point1->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT;
+  point1->x = health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH + HEALTH_BAR_OFFSET_HORIZONTAL;
+  point1->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT - HEALTH_BAR_OFFSET_VERTICAL;
   list_add(shape, point1);
 
   vector_t *point2 = malloc(sizeof(vector_t));
   assert(point2 != NULL);
-  point2->x = health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH;
-  point2->y = MAX_HEIGHT_GAME;
+  point2->x = health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH + HEALTH_BAR_OFFSET_HORIZONTAL;
+  point2->y = MAX_HEIGHT_GAME - HEALTH_BAR_OFFSET_VERTICAL;
   list_add(shape, point2);
 
   vector_t *point3 = malloc(sizeof(vector_t));
   assert(point3 != NULL);
-  point3->x = 0.0;
-  point3->y = MAX_HEIGHT_GAME;
+  point3->x =  + HEALTH_BAR_OFFSET_HORIZONTAL;
+  point3->y = MAX_HEIGHT_GAME - HEALTH_BAR_OFFSET_VERTICAL;
   list_add(shape, point3);
   vector_t *point4 = malloc(sizeof(vector_t));
   assert(point4 != NULL);
-  point4->x = 0.0;
-  point4->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT;
+  point4->x =  + HEALTH_BAR_OFFSET_HORIZONTAL;
+  point4->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT - HEALTH_BAR_OFFSET_VERTICAL;
   list_add(shape, point4);
   return shape;
 }
@@ -79,26 +127,26 @@ list_t *make_health_bar_p2(double health) {
 
   vector_t *point1 = malloc(sizeof(vector_t));
   assert(point1 != NULL);
-  point1->x = MAX_WIDTH_GAME - health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH;
-  point1->y = MAX_HEIGHT_GAME;
+  point1->x = MAX_WIDTH_GAME - health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH - HEALTH_BAR_OFFSET_HORIZONTAL;
+  point1->y = MAX_HEIGHT_GAME - HEALTH_BAR_OFFSET_VERTICAL;
   list_add(shape, point1);
 
   vector_t *point2 = malloc(sizeof(vector_t));
   assert(point2 != NULL);
-  point2->x = MAX_WIDTH_GAME - health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH;
-  point2->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT;
+  point2->x = MAX_WIDTH_GAME - health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH - HEALTH_BAR_OFFSET_HORIZONTAL;
+  point2->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT - HEALTH_BAR_OFFSET_VERTICAL;
   list_add(shape, point2);
 
   vector_t *point3 = malloc(sizeof(vector_t));
   assert(point3 != NULL);
-  point3->x = MAX_WIDTH_GAME;
-  point3->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT;
+  point3->x = MAX_WIDTH_GAME - HEALTH_BAR_OFFSET_HORIZONTAL;
+  point3->y = MAX_HEIGHT_GAME - HEALTH_BAR_HEIGHT - HEALTH_BAR_OFFSET_VERTICAL;
   list_add(shape, point3);
 
   vector_t *point4 = malloc(sizeof(vector_t));
   assert(point4 != NULL);
-  point4->x = MAX_WIDTH_GAME;
-  point4->y = MAX_HEIGHT_GAME;
+  point4->x = MAX_WIDTH_GAME - HEALTH_BAR_OFFSET_HORIZONTAL;
+  point4->y = MAX_HEIGHT_GAME - HEALTH_BAR_OFFSET_VERTICAL;
   list_add(shape, point4);
   return shape;
 }
@@ -357,9 +405,24 @@ state_t *emscripten_init() {
   body_t *p2_health_bar = body_init_with_info(p2_health_bar_shape, 10.0, PLAYER2_COLOR, type2, (free_func_t)free);
   scene_add_body(state->scene, p2_health_bar);
 
+  vector_t P1_HEART_CENTER = {50.0, MAX_HEIGHT_GAME - 40.0};
+  vector_t P2_HEART_CENTER = {MAX_WIDTH_GAME - 50.0, MAX_HEIGHT_GAME - 40.0};
+
+  list_t *p1_heart = make_heart(P1_HEART_CENTER, 50.0);
+  size_t *type3 = malloc(sizeof(size_t));
+  *type3 = HEALTH_BAR_TYPE;
+  body_t *p1_heart_body = body_init_with_info(p1_heart, 10.0, PLAYER1_COLOR_SIMILAR, type3, (free_func_t)free);
+  scene_add_body(state->scene, p1_heart_body);
+
+  list_t *p2_heart = make_heart(P2_HEART_CENTER, 50.0);
+  size_t *type4 = malloc(sizeof(size_t));
+  *type4 = HEALTH_BAR_TYPE;
+  body_t *p2_heart_body = body_init_with_info(p2_heart, 10.0, PLAYER2_COLOR_SIMILAR, type4, (free_func_t)free);
+  scene_add_body(state->scene, p2_heart_body);
   map_init(state->scene);
 
-  for (size_t i = 4; i < scene_bodies(state->scene); i++) {
+  // skip first six bodies
+  for (size_t i = 6; i < scene_bodies(state->scene); i++) {
     create_physics_collision(state->scene, 10.0,
                              scene_get_body(state->scene, 0),
                              scene_get_body(state->scene, i));

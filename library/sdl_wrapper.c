@@ -213,7 +213,7 @@ graphic_t *sdl_load_text(char *text, int font_size, SDL_Color color) {
   graphic_t *graphic = malloc(sizeof(graphic_t));
   graphic->texture = texture;
   graphic->width = surface->w;
-  graphic->height = surface->h
+  graphic->height = surface->h;
   SDL_FreeSurface(surface);
   TTF_Quit();
   return graphic;

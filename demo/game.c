@@ -355,14 +355,12 @@ void handler2(char key, key_event_type_t type, double held_time,
 }
 
 void handler(char key, key_event_type_t type, double held_time,
-             state_t *state) {
+             state_t *state, vector_t loc) {
   handler1(key, type, held_time, state);
   handler2(key, type, held_time, state);
 }
 
 state_t *emscripten_init() {
-  // menu_init();
-
   vector_t min = VEC_ZERO;
   vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
   sdl_init(min, max);

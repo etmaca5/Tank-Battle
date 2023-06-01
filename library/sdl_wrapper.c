@@ -182,7 +182,7 @@ bool sdl_is_done(state_t *state) {
   return false;
 }
 
-graphic_t sdl_load_graphic(char *filename) {
+graphic_t *sdl_load_graphic(char *filename) {
   SDL_Surface *image = IMG_Load(filename);
   if (image == NULL) {
     printf("Error loading image: %s\n", IMG_GetError());
@@ -195,11 +195,14 @@ graphic_t sdl_load_graphic(char *filename) {
   int height;
   SDL_QueryTexture(texture, NULL, NULL, &width, &height);
 
-  graphic_t graphic = {texture, width, height};
+  graphic_t *graphic = malloc(sizeof(graphic_t));
+  graphic->texture = texture;
+  graphic->width = width;
+  graphic->height = height;
   return graphic;
 }
 
-graphic_t sdl_load_text(char *text, int font_size, SDL_Color color) {
+graphic_t *sdl_load_text(char *text, int font_size, SDL_Color color) {
   TTF_Init();
   TTF_Font *font = TTF_OpenFont("lato.ttf", font_size);
   assert(font != NULL);
@@ -207,7 +210,10 @@ graphic_t sdl_load_text(char *text, int font_size, SDL_Color color) {
   SDL_Surface *surface = TTF_RenderText_Solid(font, text, color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-  graphic_t graphic = {texture, surface->w, surface->h};
+  graphic_t *graphic = malloc(sizeof(graphic_t));
+  graphic->texture = texture;
+  graphic->width = surface->w;
+  graphic->height = surface->h
   SDL_FreeSurface(surface);
   TTF_Quit();
   return graphic;

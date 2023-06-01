@@ -85,14 +85,14 @@ void sdl_draw_polygon(list_t *points, rgb_color_t color);
  * 
  * @param filename The filename of the image  
  */
-graphic_t sdl_load_graphic(char *filename);
+graphic_t *sdl_load_graphic(char *filename);
 
 /**
  * Text The text to be rendered as a graphic to display on screen. 
  * 
  * @param text The text to be displayed on screen. 
  */
-graphic_t sdl_load_text(char *text, int font_size, SDL_Color color);
+graphic_t *sdl_load_text(char *text, int font_size, SDL_Color color);
 
 /**
  * Function returns vector_t of mouse position 

@@ -10,6 +10,7 @@
 #include "star.h"
 #include "state.h"
 #include "tank.h"
+#include "menu.h"
 #include "vector.h"
 #include <assert.h>
 #include <math.h>
@@ -354,20 +355,14 @@ void handler2(char key, key_event_type_t type, double held_time,
 }
 
 void handler(char key, key_event_type_t type, double held_time,
-             state_t *state, vector_t loc) {
+             state_t *state) {
   handler1(key, type, held_time, state);
   handler2(key, type, held_time, state);
-  switch(key) {
-    case MOUSE_CLICK:
-      printf("click\n");
-      break;
-    case MOUSE_MOVED:
-      printf("moving\n");
-      break;
-  }
 }
 
 state_t *emscripten_init() {
+  // menu_init();
+
   vector_t min = VEC_ZERO;
   vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
   sdl_init(min, max);

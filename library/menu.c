@@ -4,14 +4,21 @@
 #include <time.h>
 #include "scene.h"
 #include "list.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL2_gfxPrimitives.h>
-#include <SDL2/SDL_ttf.h>
 #include "sdl_wrapper.h"
 #include "color.h"
+#include "polygon.h"
 #include "state.h"
 #include "vector.h"
 #include <stdbool.h>
+
+//scene
+double MAX_WIDTH_GAME = 1600.0;
+double MAX_HEIGHT_GAME = 1300.0;
+
+//start button characteristics 
+vector_t START_BUTTON_LOC = { MAX_WIDTH_GAME / 2, MAX_HEIGHT_GAME / 2};
+double START_BUTTON_RADIUS = 100.0;
+double CIRCLE_POINTS = 300.0;
 
 list_t *make_rectangle(vector_t corner, double width, double height) {
     list_t *rectangle = list_init(4, (free_func_t)free);
@@ -55,54 +62,58 @@ list_t *make_circle(vector_t center, double radius) {
 }
 
 void menu_handler(char key, key_event_type_t type, double held_time, state_t *state, vector_t loc) {
-  
+  switch(key) {
+    case MOUSE_CLICK: 
+      vector_t distance = vec_subtract(loc, START_BUTTON_LOC);
+      double magnitude = sqrt(distance.x * distance.x + distance.y * distance.y);
+      if (magnitude <= START_BUTTON_RADIUS) {
+        sdl_clear();
+      }
+      break;
+    case MOUSE_MOVED: 
+      break;
+  }
 }
 
-// add buttons to scene (start, tank options, exit)
-//make sure that handler recognizes where the position is
-//draw the bodies 
+void menu_init() {
+  vector_t min = VEC_ZERO;
+  vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
+  sdl_init(min, max);
 
-//scene draw polygon and draw graphic (overlay them)
-//scene draw image (can be text) 
-//scene draw
+  //load all the text  
+  SDL_Color title_color = { 0, 0, 0, 255 };
+  graphic_t *main_menu_title = sdl_load_text("Main Menu",150, title_color);
+  vector_t title_loc = { MAX_WIDTH_GAME / 4, MAX_HEIGHT_GAME - MAX_HEIGHT_GAME / 8};
+  sdl_draw_graphic(main_menu_title, title_loc);
 
-//sdl_on_key(mouse_handler);
+  SDL_Color text_color = { 0, 0, 0, 255 };
+  graphic_t *start_button_title = sdl_load_text("Start!", 100, text_color);
+  vector_t start_loc = {MAX_WIDTH_GAME / 2, MAX_HEIGHT_GAME / 2 + 100.0};
+  sdl_draw_graphic(start_button_title, start_loc);
+  
+  graphic_t *tank_options = sdl_load_text("Select Tank", 80, text_color);
+  vector_t tank_options_loc = {MAX_WIDTH_GAME / 5, MAX_HEIGHT_GAME / 5};
+  sdl_draw_graphic(tank_options, tank_options_loc);
 
-void menu_init(scene_t *scene) {
-    //load all the text  
-    SDL_Color title_color = { 0, 0, 0, 255 };
-    graphic_t *main_menu_title = sdl_load_text("Main Menu",150, title_color);
-    vector_t title_loc = { MAX_WIDTH_GAME / 4, MAX_HEIGHT_GAME - MAX_HEIGHT_GAME / 8};
-    sdl_draw_graphic(main_menu_title, title_loc);
+  graphic_t *exit = sdl_load_text("Exit", 80, text_color);
+  vector_t exit_loc = {4 * MAX_WIDTH_GAME / 5, MAX_HEIGHT_GAME / 5};
+  sdl_draw_graphic(exit, exit_loc);
 
-    SDL_Color start_color = { 0, 0, 0, 255 };
-    graphic_t *start_button = sdl_load_text("Start!", 100, start_color);
-    vector_t start_loc = {MAX_WIDTH_GAME / 2, MAX_HEIGHT_GAME / 2 + 100.0};
-    sdl_draw_graphic(start_button, start_loc);
-    
-    SDL_Color options_color = { 0, 0, 0, 255 };
-    graphic_t *tank_options = sdl_load_text("Select Tank", 80, options_color);
-    vector_t tank_options_loc = {MAX_WIDTH_GAME / 5, MAX_HEIGHT_GAME / 5};
-    sdl_draw_graphic(tank_options, tank_options_loc);
+  //load all of the polygons 
+  list_t *start_button = make_circle(START_BUTTON_LOC, START_BUTTON_RADIUS);
+  rgb_color_t green = {0, 1, 0};
+  sdl_draw_polygon(start_button, green);
 
-    graphic_t *exit = sdl_load_text("Exit");
-    vector_t exit_loc = {4 * MAX_WIDTH / 5, MAX_HEIGHT_GAME / 5};
-    sdl_draw_graphic(exit, exit_loc);
+  list_t *options_button = make_rectangle(tank_options_loc, 160.0, 100.0);
+  rgb_color_t light_gray = {0.86, 0.86, 0.86};
+  sdl_draw_polygon(options_button, light_gray);
 
-    vector_t start_loc = { MAX_WIDTH_GAME / 2, MAX_HEIGHT_GAME / 2}
-    //load the buttons -> polygons
-    list_t *start_button = make_circle(start_loc, 100.0);
-    rgb_color_t green = {0, 1, 0};
-    sdl_draw_polygon(start_button, green);
+  list_t *exit_button = make_rectangle(exit_loc, 160.0, 100.0);
+  sdl_draw_polygon(exit_button, light_gray);
 
-    //load the buttons -> polygons
-    list_t *options_button = make_rectangle(tank_options_loc, 160.0, 100.0);
-    rgb_color_t light_gray = {0.86, 0.86, 0.86};
-    sdl_draw_polygon(options_button, light_gray);
-
-    list_t *exit_button = make_rectangle(exit_loc, 160.0, 100.0);
-    sdl_draw_polygon(exit_button, light_gray);
-
-    //draw scene 
-    sdl_show();
+  //handler for the main menu 
+  sdl_on_key((key_handler_t)menu_handler);
+  
+  //draw scene 
+  sdl_show();
 }

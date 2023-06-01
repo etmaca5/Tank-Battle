@@ -1,8 +1,8 @@
 #include "sdl_wrapper.h"
 #include "state.h"
-#include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_image.h>
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
@@ -200,15 +200,9 @@ graphic_t sdl_load_graphic(char *filename) {
 }
 
 graphic_t sdl_load_text(char *text, int font_size, SDL_Color color) {
-  TTF_init();
-
-  if (TTF_Init() != 0) {
-    printf("TTF_Init Error: %s\n", TTF_GetError());
-    SDL_Quit();
-    return 1;
-  }
-
+  TTF_Init();
   TTF_Font *font = TTF_OpenFont("lato.ttf", font_size);
+  assert(font != NULL);
 
   SDL_Surface *surface = TTF_RenderText_Solid(font, text, color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);

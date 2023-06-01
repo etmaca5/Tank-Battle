@@ -6,10 +6,8 @@
 #include "scene.h"
 #include "state.h"
 #include "vector.h"
-#include <stdbool.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL2_gfxPrimitives.h>
-#include <SDL2/SDL_image.h>
+#include <stdbool.h>
 
 // Values passed to a key handler when the given arrow key is pressed
 typedef enum {
@@ -94,7 +92,7 @@ graphic_t sdl_load_graphic(char *filename);
  * 
  * @param text The text to be displayed on screen. 
  */
-graphic_t sdl_load_text(char *text);
+graphic_t sdl_load_text(char *text, int font_size, SDL_Color color);
 
 /**
  * Function returns vector_t of mouse position 

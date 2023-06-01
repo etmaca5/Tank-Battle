@@ -56,16 +56,6 @@ list_t *make_circle(vector_t center, double radius) {
 
 void menu_handler(char key, key_event_type_t type, double held_time, state_t *state, vector_t loc) {
   
-
-
-
-
-
-
-
-
-
-
 }
 
 // add buttons to scene (start, tank options, exit)
@@ -113,8 +103,6 @@ void menu_init(scene_t *scene) {
     list_t *exit_button = make_rectangle(exit_loc, 160.0, 100.0);
     sdl_draw_polygon(exit_button, light_gray);
 
-
-    
     //draw scene 
     sdl_show();
 }

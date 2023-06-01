@@ -12,6 +12,12 @@
 typedef struct scene scene_t;
 
 /**
+ * Graphic struct that represents a visual element 
+ * on the screen, including text. 
+ */
+typedef struct graphic graphic_t;
+
+/**
  * A function which adds some forces or impulses to bodies,
  * e.g. from collisions, gravity, or spring forces.
  * Takes in an auxiliary value that can store parameters or state.

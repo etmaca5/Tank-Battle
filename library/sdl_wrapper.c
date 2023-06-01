@@ -1,6 +1,7 @@
 #include "sdl_wrapper.h"
 #include "state.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <assert.h>
 #include <math.h>
@@ -163,7 +164,6 @@ bool sdl_is_done(state_t *state) {
       if (key_handler == NULL) {
         break;
       }
-      // SDL_ShowCursor(true);
       type_mouse = event->type =
           SDL_MOUSEBUTTONDOWN ? KEY_PRESSED : KEY_RELEASED;
       type_mouse = event->type == SDL_MOUSEMOTION ? MOUSE_ENGAGED : type_mouse;
@@ -180,6 +180,66 @@ bool sdl_is_done(state_t *state) {
   }
   free(event);
   return false;
+}
+
+graphic_t sdl_load_graphic(char *filename) {
+  SDL_Surface *image = IMG_Load(filename);
+  if (image == NULL) {
+    printf("Error loading image: %s\n", IMG_GetError());
+  }
+
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, image);
+
+  //get width and height of the texture 
+  int width; 
+  int height;
+  SDL_QueryTexture(texture, NULL, NULL, &width, &height);
+
+  graphic_t graphic = {texture, width, height};
+  return graphic;
+}
+
+graphic_t sdl_load_text(char *text, int font_size, SDL_Color color) {
+  TTF_init();
+
+  if (TTF_Init() != 0) {
+    printf("TTF_Init Error: %s\n", TTF_GetError());
+    SDL_Quit();
+    return 1;
+  }
+
+  TTF_Font *font = TTF_OpenFont("lato.ttf", font_size);
+
+  SDL_Surface *surface = TTF_RenderText_Solid(font, text, color);
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  graphic_t graphic = {texture, surface->w, surface->h};
+  SDL_FreeSurface(surface);
+  TTF_Quit();
+  return graphic;
+}
+
+vector_t sdl_mouse_position()  {
+  int mouse_x; 
+  int mouse_y;
+  SDL_GetMouseState(&mouse_x, &mouse_y);
+  vector_t window_center = get_window_center();
+  vector_t scene_pos = {(double)mouse_x, (double)mouse_y};
+  vector_t mouse_position = get_window_position(scene_pos, window_center);
+  return mouse_position;
+}
+
+void sdl_draw_graphic(graphic_t *graphic, vector_t loc) {
+  vector_t window_center = get_window_center();
+  double scale = get_scene_scale(window_center);
+  vector_t pixel_coordinates = get_window_position(loc, window_center);
+  SDL_Rect rect;
+  rect.x = pixel_coordinates.x;
+  rect.y = pixel_coordinates.y;
+  //not sure if below is right 
+  rect.w = scale * graphic->width;
+  rect.h = scale * graphic->height;
+  SDL_RenderCopy(renderer, graphic->texture, NULL, &rect);
 }
 
 void sdl_clear(void) {

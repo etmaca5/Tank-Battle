@@ -7,6 +7,9 @@
 #include "state.h"
 #include "vector.h"
 #include <stdbool.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_image.h>
 
 // Values passed to a key handler when the given arrow key is pressed
 typedef enum {
@@ -18,6 +21,13 @@ typedef enum {
   MOUSE_CLICK = 6,
   MOUSE_MOVED = 7,
 } arrow_key_t;
+
+typedef struct graphic {
+    SDL_Texture *texture;
+    int width;
+    int height;
+    //void *loc;
+} graphic_t; 
 
 /**
  * The possible types of key events.
@@ -70,6 +80,26 @@ void sdl_clear(void);
  * @param color the color used to fill in the polygon
  */
 void sdl_draw_polygon(list_t *points, rgb_color_t color);
+
+/**
+ * Loads a graphic from a file and displays it on the screen.
+ * The file should be in a supported format, such as PNG, JPEG, or BMP.
+ * 
+ * @param filename The filename of the image  
+ */
+graphic_t sdl_load_graphic(char *filename);
+
+/**
+ * Text The text to be rendered as a graphic to display on screen. 
+ * 
+ * @param text The text to be displayed on screen. 
+ */
+graphic_t sdl_load_text(char *text);
+
+/**
+ * Function returns vector_t of mouse position 
+ */
+vector_t sdl_mouse_position();
 
 /**
  * Displays the rendered frame on the SDL window.

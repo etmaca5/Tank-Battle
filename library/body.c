@@ -17,6 +17,8 @@ const size_t HEALTH_BAR_TYPE = 5;
 const double BULLET_DAMAGE = 10.0;
 
 typedef struct body {
+  graphic_t *graphic;
+
   double mass;
   list_t *shape;
   vector_t velocity;
@@ -110,6 +112,10 @@ rgb_color_t body_get_color(body_t *body) { return body->color; }
 void body_set_centroid(body_t *body, vector_t x) {
   polygon_translate(body->shape, vec_subtract(x, body->centroid));
   body->centroid = x;
+}
+
+void body_set_graphic(body_t *body, graphic_t *graphic) {
+  body->graphic = graphic;
 }
 
 void body_set_magnitude(body_t *body, double magnitude) {

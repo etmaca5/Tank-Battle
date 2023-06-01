@@ -45,6 +45,7 @@
     "terminal.integrated.defaultProfile.windows": "Visual Studio Developer Prompt",
     "files.associations": {
         "forces.h": "c",
-        "sdl_wrapper.h": "c"
+        "sdl_wrapper.h": "c",
+        "functional": "cpp"
     }
 }

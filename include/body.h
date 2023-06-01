@@ -21,6 +21,12 @@ extern const size_t HEALTH_BAR_TYPE;
 typedef struct body body_t;
 
 /**
+ * Graphic struct that represents a visual element 
+ * on the screen, including text. 
+ */
+typedef struct graphic graphic_t;
+
+/**
  * Initializes a body without any info.
  * Acts like body_init_with_info() where info and info_freer are NULL.
  */
@@ -114,6 +120,8 @@ rgb_color_t body_get_color(body_t *body);
 void *body_get_info(body_t *body);
 
 double body_get_magnitude(body_t *);
+
+void body_set_graphic(body_t *body, graphic_t *graphic);
 
 void body_combine_mass(body_t *body1, body_t *body2);
 /**

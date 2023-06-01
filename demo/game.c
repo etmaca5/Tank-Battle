@@ -430,9 +430,6 @@ state_t *emscripten_init() {
                              scene_get_body(state->scene, 1),
                              scene_get_body(state->scene, i));
   }
-
-  
-
   return state;
 }
 

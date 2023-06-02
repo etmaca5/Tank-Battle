@@ -23,11 +23,10 @@ const double MAX_HEIGHT_GAME = 1300.0;
 
 // default tank stats
 double DEFAULT_TANK_VELOCITY = 100.0;
-double DEFAULT_TANK_STARTING_HEALTH = 100.0;
 double DEFAULT_TANK_SIDE_LENGTH = 80.0;
 double DEFAULT_TANK_MASS = 100.0;
 double DEFAULT_TANK_ROTATION_SPEED = M_PI / 2;
-double DEFAULT_TANK_MAX_HEALTH = 100.0;
+double DEFAULT_TANK_MAX_HEALTH = 50.0;
 
 double BULLET_HEIGHT = 25.0;
 double BULLET_WIDTH = 10.0;
@@ -49,6 +48,8 @@ rgb_color_t PLAYER2_COLOR_SIMILAR = {0.0, 0.5, 0.0};
 typedef struct state {
   scene_t *scene;
   double time;
+  size_t player1_score;
+  size_t player2_score;
 } state_t;
 
 list_t *make_half_circle(vector_t center, double radius) {
@@ -360,14 +361,7 @@ void handler(char key, key_event_type_t type, double held_time,
   handler2(key, type, held_time, state);
 }
 
-state_t *emscripten_init() {
-  vector_t min = VEC_ZERO;
-  vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
-  sdl_init(min, max);
-  state_t *state = malloc(sizeof(state_t));
-  assert(state != NULL);
-  state->scene = scene_init();
-
+void make_players(state_t *state) {
   vector_t player1_start =
       (vector_t){MAX_WIDTH_GAME / 6, MAX_HEIGHT_GAME - 400.0};
   vector_t player2_start =
@@ -375,16 +369,18 @@ state_t *emscripten_init() {
   // can channge it to choose the type of tank later
   tank_t *player1 = init_default_tank(
       player1_start, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
-      PLAYER1_COLOR, DEFAULT_TANK_STARTING_HEALTH, DEFAULT_TANK_TYPE);
+      PLAYER1_COLOR, DEFAULT_TANK_MAX_HEALTH, DEFAULT_TANK_TYPE);
   tank_t *player2 = init_default_tank(
       player2_start, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
-      PLAYER2_COLOR, DEFAULT_TANK_STARTING_HEALTH, DEFAULT_TANK_TYPE);
+      PLAYER2_COLOR, DEFAULT_TANK_MAX_HEALTH, DEFAULT_TANK_TYPE);
   body_set_rotation(tank_get_body(player2), M_PI);
   body_set_health(tank_get_body(player1), DEFAULT_TANK_MAX_HEALTH);
   body_set_health(tank_get_body(player2), DEFAULT_TANK_MAX_HEALTH);
   scene_add_body(state->scene, tank_get_body(player1));
   scene_add_body(state->scene, tank_get_body(player2));
+}
 
+void make_health_bars(state_t *state) {
   // initialize health bars
   list_t *p1_health_bar_shape = make_health_bar_p1(DEFAULT_TANK_MAX_HEALTH);
   size_t *type = malloc(sizeof(size_t));
@@ -413,6 +409,53 @@ state_t *emscripten_init() {
   body_t *p2_heart_body = body_init_with_info(p2_heart, 10.0, PLAYER2_COLOR_SIMILAR, type4, (free_func_t)free);
   scene_add_body(state->scene, p2_heart_body);
   map_init(state->scene);
+}
+
+void reset_game(state_t *state) {
+  for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+    body_t *body = scene_get_body(state->scene, i);
+    body_remove(body);
+  }
+  scene_tick(state->scene, 0.0);
+
+  make_players(state);
+  make_health_bars(state);
+  // skip first six bodies
+  for (size_t i = 6; i < scene_bodies(state->scene); i++) {
+    create_physics_collision(state->scene, 10.0,
+                             scene_get_body(state->scene, 0),
+                             scene_get_body(state->scene, i));
+    create_physics_collision(state->scene, 10.0,
+                             scene_get_body(state->scene, 1),
+                             scene_get_body(state->scene, i));
+  }
+}
+
+void check_game_end(state_t *state) {
+  body_t *player1 = scene_get_body(state->scene, 0);
+  body_t *player2 = scene_get_body(state->scene, 1);
+  if (body_get_health(player1) <= 0) {
+    state->player2_score++;
+    reset_game(state);
+  } else if (body_get_health(player2) <= 0) {
+    state->player1_score++;
+    reset_game(state);
+  }
+}
+
+state_t *emscripten_init() {
+  vector_t min = VEC_ZERO;
+  vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
+  sdl_init(min, max);
+  state_t *state = malloc(sizeof(state_t));
+  assert(state != NULL);
+  state->scene = scene_init();
+  state->player1_score = 0;
+  state->player2_score = 0;
+
+  make_players(state);
+
+  make_health_bars(state);
 
   // skip first six bodies
   for (size_t i = 6; i < scene_bodies(state->scene); i++) {
@@ -430,6 +473,7 @@ void emscripten_main(state_t *state) {
   double dt = time_since_last_tick();
   sdl_on_key((key_handler_t)handler);
   state->time += dt;
+  check_game_end(state);
 
   // add time to player bodies for reload
   body_t *player1 = scene_get_body(state->scene, 0);

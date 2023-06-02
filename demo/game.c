@@ -40,6 +40,8 @@ double HEALTH_BAR_HEIGHT = 50.0;
 double HEALTH_BAR_OFFSET_HORIZONTAL = 50.0;
 double HEALTH_BAR_OFFSET_VERTICAL = 25.0;
 
+double COLLISION_ELASTICITY = 20.0;
+
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
@@ -422,10 +424,10 @@ void reset_game(state_t *state) {
   make_health_bars(state);
   // skip first six bodies
   for (size_t i = 6; i < scene_bodies(state->scene); i++) {
-    create_physics_collision(state->scene, 10.0,
+    create_physics_collision(state->scene, COLLISION_ELASTICITY,
                              scene_get_body(state->scene, 0),
                              scene_get_body(state->scene, i));
-    create_physics_collision(state->scene, 10.0,
+    create_physics_collision(state->scene, COLLISION_ELASTICITY,
                              scene_get_body(state->scene, 1),
                              scene_get_body(state->scene, i));
   }
@@ -459,10 +461,10 @@ state_t *emscripten_init() {
 
   // skip first six bodies
   for (size_t i = 6; i < scene_bodies(state->scene); i++) {
-    create_physics_collision(state->scene, 10.0,
+    create_physics_collision(state->scene, COLLISION_ELASTICITY,
                              scene_get_body(state->scene, 0),
                              scene_get_body(state->scene, i));
-    create_physics_collision(state->scene, 10.0,
+    create_physics_collision(state->scene, COLLISION_ELASTICITY,
                              scene_get_body(state->scene, 1),
                              scene_get_body(state->scene, i));
   }

@@ -7,6 +7,7 @@
 
 extern const size_t RECTANGLE_OBSTACLE_TYPE;
 extern const size_t TRIANGLE_OBSTACLE_TYPE;
+extern const double TRIANGLE_DAMAGE;
 
 /**
  * This function initializes the game map and is called once 

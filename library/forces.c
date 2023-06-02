@@ -2,6 +2,7 @@
 #include "body.h"
 #include "collision.h"
 #include "scene.h"
+#include "map.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -182,6 +183,13 @@ void impulse_handler(body_t *body1, body_t *body2, vector_t axis, void *aux) {
 
   body_add_impulse(body1, impulse);
   body_add_impulse(body2, vec_negate(impulse));
+
+  if (*(size_t *)body_get_info(body1) == TRIANGLE_OBSTACLE_TYPE) {
+    body_set_health(body2, body_get_health(body2) - TRIANGLE_DAMAGE);
+  }
+  if (*(size_t *)body_get_info(body2) == TRIANGLE_OBSTACLE_TYPE) {
+    body_set_health(body1, body_get_health(body1) - TRIANGLE_DAMAGE);
+  }
 }
 
 void custom_forcer(store_force_t *storage) {

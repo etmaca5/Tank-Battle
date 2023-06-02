@@ -52,6 +52,7 @@ typedef struct state {
   double time;
   size_t player1_score;
   size_t player2_score;
+  bool singleplayer;
 } state_t;
 
 list_t *make_half_circle(vector_t center, double radius) {
@@ -360,7 +361,55 @@ void handler2(char key, key_event_type_t type, double held_time,
 void handler(char key, key_event_type_t type, double held_time,
              state_t *state, vector_t loc) {
   handler1(key, type, held_time, state);
-  handler2(key, type, held_time, state);
+  if (!state->singleplayer) {
+    handler2(key, type, held_time, state);
+  }
+}
+
+void play_ai(state_t *state, double dt) {
+  body_t *ai = scene_get_body(state->scene, 1);
+  // program ai to always rotate towards enemy
+  // program ai to shoot randomly
+  double time = body_get_time(ai);
+  if (time > rand_num(RELOAD_SPEED, RELOAD_SPEED * 3)) {
+    body_set_time(ai, 0.0);
+    vector_t spawn_point = body_get_centroid(ai);
+    list_t *bullet_points = make_bullet(spawn_point);
+    polygon_rotate(bullet_points, body_get_rotation(ai),
+                  body_get_centroid(ai));
+    vector_t player_dir = {cos(body_get_rotation(ai)),
+                          sin(body_get_rotation(ai))};
+    vector_t move_up =
+        vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2 + 10, player_dir);
+    polygon_translate(bullet_points, move_up);
+    size_t *type = malloc(sizeof(size_t));
+    *type = BULLET_TYPE;
+    body_t *bullet = body_init_with_info(
+        bullet_points, BULLET_MASS, PLAYER2_COLOR, type, (free_func_t)free);
+    body_set_rotation_empty(bullet, body_get_rotation(ai));
+    body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
+    body_set_time(bullet, 0.0);
+    scene_add_body(state->scene, bullet);
+
+    // create collision with tanks
+    create_partial_destructive_collision(
+        state->scene, scene_get_body(state->scene, 0), bullet);
+    create_partial_destructive_collision(
+        state->scene, scene_get_body(state->scene, 1), bullet);
+
+    // create collision with walls and other bullets
+    for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {
+      body_t *body = scene_get_body(state->scene, i);
+      if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
+        create_destructive_collision(state->scene, body, bullet);
+      } else if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
+                *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
+        create_physics_collision(state->scene, 1.0, bullet, body);
+      }
+    }
+  }
+  // randomly move forward
+  // if it just collided with a wall, back up
 }
 
 void make_players(state_t *state) {
@@ -454,6 +503,7 @@ state_t *emscripten_init() {
   state->scene = scene_init();
   state->player1_score = 0;
   state->player2_score = 0;
+  state->singleplayer = true;
 
   make_players(state);
 
@@ -476,6 +526,10 @@ void emscripten_main(state_t *state) {
   sdl_on_key((key_handler_t)handler);
   state->time += dt;
   check_game_end(state);
+
+  if (state->singleplayer) {
+    play_ai(state, dt);
+  }
 
   // add time to player bodies for reload
   body_t *player1 = scene_get_body(state->scene, 0);

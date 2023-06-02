@@ -336,16 +336,43 @@ void handler(char key, key_event_type_t type, double held_time,
   }
 }
 
+double double_abs(double x) {
+  if (x < 0) return -x;
+  return x;
+}
+
 void play_ai(state_t *state, double dt) {
   body_t *ai = scene_get_body(state->scene, 1);
-  // program ai to always rotate towards enemy
-  // program ai to shoot randomly
-  double time = body_get_time(ai);
-  if (time > rand_num(RELOAD_SPEED, RELOAD_SPEED * 3)) {
-    handle_bullet(state, ai, PLAYER2_COLOR);
+  body_t *player1 = scene_get_body(state->scene, 0);
+  if (body_get_distance(body_get_centroid(ai), body_get_centroid(player1)) < 750.0) {
+    // program ai to always rotate towards enemy
+    vector_t distance = vec_subtract(body_get_centroid(player1), body_get_centroid(ai));
+    double angle = atan(distance.y / distance.x);
+    if (distance.x < 0) {
+      angle += M_PI;
+    }
+    angle = angle - 2 * M_PI * ((size_t)angle / ((size_t)(2 * M_PI))); // simulate % by 2pi
+    double ai_angle = body_get_rotation(ai);
+    ai_angle = ai_angle - 2 * M_PI * ((size_t)angle / ((size_t)(2 * M_PI))); // simulate % by 2pi
+    if (ai_angle < angle) {
+      body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
+    } else {
+      body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
+    }
+
+    // program ai to shoot randomly
+    if (double_abs(angle - ai_angle) < M_PI / 8) {
+      double time = body_get_time(ai);
+      if (time > rand_num(RELOAD_SPEED, RELOAD_SPEED * 3)) {
+        handle_bullet(state, ai, PLAYER2_COLOR);
+      }
+    }
+  } else {
+    // motion to back up and turn 180
+    // motion to move forward
+    // motion to move diagonally right/left
+    // motion to turn 90 degrees
   }
-  // randomly move forward
-  // if it just collided with a wall, back up
 }
 
 void make_players(state_t *state) {

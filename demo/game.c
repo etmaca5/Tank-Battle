@@ -341,12 +341,15 @@ double double_abs(double x) {
   return x;
 }
 
-void play_ai(state_t *state, double dt) {
-  body_t *ai = scene_get_body(state->scene, 1);
-  body_t *player1 = scene_get_body(state->scene, 0);
-  if (body_get_distance(body_get_centroid(ai), body_get_centroid(player1)) < 750.0) {
-    // program ai to always rotate towards enemy
-    vector_t distance = vec_subtract(body_get_centroid(player1), body_get_centroid(ai));
+void reset_mode(body_t *ai) {
+  body_set_ai_mode(ai, 0);
+  body_set_ai_time(ai, 0.0);
+}
+
+void ai_aim(body_t *player, body_t *ai) {
+  // program ai to aim towards enemy
+  if (body_get_distance(body_get_centroid(ai), body_get_centroid(player)) < 750.0) {
+    vector_t distance = vec_subtract(body_get_centroid(player), body_get_centroid(ai));
     double angle = atan(distance.y / distance.x);
     if (distance.x < 0) {
       angle += M_PI;
@@ -359,20 +362,106 @@ void play_ai(state_t *state, double dt) {
     } else {
       body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
     }
+  } else {
+    body_set_rotation_speed(ai, 0.0);
+  }
+}
 
-    // program ai to shoot randomly
+void ai_shoot(state_t *state, body_t *player, body_t *ai) {
+  if (body_get_distance(body_get_centroid(ai), body_get_centroid(player)) < 750.0) {
+    vector_t distance = vec_subtract(body_get_centroid(player), body_get_centroid(ai));
+    double angle = atan(distance.y / distance.x);
+    if (distance.x < 0) {
+      angle += M_PI;
+    }
+    angle = angle - 2 * M_PI * ((size_t)angle / ((size_t)(2 * M_PI))); // simulate % by 2pi
+    double ai_angle = body_get_rotation(ai);
+    ai_angle = ai_angle - 2 * M_PI * ((size_t)angle / ((size_t)(2 * M_PI))); // simulate % by 2pi
+
+    // program ai to shoot randomly, but only if pointed somewhat close to enemy tank
     if (double_abs(angle - ai_angle) < M_PI / 8) {
       double time = body_get_time(ai);
       if (time > rand_num(RELOAD_SPEED, RELOAD_SPEED * 3)) {
         handle_bullet(state, ai, PLAYER2_COLOR);
       }
     }
-  } else {
-    // motion to back up and turn 180
-    // motion to move forward
-    // motion to move diagonally right/left
-    // motion to turn 90 degrees
   }
+}
+
+void move_ai(state_t *state, double dt) {
+  body_t *player = scene_get_body(state->scene, 0);
+  body_t *ai = scene_get_body(state->scene, 1);
+  size_t ai_mode = body_get_ai_mode(ai);
+  double ai_time = body_get_ai_time(ai);
+  if (ai_mode == 0) {
+    ai_aim(player, ai);
+    ai_shoot(state, player, ai);
+
+    body_set_velocity(ai, VEC_ZERO);
+    body_set_magnitude(ai, 0.0);
+    bool move = (ai_time > rand_num(2.5, 20.0));
+    if (move) {
+      size_t rand_mode = (size_t)rand_num(0.0, 10.0);
+      body_set_ai_mode(ai, rand_mode);
+      body_set_ai_time(ai, 0.0);
+    }
+  } else if (ai_mode == 1) {
+    ai_shoot(state, player, ai);
+    body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
+    if (ai_time > 1.5) {
+      reset_mode(ai);
+    }
+  } else if (ai_mode == 2) {
+    ai_shoot(state, player, ai);
+    body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
+    if (ai_time > 1.5) {
+      reset_mode(ai);
+    }
+  } else if (ai_mode == 3) {
+    ai_shoot(state, player, ai);
+    body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
+    body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
+    if (ai_time > 1.5) {
+      reset_mode(ai);
+    }
+  } else if (ai_mode == 4) {
+    body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
+    body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
+    if (ai_time > 1.5) {
+      reset_mode(ai);
+    }
+  } else if (ai_mode == 5) {
+    body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
+    body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
+    if (ai_time > 1.5) {
+      reset_mode(ai);
+    }
+  } else if (ai_mode == 6) {
+    body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
+    body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
+    if (ai_time > 1.5) {
+      reset_mode(ai);
+    }
+  } else if (ai_mode == 7) {
+    body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
+    if (ai_time > 1) {
+      reset_mode(ai);
+    }
+  } else if (ai_mode == 8) {
+    body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
+    if (ai_time > 0.5) {
+      reset_mode(ai);
+    }
+  } else if (ai_mode == 9) {
+    body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
+    if (ai_time > 0.5) {
+      reset_mode(ai);
+    }
+  }
+}
+
+void play_ai(state_t *state, double dt) {
+  move_ai(state, dt);
 }
 
 void make_players(state_t *state) {
@@ -466,7 +555,7 @@ state_t *emscripten_init() {
   state->scene = scene_init();
   state->player1_score = 0;
   state->player2_score = 0;
-  state->singleplayer = false;
+  state->singleplayer = true;
 
   make_players(state);
 
@@ -490,15 +579,16 @@ void emscripten_main(state_t *state) {
   state->time += dt;
   check_game_end(state);
 
-  if (state->singleplayer) {
-    play_ai(state, dt);
-  }
-
   // add time to player bodies for reload
   body_t *player1 = scene_get_body(state->scene, 0);
   body_t *player2 = scene_get_body(state->scene, 1);
   body_set_time(player1, body_get_time(player1) + dt);
   body_set_time(player2, body_get_time(player2) + dt);
+
+  if (state->singleplayer) {
+    play_ai(state, dt);
+    body_set_ai_time(player2, body_get_ai_time(player2) + dt);
+  }
 
   // add time to bullet bodies to see if they should disappear
   for (size_t i = 0; i < scene_bodies(state->scene); i++) {

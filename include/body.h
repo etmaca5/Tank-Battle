@@ -6,11 +6,23 @@
 #include "vector.h"
 #include <stdbool.h>
 
+// types used across files
 extern const double BULLET_DAMAGE;
 extern const size_t WALL_TYPE;
 extern const size_t BULLET_TYPE;
 extern const size_t DEFAULT_TANK_TYPE;
 extern const size_t HEALTH_BAR_TYPE;
+
+// ai modes
+extern const size_t AI_UP;
+extern const size_t AI_DOWN;
+extern const size_t AI_UP_LEFT;
+extern const size_t AI_UP_RIGHT;
+extern const size_t AI_DOWN_LEFT;
+extern const size_t AI_DOWN_RIGHT;
+extern const size_t AI_180;
+extern const size_t AI_90_LEFT;
+extern const size_t AI_90_RIGHT;
 
 /**
  * A rigid body constrained to the plane.
@@ -121,6 +133,8 @@ void *body_get_info(body_t *body);
 
 double body_get_magnitude(body_t *);
 
+bool body_get_just_collided(body_t *body);
+
 void body_set_graphic(body_t *body, graphic_t *graphic);
 
 void body_combine_mass(body_t *body1, body_t *body2);
@@ -219,4 +233,15 @@ bool body_is_removed(body_t *body);
 double body_get_distance(vector_t body1_centroid, vector_t body2_centroid);
 
 double body_get_mass(body_t *body);
+
+size_t body_get_ai_mode(body_t *body);
+
+void body_set_ai_mode(body_t *body, size_t mode);
+
+double body_get_ai_time(body_t *body);
+
+void body_set_ai_time(body_t *body, double time);
+
+void body_set_just_collided(body_t *body, bool just_collided);
+
 #endif // #ifndef __BODY_H__

@@ -393,54 +393,88 @@ void move_ai(state_t *state, double dt) {
   body_t *ai = scene_get_body(state->scene, 1);
   size_t ai_mode = body_get_ai_mode(ai);
   double ai_time = body_get_ai_time(ai);
+  ai_shoot(state, player, ai);
+
   if (ai_mode == 0) {
     ai_aim(player, ai);
-    ai_shoot(state, player, ai);
 
     body_set_velocity(ai, VEC_ZERO);
     body_set_magnitude(ai, 0.0);
-    bool move = (ai_time > rand_num(2.5, 20.0));
+    bool move = (ai_time > rand_num(2.5, 5.0));
     if (move) {
       size_t rand_mode = (size_t)rand_num(0.0, 10.0);
       body_set_ai_mode(ai, rand_mode);
       body_set_ai_time(ai, 0.0);
     }
   } else if (ai_mode == 1) {
-    ai_shoot(state, player, ai);
-    body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
-    if (ai_time > 1.5) {
-      reset_mode(ai);
+    if (body_get_just_collided(ai)) {
+      body_set_ai_mode(ai, 2);
+      body_set_ai_time(ai, 1.5 - ai_time);
+      body_set_just_collided(ai, false);
+    } else {
+      body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
+      if (ai_time > 1.5) {
+        reset_mode(ai);
+      }
     }
   } else if (ai_mode == 2) {
-    ai_shoot(state, player, ai);
-    body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
-    if (ai_time > 1.5) {
-      reset_mode(ai);
+    if (body_get_just_collided(ai)) {
+      body_set_ai_mode(ai, 1);
+      body_set_ai_time(ai, 1.5 - ai_time);
+      body_set_just_collided(ai, false);
+    } else {
+      body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
+      if (ai_time > 1.5) {
+        reset_mode(ai);
+      }
     }
   } else if (ai_mode == 3) {
-    ai_shoot(state, player, ai);
-    body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
-    body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
-    if (ai_time > 1.5) {
-      reset_mode(ai);
+    if (body_get_just_collided(ai)) {
+      body_set_ai_mode(ai, 6);
+      body_set_ai_time(ai, 1.5 - ai_time);
+      body_set_just_collided(ai, false);
+    } else {
+      body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
+      body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
+      if (ai_time > 1.5) {
+        reset_mode(ai);
+      }
     }
   } else if (ai_mode == 4) {
-    body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
-    body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
-    if (ai_time > 1.5) {
-      reset_mode(ai);
+    if (body_get_just_collided(ai)) {
+      body_set_ai_mode(ai, 5);
+      body_set_ai_time(ai, 1.5 - ai_time);
+      body_set_just_collided(ai, false);
+    } else {
+      body_set_magnitude(ai, DEFAULT_TANK_VELOCITY);
+      body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
+      if (ai_time > 1.5) {
+        reset_mode(ai);
+      }
     }
   } else if (ai_mode == 5) {
-    body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
-    body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
-    if (ai_time > 1.5) {
-      reset_mode(ai);
+    if (body_get_just_collided(ai)) {
+      body_set_ai_mode(ai, 4);
+      body_set_ai_time(ai, 1.5 - ai_time);
+      body_set_just_collided(ai, false);
+    } else {
+      body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
+      body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
+      if (ai_time > 1.5) {
+        reset_mode(ai);
+      }
     }
   } else if (ai_mode == 6) {
-    body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
-    body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
-    if (ai_time > 1.5) {
-      reset_mode(ai);
+    if (body_get_just_collided(ai)) {
+      body_set_ai_mode(ai, 3);
+      body_set_ai_time(ai, 1.5 - ai_time);
+      body_set_just_collided(ai, false);
+    } else {
+      body_set_magnitude(ai, -DEFAULT_TANK_VELOCITY);
+      body_set_rotation_speed(ai, -DEFAULT_TANK_ROTATION_SPEED);
+      if (ai_time > 1.5) {
+        reset_mode(ai);
+      }
     }
   } else if (ai_mode == 7) {
     body_set_rotation_speed(ai, DEFAULT_TANK_ROTATION_SPEED);
@@ -458,10 +492,6 @@ void move_ai(state_t *state, double dt) {
       reset_mode(ai);
     }
   }
-}
-
-void play_ai(state_t *state, double dt) {
-  move_ai(state, dt);
 }
 
 void make_players(state_t *state) {
@@ -586,7 +616,7 @@ void emscripten_main(state_t *state) {
   body_set_time(player2, body_get_time(player2) + dt);
 
   if (state->singleplayer) {
-    play_ai(state, dt);
+    move_ai(state, dt);
     body_set_ai_time(player2, body_get_ai_time(player2) + dt);
   }
 

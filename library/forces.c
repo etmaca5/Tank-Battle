@@ -209,10 +209,13 @@ void custom_forcer(store_force_t *storage) {
     storage->just_collided = false;
     return;
   }
+  body_set_just_collided(body1, true);
+  body_set_just_collided(body2, true);
   if (storage->just_collided) {
     return;
   }
   storage->just_collided = true;
+  
 
   collision_handler_t handler = storage->handler;
   void *aux = storage->aux;

@@ -585,7 +585,7 @@ state_t *emscripten_init() {
   state->scene = scene_init();
   state->player1_score = 0;
   state->player2_score = 0;
-  state->singleplayer = true;
+  state->singleplayer = false;
 
   make_players(state);
 

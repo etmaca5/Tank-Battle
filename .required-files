@@ -18,6 +18,7 @@ include/scene.h
 include/forces.h
 include/collision.h
 include/list.h
+include/menu.h
 library/sdl_wrapper.c
 library/test_util.c
 library/polygon.c
@@ -28,6 +29,7 @@ library/body.c
 library/scene.c
 library/forces.c
 library/collision.c
+library/menu.c
 tests/student_tests.c
 tests/test_suite_body.c
 tests/test_suite_color.c
@@ -37,3 +39,4 @@ tests/test_suite_polygon.c
 tests/test_suite_scene.c
 tests/test_suite_vector.c
 tests/test_suite_collision.c
+tests/test_suite_menu.c

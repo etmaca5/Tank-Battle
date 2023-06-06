@@ -5,9 +5,8 @@
 #include <stdbool.h>
 
 /**
- * This function initializes the main menu 
- *
- * graphics are added
+ * This function initializes the main menu
+ * 
  */
 void menu_init();
 

@@ -7,6 +7,7 @@
 #include "state.h"
 #include "vector.h"
 #include <SDL2/SDL.h>
+//#include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
 // Values passed to a key handler when the given arrow key is pressed
@@ -78,6 +79,14 @@ void sdl_clear(void);
  * @param color the color used to fill in the polygon
  */
 void sdl_draw_polygon(list_t *points, rgb_color_t color);
+
+/**
+ * Draws a polygon from the given list of vertices and a color.
+ *
+ * @param graphic the graphic to draw
+ * @param loc the location of where to draw the graphic
+ */
+void sdl_draw_graphic(graphic_t *graphic, vector_t loc);
 
 /**
  * Loads a graphic from a file and displays it on the screen.

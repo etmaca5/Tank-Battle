@@ -1,4 +1,8 @@
-
+#include <assert.h>
+#include <math.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "body.h"
 #include "collision.h"
 #include "forces.h"
@@ -12,11 +16,7 @@
 #include "tank.h"
 #include "menu.h"
 #include "vector.h"
-#include <assert.h>
-#include <math.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
+
 
 const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1300.0;
@@ -53,6 +53,7 @@ typedef struct state {
   size_t player1_score;
   size_t player2_score;
   bool singleplayer;
+  bool is_menu;
 } state_t;
 
 list_t *make_half_circle(vector_t center, double radius) {
@@ -451,9 +452,11 @@ void check_game_end(state_t *state) {
   if (body_get_health(player1) <= 0) {
     state->player2_score++;
     reset_game(state);
+    state->is_menu = true;
   } else if (body_get_health(player2) <= 0) {
     state->player1_score++;
     reset_game(state);
+    state->is_menu = true;
   }
 }
 
@@ -467,6 +470,9 @@ state_t *emscripten_init() {
   state->player1_score = 0;
   state->player2_score = 0;
   state->singleplayer = false;
+
+  // menu_init();
+  state->is_menu = false;
 
   make_players(state);
 
@@ -488,6 +494,9 @@ void emscripten_main(state_t *state) {
   double dt = time_since_last_tick();
   sdl_on_key((key_handler_t)handler);
   state->time += dt;
+  if (state->is_menu) {
+    // menu_init();
+  }
   check_game_end(state);
 
   if (state->singleplayer) {

@@ -4,6 +4,9 @@
 #include "body.h"
 #include "list.h"
 
+extern const double MAX_WIDTH_GAME;
+extern const double MAX_HEIGHT_GAME;
+
 /**
  * A collection of bodies and force creators.
  * The scene automatically resizes to store

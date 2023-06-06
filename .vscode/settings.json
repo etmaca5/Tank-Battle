@@ -46,6 +46,7 @@
     "files.associations": {
         "forces.h": "c",
         "sdl_wrapper.h": "c",
-        "functional": "cpp"
+        "functional": "cpp",
+        "menu.h": "c"
     }
 }

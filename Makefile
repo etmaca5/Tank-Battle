@@ -4,7 +4,7 @@ DEMOS = game
 STAFF_LIBS = test_util sdl_wrapper
 # List of C files in "libraries" that you will write.
 # This also defines the order in which the tests are run.
-STUDENT_LIBS = list vector polygon body scene forces collision star tank map 
+STUDENT_LIBS = list vector polygon body scene forces collision star tank map menu
 
 # find <dir> is the command to find files in a directory
 # ! -name .gitignore tells find to ignore the .gitignore
@@ -121,7 +121,7 @@ bin/%.html: out/emscripten.wasm.o out/%.wasm.o out/sdl_wrapper.wasm.o $(WASM_STU
 # Builds the test suite executables from the corresponding test .o file
 # and the library .o files. The only difference from the demo build command
 # is that it doesn't link the SDL libraries.
-bin/test_suite_%: out/test_suite_%.o out/test_util.o $(STUDENT_OBJS) $(STAFF_OBJS)
+bin/test_suite_%: out/test_suite_%.o out/test_util.o out/sdl_wrapper.o $(STUDENT_OBJS) $(STAFF_OBJS)
 	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
 
 # Builds the test suite executable for the student tests

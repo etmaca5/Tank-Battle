@@ -16,9 +16,18 @@ const size_t DEFAULT_TANK_TYPE = 2;
 const size_t HEALTH_BAR_TYPE = 5;
 const double BULLET_DAMAGE = 10.0;
 
+const size_t AI_UP = 1;
+const size_t AI_DOWN = 2;
+const size_t AI_UP_LEFT = 3;
+const size_t AI_UP_RIGHT = 4;
+const size_t AI_DOWN_LEFT = 5;
+const size_t AI_DOWN_RIGHT = 6;
+const size_t AI_180 = 7;
+const size_t AI_90_LEFT = 8;
+const size_t AI_90_RIGHT = 9;
+
 typedef struct body {
   graphic_t *graphic;
-
   double mass;
   list_t *shape;
   vector_t velocity;
@@ -34,6 +43,9 @@ typedef struct body {
   double magnitude;
   double time;
   double health;
+  size_t ai_mode;
+  double ai_time;
+  bool just_collided;
 } body_t;
 
 body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
@@ -54,6 +66,9 @@ body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
   body->is_removed = false;
   body->time = INFINITY;
   body->health = 10.0;
+  body->ai_mode = 0;
+  body->ai_time = 0;
+  body->just_collided = false;
   return body;
 }
 
@@ -105,6 +120,12 @@ double body_get_health(body_t *body) { return body->health; }
 
 double body_get_magnitude(body_t *body) { return body->magnitude; };
 
+size_t body_get_ai_mode(body_t *body) { return body->ai_mode; }
+
+double body_get_ai_time(body_t *body) { return body->ai_time; }
+
+bool body_get_just_collided(body_t *body) { return body->just_collided; }
+
 void *body_get_info(body_t *body) { return body->info; }
 
 rgb_color_t body_get_color(body_t *body) { return body->color; }
@@ -130,9 +151,13 @@ void body_set_health(body_t *body, double health) { body->health = health; }
 
 void body_set_impulse(body_t *body, vector_t v) { body->impulse = v; }
 
+void body_set_ai_time(body_t *body, double time) { body->ai_time = time; }
+
 void body_set_velocity(body_t *body, vector_t v) { body->velocity = v; }
 
 void body_set_time(body_t *body, double time) { body->time = time; }
+
+void body_set_just_collided(body_t *body, bool just_collided) { body->just_collided = just_collided; }
 
 void body_set_rotation_speed(body_t *body, double w) {
   body->rotation_speed = w;
@@ -147,6 +172,8 @@ void body_set_rotation(body_t *body, double angle) {
 void body_set_rotation_empty(body_t *body, double rotation) {
   body->rotation = rotation;
 }
+
+void body_set_ai_mode(body_t *body, size_t mode) { body->ai_mode = mode; };
 
 void body_combine_mass(body_t *body1, body_t *body2) {
   body1->mass = body1->mass + body2->mass;

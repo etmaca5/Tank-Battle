@@ -31,7 +31,7 @@ double DEFAULT_TANK_MAX_HEALTH = 50.0;
 double BULLET_HEIGHT = 25.0;
 double BULLET_WIDTH = 10.0;
 double BULLET_MASS = 5.0;
-double BULLET_VELOCITY = 250.0;
+double BULLET_VELOCITY = 300.0;
 double RELOAD_SPEED = 1.0;
 double BULLET_DISAPPEAR_TIME = 10.0;
 
@@ -41,6 +41,8 @@ double HEALTH_BAR_OFFSET_HORIZONTAL = 50.0;
 double HEALTH_BAR_OFFSET_VERTICAL = 25.0;
 
 double COLLISION_ELASTICITY = 20.0;
+
+double GAMMA = 1.0;
 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
@@ -210,6 +212,9 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
       state->scene, scene_get_body(state->scene, 0), bullet);
   create_partial_destructive_collision(
       state->scene, scene_get_body(state->scene, 1), bullet);
+
+  //add drag force 
+  create_drag(state->scene, GAMMA, bullet);
 
   // create collision with walls and other bullets
   for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {

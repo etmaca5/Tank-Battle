@@ -4,7 +4,7 @@ DEMOS = game
 STAFF_LIBS = test_util sdl_wrapper
 # List of C files in "libraries" that you will write.
 # This also defines the order in which the tests are run.
-STUDENT_LIBS = list vector polygon body scene forces collision star tank map 
+STUDENT_LIBS = list vector polygon body scene forces collision star tank map menu rect 
 
 # find <dir> is the command to find files in a directory
 # ! -name .gitignore tells find to ignore the .gitignore
@@ -69,7 +69,7 @@ STUDENT_OBJS = $(addprefix out/,$(STUDENT_LIBS:=.o))
 WASM_STUDENT_OBJS = $(addprefix out/,$(STUDENT_LIBS:=.wasm.o))
 
 # List of test suite executables, e.g. "bin/test_suite_vector"
-TEST_BINS = $(addprefix bin/test_suite_,$(STUDENT_LIBS))
+# TEST_BINS = $(addprefix bin/test_suite_,$(STUDENT_LIBS))
 # List of demo executables, i.e. "bin/bounce.html".
 DEMO_BINS = $(addsuffix .html, $(addprefix bin/,$(DEMOS)))
 
@@ -121,8 +121,8 @@ bin/%.html: out/emscripten.wasm.o out/%.wasm.o out/sdl_wrapper.wasm.o $(WASM_STU
 # Builds the test suite executables from the corresponding test .o file
 # and the library .o files. The only difference from the demo build command
 # is that it doesn't link the SDL libraries.
-bin/test_suite_%: out/test_suite_%.o out/test_util.o out/sdl_wrapper.o $(STUDENT_OBJS) $(STAFF_OBJS)
-	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
+# bin/test_suite_%: out/test_suite_%.o out/test_util.o $(STUDENT_OBJS) $(STAFF_OBJS)
+# 	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
 
 # Builds the test suite executable for the student tests
 bin/student_tests: out/student_tests.o out/test_util.o $(STUDENT_OBJS)

@@ -184,16 +184,20 @@ bool sdl_is_done(state_t *state) {
   return false;
 }
 
-SDL_Texture *sdl_load_text(state_t *state, char *words, text_t *text, SDL_Color color) {
+SDL_Texture *sdl_load_text(state_t *state, char *words, text_t *text, SDL_Color color, vector_t loc) {
   TTF_Font *font = text_get_font(text);
 
   SDL_Surface *surfaceMessage =
       TTF_RenderText_Solid(font, words, color);
   SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
+  //scale from vector_t to pixel 
+  vector_t window_center = get_window_center();
+  vector_t coords = get_window_position(loc, window_center);
+
   SDL_Rect Message_rect;              // create a rect
-  Message_rect.x = 300;  // controls the rect's x coordinate
-  Message_rect.y = 300; // controls the rect's y coordinte
+  Message_rect.x = coords.x;  // controls the rect's x coordinate
+  Message_rect.y = coords.y; // controls the rect's y coordinte
   Message_rect.w = surfaceMessage->w; // controls the width of the rect
   Message_rect.h = surfaceMessage->h; // controls the height of the rect 
 

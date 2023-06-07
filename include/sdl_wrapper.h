@@ -74,7 +74,7 @@ void sdl_clear(void);
  */
 void sdl_draw_polygon(list_t *points, rgb_color_t color);
 
-SDL_Texture *sdl_load_text(state_t *state, char *words, text_t *text, SDL_Color color);
+SDL_Texture *sdl_load_text(state_t *state, char *words, text_t *text, SDL_Color color, vector_t loc);
 
 /**
  * Function returns vector_t of mouse position 

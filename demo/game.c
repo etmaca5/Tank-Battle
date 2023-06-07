@@ -20,9 +20,12 @@
 #include "vector.h"
 
 int FONT_SIZE = 50;
+int TITLE_SIZE = 80;
+double CIRCLE_POINTS = 300.0;
 
 const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1300.0;
+
 // default tank stats
 double DEFAULT_TANK_VELOCITY = 100.0;
 double DEFAULT_TANK_SIDE_LENGTH = 80.0;
@@ -59,6 +62,7 @@ typedef struct state {
   bool singleplayer;
   bool is_menu;
   text_t *text;
+  text_t *title;
 } state_t;
 
 list_t *make_half_circle(vector_t center, double radius) {
@@ -337,6 +341,10 @@ void handler2(char key, key_event_type_t type, double held_time,
   }
 }
 
+void menu_handler (char key, key_event_type_t type, double held_time, state_t *state, vector_t loc) {
+  
+}
+
 void handler(char key, key_event_type_t type, double held_time,
              state_t *state, vector_t loc) {
   handler1(key, type, held_time, state);
@@ -587,19 +595,64 @@ void check_game_end(state_t *state) {
   }
 }
 
-// void menu_init(state_t *state) {  
-//   state->is_menu = true;
+void menu_init(state_t *state) {  
+  state->is_menu = true;
   
-//   TTF_Font *font = TTF_OpenFont("assets/font.ttf", FONT_SIZE);
-//   text_t *text = text_init(font, (free_func_t)free);
-//   state->text = text;
-// }
+  TTF_Font *font1 = TTF_OpenFont("assets/font.ttf", FONT_SIZE);
+  text_t *text = text_init(font1, (free_func_t)free);
+  state->text = text;
 
-// void menu_pop_up(state_t *state) {
-//   SDL_Texture *msg = sdl_load_text(state, "Start!", state->text);
-//   sdl_show();
-//   SDL_DestroyTexture(msg);
-// }
+  TTF_Font *font2 = TTF_OpenFont("assets/font.ttf", TITLE_SIZE);
+  text_t *title = text_init(font2, (free_func_t)free);
+  state->title = title;
+}
+
+void menu_pop_up(state_t *state) {
+  vector_t corner1 = {0.0, MAX_HEIGHT_GAME};
+  list_t *background = make_rectangle(corner1, MAX_WIDTH_GAME, MAX_HEIGHT_GAME);
+  rgb_color_t light_grey = {0.86, 0.86, 0.86};
+  sdl_draw_polygon(background, light_grey);
+
+  //start button
+  rgb_color_t green = {0.0, 1.0, 0.0};
+  vector_t corner2 = {550.0 , 880.0};
+  list_t *start_button = make_rectangle(corner2, 500.0, 180.0);
+  sdl_draw_polygon(start_button, green);
+
+  SDL_Color white = {255, 255, 255, 255};
+  vector_t start_loc = {680.0, 880.0};
+  SDL_Texture *start = sdl_load_text(state, "Start!", state->text, white, start_loc);
+
+  //options button
+  rgb_color_t slate_grey = {0.72, 0.79, 0.89};
+  vector_t corner3 = {550.0 , 650.0};
+  list_t *options_button = make_rectangle(corner3, 500.0, 180.0);
+  sdl_draw_polygon(options_button, slate_grey);
+
+  //options text
+  SDL_Color black = {0, 0, 0, 255};
+  vector_t options_loc = {640.0, 650.0};
+  SDL_Texture *options = sdl_load_text(state, "Options", state->text, black, options_loc);
+
+  //exit button
+  vector_t corner4 = {550.0 , 420.0};
+  list_t *exit_button = make_rectangle(corner4, 500.0, 180.0);
+  sdl_draw_polygon(exit_button, slate_grey);
+
+  vector_t exit_loc = {720.0 , 420.0};
+  SDL_Texture *exit = sdl_load_text(state, "Exit", state->text, black, exit_loc);
+
+  //title
+  SDL_Color forest_green = {74, 103, 65, 255};
+  vector_t title_loc = {450.0, 1200.0};
+  SDL_Texture *title = sdl_load_text(state, "Main Menu", state->title, forest_green, title_loc);
+
+  sdl_show();
+  SDL_DestroyTexture(start);
+  SDL_DestroyTexture(options);
+  SDL_DestroyTexture(title);
+  SDL_DestroyTexture(exit);
+}
 
 state_t *emscripten_init() {
   vector_t min = VEC_ZERO;
@@ -613,16 +666,14 @@ state_t *emscripten_init() {
   state->player2_score = 0;
   state->singleplayer = false;
   state->is_menu = true;
-  
-  TTF_Font *font = TTF_OpenFont("assets/font.ttf", FONT_SIZE);
-  text_t *text = text_init(font, (free_func_t)free);
-  state->text = text;
+
+  menu_init(state);
 
   // make_players(state);
 
   // make_health_bars(state);
 
-  // // skip first six bodies
+  // skip first six bodies
   // for (size_t i = 6; i < scene_bodies(state->scene); i++) {
   //   create_physics_collision(state->scene, COLLISION_ELASTICITY,
   //                            scene_get_body(state->scene, 0),
@@ -640,12 +691,9 @@ void emscripten_main(state_t *state) {
   // double dt = time_since_last_tick();
   // sdl_on_key((key_handler_t)handler);
   // state->time += dt;
-  // if (state->is_menu) {
-  //   menu_init();
-  // }
   // check_game_end(state);
 
-  // add time to player bodies for reload
+  //add time to player bodies for reload
   // body_t *player1 = scene_get_body(state->scene, 0);
   // body_t *player2 = scene_get_body(state->scene, 1);
   // body_set_time(player1, body_get_time(player1) + dt);
@@ -656,7 +704,7 @@ void emscripten_main(state_t *state) {
   //   body_set_ai_time(player2, body_get_ai_time(player2) + dt);
   // }
 
-  // add time to bullet bodies to see if they should disappear
+  //add time to bullet bodies to see if they should disappear
   // for (size_t i = 0; i < scene_bodies(state->scene); i++) {
   //   body_t *body = scene_get_body(state->scene, i);
   //   if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
@@ -667,7 +715,7 @@ void emscripten_main(state_t *state) {
   //   }
   // }
 
-  // update health bar
+  //update health bar
   // body_t *health_bar_p1 = scene_get_body(state->scene, 2);
   // body_set_shape(health_bar_p1, make_health_bar_p1(body_get_health(player1)));
 
@@ -677,10 +725,7 @@ void emscripten_main(state_t *state) {
   // scene_tick(state->scene, dt);
   // sdl_render_scene(state->scene);
 
-  SDL_Color color = {0, 1, 0};
-  SDL_Texture *msg = sdl_load_text(state, "Start!", state->text, color);
-  sdl_show();
-  SDL_DestroyTexture(msg);
+  menu_pop_up(state);
 }
 
 void emscripten_free(state_t *state) {

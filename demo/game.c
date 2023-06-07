@@ -17,6 +17,10 @@
 #include "menu.h"
 #include "vector.h"
 
+
+const double MAX_WIDTH_GAME = 1600.0;
+const double MAX_HEIGHT_GAME = 1300.0;
+
 // default tank stats
 double DEFAULT_TANK_VELOCITY = 100.0;
 double DEFAULT_TANK_SIDE_LENGTH = 80.0;
@@ -581,75 +585,75 @@ void check_game_end(state_t *state) {
 }
 
 state_t *emscripten_init() {
-  // vector_t min = VEC_ZERO;
-  // vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
-  // sdl_init(min, max);
+  vector_t min = VEC_ZERO;
+  vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
+  sdl_init(min, max);
   state_t *state = malloc(sizeof(state_t));
   assert(state != NULL);
-  // state->scene = scene_init();
-  // state->player1_score = 0;
-  // state->player2_score = 0;
-  // state->singleplayer = false;
+  state->scene = scene_init();
+  state->player1_score = 0;
+  state->player2_score = 0;
+  state->singleplayer = false;
 
-  menu_init();
-  // state->is_menu = false;
+  // menu_init();
+  state->is_menu = false;
 
-  // make_players(state);
+  make_players(state);
 
-  // make_health_bars(state);
+  make_health_bars(state);
 
-  // // skip first six bodies
-  // for (size_t i = 6; i < scene_bodies(state->scene); i++) {
-  //   create_physics_collision(state->scene, COLLISION_ELASTICITY,
-  //                            scene_get_body(state->scene, 0),
-  //                            scene_get_body(state->scene, i));
-  //   create_physics_collision(state->scene, COLLISION_ELASTICITY,
-  //                            scene_get_body(state->scene, 1),
-  //                            scene_get_body(state->scene, i));
-  // }
+  // skip first six bodies
+  for (size_t i = 6; i < scene_bodies(state->scene); i++) {
+    create_physics_collision(state->scene, COLLISION_ELASTICITY,
+                             scene_get_body(state->scene, 0),
+                             scene_get_body(state->scene, i));
+    create_physics_collision(state->scene, COLLISION_ELASTICITY,
+                             scene_get_body(state->scene, 1),
+                             scene_get_body(state->scene, i));
+  }
   return state;
 }
 
 void emscripten_main(state_t *state) {
-  // double dt = time_since_last_tick();
-  // sdl_on_key((key_handler_t)handler);
-  // state->time += dt;
-  // if (state->is_menu) {
-    menu_init();
-  
-  // check_game_end(state);
+  double dt = time_since_last_tick();
+  sdl_on_key((key_handler_t)handler);
+  state->time += dt;
+  if (state->is_menu) {
+    // menu_init();
+  }
+  check_game_end(state);
 
-  // // add time to player bodies for reload
-  // body_t *player1 = scene_get_body(state->scene, 0);
-  // body_t *player2 = scene_get_body(state->scene, 1);
-  // body_set_time(player1, body_get_time(player1) + dt);
-  // body_set_time(player2, body_get_time(player2) + dt);
+  // add time to player bodies for reload
+  body_t *player1 = scene_get_body(state->scene, 0);
+  body_t *player2 = scene_get_body(state->scene, 1);
+  body_set_time(player1, body_get_time(player1) + dt);
+  body_set_time(player2, body_get_time(player2) + dt);
 
-  // if (state->singleplayer) {
-  //   move_ai(state, dt);
-  //   body_set_ai_time(player2, body_get_ai_time(player2) + dt);
-  // }
+  if (state->singleplayer) {
+    move_ai(state, dt);
+    body_set_ai_time(player2, body_get_ai_time(player2) + dt);
+  }
 
-  // // add time to bullet bodies to see if they should disappear
-  // for (size_t i = 0; i < scene_bodies(state->scene); i++) {
-  //   body_t *body = scene_get_body(state->scene, i);
-  //   if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
-  //     body_set_time(body, body_get_time(body) + dt);
-  //     if (body_get_time(body) > BULLET_DISAPPEAR_TIME) {
-  //       body_remove(body);
-  //     }
-  //   }
-  // }
+  // add time to bullet bodies to see if they should disappear
+  for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+    body_t *body = scene_get_body(state->scene, i);
+    if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
+      body_set_time(body, body_get_time(body) + dt);
+      if (body_get_time(body) > BULLET_DISAPPEAR_TIME) {
+        body_remove(body);
+      }
+    }
+  }
 
-  // // update health bar
-  // body_t *health_bar_p1 = scene_get_body(state->scene, 2);
-  // body_set_shape(health_bar_p1, make_health_bar_p1(body_get_health(player1)));
+  // update health bar
+  body_t *health_bar_p1 = scene_get_body(state->scene, 2);
+  body_set_shape(health_bar_p1, make_health_bar_p1(body_get_health(player1)));
 
-  // body_t *health_bar_p2 = scene_get_body(state->scene, 3);
-  // body_set_shape(health_bar_p2, make_health_bar_p2(body_get_health(player2)));
+  body_t *health_bar_p2 = scene_get_body(state->scene, 3);
+  body_set_shape(health_bar_p2, make_health_bar_p2(body_get_health(player2)));
 
-  // scene_tick(state->scene, dt);
-  // sdl_render_scene(state->scene);
+  scene_tick(state->scene, dt);
+  sdl_render_scene(state->scene);
 }
 
 void emscripten_free(state_t *state) {

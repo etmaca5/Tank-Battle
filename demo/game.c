@@ -28,7 +28,6 @@ const size_t SNIPER_TANK_TYPE = 4;
 const size_t GRAVITY_TANK_TYPE = 5;
 const size_t HEALTH_BAR_TYPE = 6;
 
-
 int FONT_SIZE = 50;
 int TITLE_SIZE = 100;
 double CIRCLE_POINTS = 300.0;
@@ -36,7 +35,7 @@ double CIRCLE_POINTS = 300.0;
 const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1300.0;
 
-//elasticity between tank
+// elasticity between tank
 double TANKS_ELASTICITY = 3.0;
 
 // default tank stats
@@ -45,7 +44,7 @@ double DEFAULT_TANK_SIDE_LENGTH = 80.0;
 double DEFAULT_TANK_MASS = 100.0;
 double DEFAULT_TANK_ROTATION_SPEED = M_PI / 2;
 double DEFAULT_TANK_MAX_HEALTH = 50.0;
-const double BULLET_DAMAGE = 10.0;
+
 
 // MELEE tank stats
 size_t MELEE_TANK_POINTS = 6;
@@ -54,7 +53,6 @@ double MELEE_TANK_SIDE_LENGTH = 60.0;
 double MELEE_TANK_MASS = 100.0;
 double MELEE_TANK_ROTATION_SPEED = M_PI * 3 / 4;
 double MELEE_TANK_MAX_HEALTH = 50.0;
-const double MELEE_TANK_DAMAGE = 25.0;
 
 
 // // SNIPER tank stats
@@ -65,7 +63,13 @@ const double MELEE_TANK_DAMAGE = 25.0;
 // double MELEE_TANK_ROTATION_SPEED = M_PI * 3 / 4;
 // double MELEE_TANK_MAX_HEALTH = 50.0;
 // const double MELEE_TANK_DAMAGE = 25.0;
+double SNIPER_RELOAD_SPEED = 2.5;
 
+
+//damage stored here
+const double BULLET_DAMAGE = 10.0;
+const double MELEE_TANK_DAMAGE = 25.0;
+const double SNIPER_BULLET_DAMAGE = 25.0;
 
 double BULLET_HEIGHT = 25.0;
 double BULLET_WIDTH = 10.0;
@@ -294,8 +298,9 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
 }
 
 void tank_handler(char key, key_event_type_t type, double held_time,
-              state_t *state, body_t* player, rgb_color_t player_color) {
-  if(*(size_t *)body_get_info(player) == DEFAULT_TANK_TYPE){ // this is to handle the different tank types
+                  state_t *state, body_t *player, rgb_color_t player_color) {
+  if (*(size_t *)body_get_info(player) ==
+      DEFAULT_TANK_TYPE) { // this is to handle the different tank types
     if (type == KEY_PRESSED) {
       switch (key) {
       case UP_ARROW: {
@@ -321,8 +326,8 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  } 
-  else if(*(size_t *)body_get_info(player) == MELEE_TANK_TYPE){ // handles MELEE tank
+  } else if (*(size_t *)body_get_info(player) ==
+             MELEE_TANK_TYPE) { // handles MELEE tank
     if (type == KEY_PRESSED) {
       switch (key) {
       case UP_ARROW: {
@@ -343,9 +348,8 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  }
-  else{
-    //add other tanks after
+  } else {
+    // add other tanks after
   }
   if (type == KEY_RELEASED) {
     switch (key) {
@@ -372,8 +376,9 @@ void tank_handler(char key, key_event_type_t type, double held_time,
 }
 
 void tank_handler2(char key, key_event_type_t type, double held_time,
-              state_t *state, body_t* player, rgb_color_t player_color ) {
-  if(*(size_t *)body_get_info(player) == DEFAULT_TANK_TYPE){ // this is to handle the different tank types
+                   state_t *state, body_t *player, rgb_color_t player_color) {
+  if (*(size_t *)body_get_info(player) ==
+      DEFAULT_TANK_TYPE) { // this is to handle the different tank types
     if (type == KEY_PRESSED) {
       switch (key) {
       case 'w': {
@@ -399,8 +404,8 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  } 
-  else if(*(size_t *)body_get_info(player) == MELEE_TANK_TYPE){ // handles MELEE tank
+  } else if (*(size_t *)body_get_info(player) ==
+             MELEE_TANK_TYPE) { // handles MELEE tank
     if (type == KEY_PRESSED) {
       switch (key) {
       case 'w': {
@@ -421,9 +426,8 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  }
-  else{
-    //add other tanks after
+  } else {
+    // add other tanks after
   }
   if (type == KEY_RELEASED) {
     switch (key) {
@@ -656,20 +660,21 @@ void show_scoreboard(state_t *state, int player1_score, int player2_score) {
   sdl_show();
   SDL_DestroyTexture(scoreboard);
 }
-body_t* handle_selected_tank(size_t tank_type, vector_t start_pos, rgb_color_t color){
+body_t *handle_selected_tank(size_t tank_type, vector_t start_pos,
+                             rgb_color_t color) {
   // add rest of the tanks
-  if(tank_type == DEFAULT_TANK_TYPE){
-    return init_default_tank(
-      start_pos, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
-      color, DEFAULT_TANK_MAX_HEALTH, DEFAULT_TANK_TYPE);
-  }
-  else if(tank_type == MELEE_TANK_TYPE){
-    return init_melee_tank(start_pos, MELEE_TANK_SIDE_LENGTH, MELEE_TANK_POINTS, VEC_ZERO, MELEE_TANK_MASS, color, MELEE_TANK_MAX_HEALTH, MELEE_TANK_TYPE);
-  }
-  else{
-    return init_default_tank(
-      start_pos, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
-      color, DEFAULT_TANK_MAX_HEALTH, DEFAULT_TANK_TYPE);
+  if (tank_type == DEFAULT_TANK_TYPE) {
+    return init_default_tank(start_pos, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO,
+                             DEFAULT_TANK_MASS, color, DEFAULT_TANK_MAX_HEALTH,
+                             DEFAULT_TANK_TYPE);
+  } else if (tank_type == MELEE_TANK_TYPE) {
+    return init_melee_tank(start_pos, MELEE_TANK_SIDE_LENGTH, MELEE_TANK_POINTS,
+                           VEC_ZERO, MELEE_TANK_MASS, color,
+                           MELEE_TANK_MAX_HEALTH, MELEE_TANK_TYPE);
+  } else {
+    return init_default_tank(start_pos, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO,
+                             DEFAULT_TANK_MASS, color, DEFAULT_TANK_MAX_HEALTH,
+                             DEFAULT_TANK_TYPE);
   }
 }
 
@@ -679,8 +684,10 @@ void make_players(state_t *state) {
   vector_t player2_start =
       (vector_t){MAX_WIDTH_GAME * 5 / 6, MAX_HEIGHT_GAME / 2 - 50.0};
   // can channge it to choose the type of tank later
-  body_t *player1 = handle_selected_tank(state->player1_tank_type, player1_start,PLAYER1_COLOR );
-  body_t *player2 = handle_selected_tank(state->player2_tank_type, player2_start, PLAYER2_COLOR);
+  body_t *player1 = handle_selected_tank(state->player1_tank_type,
+                                         player1_start, PLAYER1_COLOR);
+  body_t *player2 = handle_selected_tank(state->player2_tank_type,
+                                         player2_start, PLAYER2_COLOR);
   body_set_rotation(player2, M_PI);
   body_set_health(player1, DEFAULT_TANK_MAX_HEALTH);
   body_set_health(player2, DEFAULT_TANK_MAX_HEALTH);
@@ -858,7 +865,8 @@ state_t *emscripten_init() {
   state->player2_tank_type = MELEE_TANK_TYPE;
   state->singleplayer = false;
 
-  menu_init(state); // will have to add menu feature that allows selection of the tank type (from global vars)
+  menu_init(state); // will have to add menu feature that allows selection of
+                    // the tank type (from global vars)
 
   make_players(state);
 
@@ -908,7 +916,8 @@ void emscripten_main(state_t *state) {
     // add time to bullet bodies to see if they should disappear
     for (size_t i = 0; i < scene_bodies(state->scene); i++) {
       body_t *body = scene_get_body(state->scene, i);
-      if (*(size_t *)body_get_info(body) == BULLET_TYPE || *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE) {
+      if (*(size_t *)body_get_info(body) == BULLET_TYPE ||
+          *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE) {
         body_set_time(body, body_get_time(body) + dt);
         if (body_get_time(body) > BULLET_DISAPPEAR_TIME) {
           body_remove(body);

@@ -249,7 +249,7 @@ body_t *init_default_tank(vector_t center, double side_length,
                           double max_health, size_t tank_type);
 
 body_t *init_melee_tank(vector_t center, double side_length, size_t num_points,
-                          vector_t velocity, double mass, rgb_color_t color,
-                          double max_health, size_t tank_type);
+                        vector_t velocity, double mass, rgb_color_t color,
+                        double max_health, size_t tank_type);
 
 #endif // #ifndef __BODY_H__

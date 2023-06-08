@@ -1,17 +1,15 @@
 
 #include "color.h"
 #include "list.h"
-#include "star.h"
 #include "polygon.h"
 #include "sdl_wrapper.h"
+#include "star.h"
 #include "vector.h"
 #include <assert.h>
 #include <collision.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-
 
 const size_t AI_UP = 1;
 const size_t AI_DOWN = 2;
@@ -283,8 +281,8 @@ body_t *init_default_tank(vector_t center, double side_length,
 }
 
 body_t *init_melee_tank(vector_t center, double side_length, size_t num_points,
-                          vector_t velocity, double mass, rgb_color_t color,
-                          double max_health, size_t tank_type) {
+                        vector_t velocity, double mass, rgb_color_t color,
+                        double max_health, size_t tank_type) {
   list_t *tank_points = make_star(center, side_length, num_points);
 
   size_t *type = malloc(sizeof(size_t));

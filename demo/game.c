@@ -20,7 +20,7 @@
 #include "vector.h"
 
 int FONT_SIZE = 50;
-int TITLE_SIZE = 80;
+int TITLE_SIZE = 100;
 double CIRCLE_POINTS = 300.0;
 
 const double MAX_WIDTH_GAME = 1600.0;
@@ -50,12 +50,10 @@ double COLLISION_ELASTICITY = 20.0;
 //menu stats
 double BUTTON_X_MIN = 404.0;
 double BUTTON_X_MAX = 598.0;
-double START_BUTTON_Y_MIN = 161.0;
-double START_BUTTON_Y_MAX = 233.0;
-double OPTIONS_BUTTON_Y_MIN = 252.0;
-double OPTIONS_BUTTON_Y_MAX = 318.0;
-double EXIT_BUTTON_Y_MIN = 339.0;
-double EXIT_BUTTON_Y_MAX = 409.0;
+double START_BUTTON_Y_MIN = 194.0;
+double START_BUTTON_Y_MAX = 262.0;
+double OPTIONS_BUTTON_Y_MIN = 289.0;
+double OPTIONS_BUTTON_Y_MAX = 359.0;
 
 double GAMMA = 1.0;
 
@@ -67,12 +65,13 @@ rgb_color_t PLAYER2_COLOR_SIMILAR = {0.0, 0.5, 0.0};
 typedef struct state {
   scene_t *scene;
   double time;
-  size_t player1_score;
-  size_t player2_score;
+  int player1_score;
+  int player2_score;
   bool singleplayer;
   bool is_menu;
   text_t *text;
   text_t *title;
+  text_t *scoreboard;
 } state_t;
 
 list_t *make_half_circle(vector_t center, double radius) {
@@ -509,6 +508,39 @@ void move_ai(state_t *state, double dt) {
   }
 }
 
+void check_end_game(state_t *state) {
+  if (state->player1_score == 3 || state->player2_score == 3) {
+    exit(0);    
+  }
+}
+
+void show_scoreboard(state_t *state, int player1_score, int player2_score) {
+  vector_t corner = {600.0, MAX_HEIGHT_GAME - 25.0};
+  list_t *points = make_rectangle(corner, 400.0, 150.0);
+  rgb_color_t black = {0.0, 0.0, 0.0};
+  sdl_draw_polygon(points, black);
+
+  SDL_Color white = {255, 255, 255, 255};
+  vector_t score_loc = {670.0, MAX_HEIGHT_GAME - 13.0};
+  
+  char player1_str[20];
+  sprintf(player1_str, "%d", player1_score);
+  char player2_str[20];
+  sprintf(player2_str, "%d", player2_score);
+  char* final_str = (char*)malloc(sizeof(char) * (strlen(player1_str) + strlen(player2_str) + 2));
+  strcpy(final_str, player1_str);
+  strcat(final_str, "   -   ");
+  strcat(final_str, player2_str);
+
+  TTF_Font *font1 = TTF_OpenFont("assets/font.ttf", FONT_SIZE);
+  text_t *text = text_init(font1, (free_func_t)free);
+  state->scoreboard = text;
+  SDL_Texture *scoreboard = sdl_load_text(state, final_str, state->text, white, score_loc);
+
+  sdl_show();
+  SDL_DestroyTexture(scoreboard);
+}
+
 void make_players(state_t *state) {
   vector_t player1_start =
       (vector_t){MAX_WIDTH_GAME / 6, MAX_HEIGHT_GAME - 400.0};
@@ -556,7 +588,6 @@ void make_health_bars(state_t *state) {
   *type4 = HEALTH_BAR_TYPE;
   body_t *p2_heart_body = body_init_with_info(p2_heart, 10.0, PLAYER2_COLOR_SIMILAR, type4, (free_func_t)free);
   scene_add_body(state->scene, p2_heart_body);
-  map_init(state->scene);
 }
 
 void reset_game(state_t *state) {
@@ -568,14 +599,17 @@ void reset_game(state_t *state) {
 
   make_players(state);
   make_health_bars(state);
-  // skip first six bodies
-  for (size_t i = 6; i < scene_bodies(state->scene); i++) {
-    create_physics_collision(state->scene, COLLISION_ELASTICITY,
+  map_init(state->scene);
+  for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+    body_t *body = scene_get_body(state->scene, i);
+    if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE || *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
+      create_physics_collision(state->scene, COLLISION_ELASTICITY,
                              scene_get_body(state->scene, 0),
                              scene_get_body(state->scene, i));
-    create_physics_collision(state->scene, COLLISION_ELASTICITY,
+      create_physics_collision(state->scene, COLLISION_ELASTICITY,
                              scene_get_body(state->scene, 1),
                              scene_get_body(state->scene, i));
+    }
   }
 }
 
@@ -585,11 +619,9 @@ void check_game_end(state_t *state) {
   if (body_get_health(player1) <= 0) {
     state->player2_score++;
     reset_game(state);
-    state->is_menu = true;
   } else if (body_get_health(player2) <= 0) {
     state->player1_score++;
     reset_game(state);
-    state->is_menu = true;
   }
 }
 
@@ -602,13 +634,6 @@ bool start_button_pressed(vector_t mouse) {
 
 bool options_button_pressed(vector_t mouse) {
   if (mouse.x >= BUTTON_X_MIN && mouse.x <= BUTTON_X_MAX && mouse.y >= OPTIONS_BUTTON_Y_MIN  && mouse.y <= OPTIONS_BUTTON_Y_MAX) {
-    return true;
-  }
-  return false; 
-}
-
-bool exit_button_pressed(vector_t mouse) {
-  if (mouse.x >= BUTTON_X_MIN && mouse.x <= BUTTON_X_MAX && mouse.y >= EXIT_BUTTON_Y_MIN  && mouse.y <= EXIT_BUTTON_Y_MAX) {
     return true;
   }
   return false; 
@@ -634,43 +659,34 @@ void menu_pop_up(state_t *state) {
 
   //start button
   rgb_color_t green = {0.0, 1.0, 0.0};
-  vector_t corner2 = {550.0 , 880.0};
+  vector_t corner2 = {550.0 , 750.0};
   list_t *start_button = make_rectangle(corner2, 500.0, 180.0);
   sdl_draw_polygon(start_button, green);
 
   SDL_Color white = {255, 255, 255, 255};
-  vector_t start_loc = {680.0, 880.0};
+  vector_t start_loc = {680.0, 750.0};
   SDL_Texture *start = sdl_load_text(state, "Start!", state->text, white, start_loc);
 
   //options button
   rgb_color_t slate_grey = {0.72, 0.79, 0.89};
-  vector_t corner3 = {550.0 , 650.0};
+  vector_t corner3 = {550.0 , 500.0};
   list_t *options_button = make_rectangle(corner3, 500.0, 180.0);
   sdl_draw_polygon(options_button, slate_grey);
 
   //options text
   SDL_Color black = {0, 0, 0, 255};
-  vector_t options_loc = {640.0, 650.0};
+  vector_t options_loc = {640.0, 500.0};
   SDL_Texture *options = sdl_load_text(state, "Options", state->text, black, options_loc);
-
-  //exit button
-  vector_t corner4 = {550.0 , 420.0};
-  list_t *exit_button = make_rectangle(corner4, 500.0, 180.0);
-  sdl_draw_polygon(exit_button, slate_grey);
-
-  vector_t exit_loc = {720.0 , 420.0};
-  SDL_Texture *exit = sdl_load_text(state, "Exit", state->text, black, exit_loc);
 
   //title
   SDL_Color forest_green = {74, 103, 65, 255};
-  vector_t title_loc = {450.0, 1200.0};
-  SDL_Texture *title = sdl_load_text(state, "Main Menu", state->title, forest_green, title_loc);
+  vector_t title_loc = {540.0, 1120.0};
+  SDL_Texture *title = sdl_load_text(state, "Tanks", state->title, forest_green, title_loc);
 
   sdl_show();
   SDL_DestroyTexture(start);
   SDL_DestroyTexture(options);
   SDL_DestroyTexture(title);
-  SDL_DestroyTexture(exit);
 }
 
 void handler(char key, key_event_type_t type, double held_time,
@@ -678,8 +694,7 @@ void handler(char key, key_event_type_t type, double held_time,
   if (state->is_menu) {
     switch(key) {
       case MOUSE_CLICK: {
-        if (start_button_pressed(loc) || exit_button_pressed(loc)) {
-          sdl_clear();
+        if (start_button_pressed(loc)) {
           state->is_menu = false;
           break;
         }
@@ -711,14 +726,20 @@ state_t *emscripten_init() {
 
   make_health_bars(state);
 
-  //skip first six bodies
-  for (size_t i = 6; i < scene_bodies(state->scene); i++) {
-    create_physics_collision(state->scene, COLLISION_ELASTICITY,
+  map_init(state->scene);
+
+  show_scoreboard(state, 0, 0);
+
+  for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+    body_t *body = scene_get_body(state->scene, i);
+    if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE || *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
+      create_physics_collision(state->scene, COLLISION_ELASTICITY,
                              scene_get_body(state->scene, 0),
                              scene_get_body(state->scene, i));
-    create_physics_collision(state->scene, COLLISION_ELASTICITY,
+      create_physics_collision(state->scene, COLLISION_ELASTICITY,
                              scene_get_body(state->scene, 1),
                              scene_get_body(state->scene, i));
+    }
   }
   return state;
 }
@@ -754,17 +775,19 @@ void emscripten_main(state_t *state) {
           body_remove(body);
         }
       }
-    }
+  }
 
-    // //update health bar
-    body_t *health_bar_p1 = scene_get_body(state->scene, 2);
-    body_set_shape(health_bar_p1, make_health_bar_p1(body_get_health(player1)));
+  // //update health bar
+  body_t *health_bar_p1 = scene_get_body(state->scene, 2);
+  body_set_shape(health_bar_p1, make_health_bar_p1(body_get_health(player1)));
 
-    body_t *health_bar_p2 = scene_get_body(state->scene, 3);
-    body_set_shape(health_bar_p2, make_health_bar_p2(body_get_health(player2)));
-
-    scene_tick(state->scene, dt);
-    sdl_render_scene(state->scene);
+  body_t *health_bar_p2 = scene_get_body(state->scene, 3);
+  body_set_shape(health_bar_p2, make_health_bar_p2(body_get_health(player2)));
+  
+  scene_tick(state->scene, dt);
+  sdl_render_scene(state->scene);
+  show_scoreboard(state, state->player1_score, state->player2_score);
+  check_end_game(state);
   }
 }
 

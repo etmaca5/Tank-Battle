@@ -69,6 +69,24 @@ double get_scene_scale(vector_t window_center) {
   return x_scale < y_scale ? x_scale : y_scale;
 }
 
+vector_t get_scene_position(vector_t window_pos, vector_t window_center) {
+    vector_t pixel_center_offset = {
+        +window_pos.x - window_center.x,
+        -window_pos.y + window_center.y,
+    };
+    double scale = get_scene_scale(window_center);
+    vector_t scene_center_offset = vec_multiply(1.0 / scale, pixel_center_offset);
+    return scene_center_offset;
+}
+
+//from pixel to scene coordinate
+vector_t sdl_mouse_position() {
+  int x, y;
+  SDL_GetMouseState(&x, &y);
+  vector_t window_center = get_window_center();
+  return get_scene_position((vector_t){x, y}, window_center);
+}
+
 /** Maps a scene coordinate to a window coordinate */
 vector_t get_window_position(vector_t scene_pos, vector_t window_center) {
   // Scale scene coordinates by the scaling factor

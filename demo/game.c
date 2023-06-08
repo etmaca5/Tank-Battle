@@ -47,6 +47,16 @@ double HEALTH_BAR_OFFSET_VERTICAL = 25.0;
 
 double COLLISION_ELASTICITY = 20.0;
 
+//menu stats
+double BUTTON_X_MIN = 404.0;
+double BUTTON_X_MAX = 598.0;
+double START_BUTTON_Y_MIN = 161.0;
+double START_BUTTON_Y_MAX = 233.0;
+double OPTIONS_BUTTON_Y_MIN = 252.0;
+double OPTIONS_BUTTON_Y_MAX = 318.0;
+double EXIT_BUTTON_Y_MIN = 339.0;
+double EXIT_BUTTON_Y_MAX = 409.0;
+
 double GAMMA = 1.0;
 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
@@ -341,18 +351,6 @@ void handler2(char key, key_event_type_t type, double held_time,
   }
 }
 
-void menu_handler (char key, key_event_type_t type, double held_time, state_t *state, vector_t loc) {
-  
-}
-
-void handler(char key, key_event_type_t type, double held_time,
-             state_t *state, vector_t loc) {
-  handler1(key, type, held_time, state);
-  if (!state->singleplayer) {
-    handler2(key, type, held_time, state);
-  }
-}
-
 double double_abs(double x) {
   if (x < 0) return -x;
   return x;
@@ -595,6 +593,27 @@ void check_game_end(state_t *state) {
   }
 }
 
+bool start_button_pressed(vector_t mouse) {
+  if (mouse.x >= BUTTON_X_MIN && mouse.x <= BUTTON_X_MAX && mouse.y >= START_BUTTON_Y_MIN && mouse.y <= START_BUTTON_Y_MAX) {
+    return true;
+  }
+  return false; 
+}
+
+bool options_button_pressed(vector_t mouse) {
+  if (mouse.x >= BUTTON_X_MIN && mouse.x <= BUTTON_X_MAX && mouse.y >= OPTIONS_BUTTON_Y_MIN  && mouse.y <= OPTIONS_BUTTON_Y_MAX) {
+    return true;
+  }
+  return false; 
+}
+
+bool exit_button_pressed(vector_t mouse) {
+  if (mouse.x >= BUTTON_X_MIN && mouse.x <= BUTTON_X_MAX && mouse.y >= EXIT_BUTTON_Y_MIN  && mouse.y <= EXIT_BUTTON_Y_MAX) {
+    return true;
+  }
+  return false; 
+}
+
 void menu_init(state_t *state) {  
   state->is_menu = true;
   
@@ -654,6 +673,26 @@ void menu_pop_up(state_t *state) {
   SDL_DestroyTexture(exit);
 }
 
+void handler(char key, key_event_type_t type, double held_time,
+             state_t *state, vector_t loc) {
+  if (state->is_menu) {
+    switch(key) {
+      case MOUSE_CLICK: {
+        if (start_button_pressed(loc) || exit_button_pressed(loc)) {
+          sdl_clear();
+          state->is_menu = false;
+          break;
+        }
+      }
+    }
+  } else {
+    handler1(key, type, held_time, state);
+    if (!state->singleplayer) {
+      handler2(key, type, held_time, state);
+    }
+  }
+}
+
 state_t *emscripten_init() {
   vector_t min = VEC_ZERO;
   vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
@@ -665,67 +704,68 @@ state_t *emscripten_init() {
   state->player1_score = 0;
   state->player2_score = 0;
   state->singleplayer = false;
-  state->is_menu = true;
 
   menu_init(state);
 
-  // make_players(state);
+  make_players(state);
 
-  // make_health_bars(state);
+  make_health_bars(state);
 
-  // skip first six bodies
-  // for (size_t i = 6; i < scene_bodies(state->scene); i++) {
-  //   create_physics_collision(state->scene, COLLISION_ELASTICITY,
-  //                            scene_get_body(state->scene, 0),
-  //                            scene_get_body(state->scene, i));
-  //   create_physics_collision(state->scene, COLLISION_ELASTICITY,
-  //                            scene_get_body(state->scene, 1),
-  //                            scene_get_body(state->scene, i));
-  // }
+  //skip first six bodies
+  for (size_t i = 6; i < scene_bodies(state->scene); i++) {
+    create_physics_collision(state->scene, COLLISION_ELASTICITY,
+                             scene_get_body(state->scene, 0),
+                             scene_get_body(state->scene, i));
+    create_physics_collision(state->scene, COLLISION_ELASTICITY,
+                             scene_get_body(state->scene, 1),
+                             scene_get_body(state->scene, i));
+  }
   return state;
 }
 
 void emscripten_main(state_t *state) {
   sdl_clear();
+  if (state->is_menu) {
+    menu_pop_up(state);
+    sdl_on_key((key_handler_t)handler);
+  } else {
+    double dt = time_since_last_tick();
+    sdl_on_key((key_handler_t)handler);
+    state->time += dt;
+    check_game_end(state);
 
-  // double dt = time_since_last_tick();
-  // sdl_on_key((key_handler_t)handler);
-  // state->time += dt;
-  // check_game_end(state);
+    //add time to player bodies for reload
+    body_t *player1 = scene_get_body(state->scene, 0);
+    body_t *player2 = scene_get_body(state->scene, 1);
+    body_set_time(player1, body_get_time(player1) + dt);
+    body_set_time(player2, body_get_time(player2) + dt);
 
-  //add time to player bodies for reload
-  // body_t *player1 = scene_get_body(state->scene, 0);
-  // body_t *player2 = scene_get_body(state->scene, 1);
-  // body_set_time(player1, body_get_time(player1) + dt);
-  // body_set_time(player2, body_get_time(player2) + dt);
+    if (state->singleplayer) {
+      move_ai(state, dt);
+      body_set_ai_time(player2, body_get_ai_time(player2) + dt);
+    }
 
-  // if (state->singleplayer) {
-  //   move_ai(state, dt);
-  //   body_set_ai_time(player2, body_get_ai_time(player2) + dt);
-  // }
+    //add time to bullet bodies to see if they should disappear
+    for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+      body_t *body = scene_get_body(state->scene, i);
+      if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
+        body_set_time(body, body_get_time(body) + dt);
+        if (body_get_time(body) > BULLET_DISAPPEAR_TIME) {
+          body_remove(body);
+        }
+      }
+    }
 
-  //add time to bullet bodies to see if they should disappear
-  // for (size_t i = 0; i < scene_bodies(state->scene); i++) {
-  //   body_t *body = scene_get_body(state->scene, i);
-  //   if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
-  //     body_set_time(body, body_get_time(body) + dt);
-  //     if (body_get_time(body) > BULLET_DISAPPEAR_TIME) {
-  //       body_remove(body);
-  //     }
-  //   }
-  // }
+    // //update health bar
+    body_t *health_bar_p1 = scene_get_body(state->scene, 2);
+    body_set_shape(health_bar_p1, make_health_bar_p1(body_get_health(player1)));
 
-  //update health bar
-  // body_t *health_bar_p1 = scene_get_body(state->scene, 2);
-  // body_set_shape(health_bar_p1, make_health_bar_p1(body_get_health(player1)));
+    body_t *health_bar_p2 = scene_get_body(state->scene, 3);
+    body_set_shape(health_bar_p2, make_health_bar_p2(body_get_health(player2)));
 
-  // body_t *health_bar_p2 = scene_get_body(state->scene, 3);
-  // body_set_shape(health_bar_p2, make_health_bar_p2(body_get_health(player2)));
-
-  // scene_tick(state->scene, dt);
-  // sdl_render_scene(state->scene);
-
-  menu_pop_up(state);
+    scene_tick(state->scene, dt);
+    sdl_render_scene(state->scene);
+  }
 }
 
 void emscripten_free(state_t *state) {

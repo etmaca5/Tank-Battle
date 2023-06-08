@@ -96,6 +96,12 @@ void sdl_show(void);
  */
 void sdl_render_scene(scene_t *scene);
 
+vector_t get_window_position(vector_t scene_pos, vector_t window_center);
+
+vector_t get_window_center(void);
+
+double get_scene_scale(vector_t window_center);
+
 /**
  * Registers a function to be called every time a key is pressed.
  * Overwrites any existing handler.
@@ -123,6 +129,10 @@ void sdl_render_scene(scene_t *scene);
  * @param handler the function to call with each key press
  */
 void sdl_on_key(key_handler_t handler);
+
+vector_t sdl_mouse_position();
+
+vector_t get_scene_position(vector_t window_pos, vector_t window_center);
 
 /**
  * Gets the amount of time that has passed since the last time

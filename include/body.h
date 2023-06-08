@@ -33,8 +33,8 @@ extern const size_t AI_90_RIGHT;
 typedef struct body body_t;
 
 /**
- * Graphic struct that represents a visual element 
- * on the screen, including text. 
+ * Graphic struct that represents a visual element
+ * on the screen, including text.
  */
 typedef struct graphic graphic_t;
 
@@ -245,6 +245,10 @@ void body_set_ai_time(body_t *body, double time);
 void body_set_just_collided(body_t *body, bool just_collided);
 
 body_t *init_default_tank(vector_t center, double side_length,
+                          vector_t velocity, double mass, rgb_color_t color,
+                          double max_health, size_t tank_type);
+
+body_t *init_melee_tank(vector_t center, double side_length, size_t num_points,
                           vector_t velocity, double mass, rgb_color_t color,
                           double max_health, size_t tank_type);
 

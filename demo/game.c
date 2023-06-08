@@ -57,10 +57,17 @@ double OPTIONS_BUTTON_Y_MAX = 359.0;
 
 double GAMMA = 1.0;
 
+COLORS: 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
 rgb_color_t PLAYER2_COLOR_SIMILAR = {0.0, 0.5, 0.0};
+rgb_color_t LIGHT_GREY = {0.86, 0.86, 0.86};
+rgb_color_t GREEN = {0.0, 1.0, 0.0};
+SDL_Color SDL_WHITE = {255, 255, 255, 255};
+rgb_color_t SLATE_GREY = {0.72, 0.79, 0.89};  
+SDL_Color SDL_BLACK = {0, 0, 0, 255};
+SDL_Color FOREST_GREEN = {74, 103, 65, 255};
 
 typedef struct state {
   scene_t *scene;
@@ -521,7 +528,8 @@ void show_scoreboard(state_t *state, int player1_score, int player2_score) {
   sdl_draw_polygon(points, black);
 
   SDL_Color white = {255, 255, 255, 255};
-  vector_t score_loc = {670.0, MAX_HEIGHT_GAME - 13.0};
+  //loc 
+  vector_t score_loc = {675.0, MAX_HEIGHT_GAME - 13.0};
   
   char player1_str[20];
   sprintf(player1_str, "%d", player1_score);
@@ -654,34 +662,28 @@ void menu_init(state_t *state) {
 void menu_pop_up(state_t *state) {
   vector_t corner1 = {0.0, MAX_HEIGHT_GAME};
   list_t *background = make_rectangle(corner1, MAX_WIDTH_GAME, MAX_HEIGHT_GAME);
-  rgb_color_t light_grey = {0.86, 0.86, 0.86};
-  sdl_draw_polygon(background, light_grey);
+  sdl_draw_polygon(background, LIGHT_GREY);
 
   //start button
-  rgb_color_t green = {0.0, 1.0, 0.0};
   vector_t corner2 = {550.0 , 750.0};
   list_t *start_button = make_rectangle(corner2, 500.0, 180.0);
-  sdl_draw_polygon(start_button, green);
+  sdl_draw_polygon(start_button, GREEN);
 
-  SDL_Color white = {255, 255, 255, 255};
   vector_t start_loc = {680.0, 750.0};
-  SDL_Texture *start = sdl_load_text(state, "Start!", state->text, white, start_loc);
+  SDL_Texture *start = sdl_load_text(state, "Start!", state->text, SDL_WHITE, start_loc);
 
   //options button
-  rgb_color_t slate_grey = {0.72, 0.79, 0.89};
   vector_t corner3 = {550.0 , 500.0};
   list_t *options_button = make_rectangle(corner3, 500.0, 180.0);
-  sdl_draw_polygon(options_button, slate_grey);
+  sdl_draw_polygon(options_button, SLATE_GREY);
 
   //options text
-  SDL_Color black = {0, 0, 0, 255};
   vector_t options_loc = {640.0, 500.0};
-  SDL_Texture *options = sdl_load_text(state, "Options", state->text, black, options_loc);
+  SDL_Texture *options = sdl_load_text(state, "Options", state->text, SDL_BLACK, options_loc);
 
   //title
-  SDL_Color forest_green = {74, 103, 65, 255};
   vector_t title_loc = {540.0, 1120.0};
-  SDL_Texture *title = sdl_load_text(state, "Tanks", state->title, forest_green, title_loc);
+  SDL_Texture *title = sdl_load_text(state, "Tanks", state->title, FOREST_GREEN, title_loc);
 
   sdl_show();
   SDL_DestroyTexture(start);
@@ -697,6 +699,8 @@ void handler(char key, key_event_type_t type, double held_time,
         if (start_button_pressed(loc)) {
           state->is_menu = false;
           break;
+        } else if (options_button_pressed(loc)) {
+          //show tank options 
         }
       }
     }

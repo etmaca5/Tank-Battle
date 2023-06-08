@@ -242,3 +242,45 @@ void body_remove(body_t *body) {
 }
 
 bool body_is_removed(body_t *body) { return body->is_removed; }
+
+
+
+//TANKS
+body_t *init_default_tank(vector_t center, double side_length,
+                          vector_t velocity, double mass, rgb_color_t color,
+                          double max_health, size_t tank_type) {
+
+  list_t *tank_points = list_init(4, (free_func_t)free);
+  // creates the points for the tank
+  vector_t *point1 = malloc(sizeof(vector_t));
+  assert(point1 != NULL);
+  point1->x = center.x + side_length / 2;
+  point1->y = center.y + side_length / 2;
+  
+  list_add(tank_points, point1);
+  vector_t *point2 = malloc(sizeof(vector_t));
+  assert(point2 != NULL);
+  point2->x = center.x - side_length / 2;
+  point2->y = center.y + side_length / 2;
+  
+  list_add(tank_points, point2);
+  vector_t *point3 = malloc(sizeof(vector_t));
+  assert(point3 != NULL);
+  point3->x = center.x - side_length / 2;
+  point3->y = center.y - side_length / 2;
+  
+  list_add(tank_points, point3);
+  vector_t *point4 = malloc(sizeof(vector_t));
+  assert(point4 != NULL);
+  point4->x = center.x + side_length / 2;
+  point4->y = center.y - side_length / 2;
+  list_add(tank_points, point4);
+
+  size_t *type = malloc(sizeof(size_t));
+  *type = tank_type;
+  body_t *tank = body_init_with_info(tank_points, mass, color, type,
+                                   (free_func_t)free);;
+  assert(tank != NULL);
+  tank->health = max_health;
+  return tank;
+}

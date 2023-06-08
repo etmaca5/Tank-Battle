@@ -14,7 +14,6 @@
 #include "star.h"
 #include "text.h"
 #include "state.h"
-#include "tank.h"
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL.h>
 #include "vector.h"
@@ -57,7 +56,7 @@ double OPTIONS_BUTTON_Y_MAX = 359.0;
 
 double GAMMA = 1.0;
 
-COLORS: 
+//COLORS: 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
@@ -555,17 +554,17 @@ void make_players(state_t *state) {
   vector_t player2_start =
       (vector_t){MAX_WIDTH_GAME * 5 / 6, MAX_HEIGHT_GAME / 2 - 50.0};
   // can channge it to choose the type of tank later
-  tank_t *player1 = init_default_tank(
+  body_t *player1 = init_default_tank(
       player1_start, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
       PLAYER1_COLOR, DEFAULT_TANK_MAX_HEALTH, DEFAULT_TANK_TYPE);
-  tank_t *player2 = init_default_tank(
+  body_t *player2 = init_default_tank(
       player2_start, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO, DEFAULT_TANK_MASS,
       PLAYER2_COLOR, DEFAULT_TANK_MAX_HEALTH, DEFAULT_TANK_TYPE);
-  body_set_rotation(tank_get_body(player2), M_PI);
-  body_set_health(tank_get_body(player1), DEFAULT_TANK_MAX_HEALTH);
-  body_set_health(tank_get_body(player2), DEFAULT_TANK_MAX_HEALTH);
-  scene_add_body(state->scene, tank_get_body(player1));
-  scene_add_body(state->scene, tank_get_body(player2));
+  body_set_rotation(player2, M_PI);
+  body_set_health(player1, DEFAULT_TANK_MAX_HEALTH);
+  body_set_health(player2, DEFAULT_TANK_MAX_HEALTH);
+  scene_add_body(state->scene, player1);
+  scene_add_body(state->scene, player2);
 }
 
 void make_health_bars(state_t *state) {

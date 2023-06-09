@@ -142,8 +142,7 @@ void partial_destructive_collision_handler(body_t *body1, body_t *body2,
   } else if (*(size_t *)body_get_info(body2) == SNIPER_BULLET_TYPE) {
     body_set_health(body1, body_get_health(body1) - SNIPER_BULLET_DAMAGE);
     body_remove(body2);
-  }
-  else if (*(size_t *)body_get_info(body2) == GATLING_BULLET_TYPE) {
+  } else if (*(size_t *)body_get_info(body2) == GATLING_BULLET_TYPE) {
     body_set_health(body1, body_get_health(body1) - GATLING_BULLET_DAMAGE);
     body_remove(body2);
   }

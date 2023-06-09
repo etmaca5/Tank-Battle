@@ -16,7 +16,6 @@ extern const size_t SNIPER_TANK_TYPE;
 extern const size_t GRAVITY_TANK_TYPE;
 extern const size_t GATLING_TANK_TYPE;
 
-
 typedef struct store_force store_force_t;
 
 typedef struct body body_t;

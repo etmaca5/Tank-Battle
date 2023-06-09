@@ -246,9 +246,7 @@ void body_set_image_path(body_t *body, char *image_path) {
   body->image_path = image_path;
 }
 
-char *body_get_image_path(body_t *body) {
-  return body->image_path;
-}
+char *body_get_image_path(body_t *body) { return body->image_path; }
 
 // TANKS
 body_t *init_default_tank(vector_t center, double side_length,

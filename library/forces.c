@@ -10,6 +10,8 @@
 
 double MINIMUM_DISTANCE = 5.0;
 
+
+
 typedef struct store_force {
   list_t *bodies;
   double constant;
@@ -135,10 +137,23 @@ void destructive_collision_handler(body_t *body1, body_t *body2, vector_t axis,
 
 void partial_destructive_collision_handler(body_t *body1, body_t *body2,
                                            vector_t axis, void *aux) {
-  if (*(size_t *)body_get_info(body2) == BULLET_TYPE) {
-    body_set_health(body1, body_get_health(body1) - BULLET_DAMAGE);
+  // need to be careful here to consider all cases
+  if (*(size_t *)body_get_info(body1) == MELEE_TANK_TYPE){
+    body_set_health(body2, body_get_health(body2) - MELEE_TANK_DAMAGE);
   }
-  body_remove(body2);
+  if (*(size_t *)body_get_info(body2) == MELEE_TANK_TYPE){
+    body_set_health(body1, body_get_health(body1) - MELEE_TANK_DAMAGE);
+  }
+  else if (*(size_t *)body_get_info(body2) == BULLET_TYPE) {
+    body_set_health(body1, body_get_health(body1) - BULLET_DAMAGE);
+    body_remove(body2);
+  }
+  else if (*(size_t *)body_get_info(body2) == SNIPER_BULLET_TYPE) {
+    body_set_health(body1, body_get_health(body1) - SNIPER_BULLET_DAMAGE);
+    body_remove(body2);
+  }
+
+  
 }
 
 void create_destructive_collision(scene_t *scene, body_t *body1,

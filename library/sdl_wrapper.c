@@ -1,13 +1,15 @@
 #include "sdl_wrapper.h"
+#include "body.h"
 #include "state.h"
-#include <SDL2/SDL_ttf.h>
+#include "text.h"
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "text.h"
 
 const char WINDOW_TITLE[] = "CS 3";
 const int WINDOW_WIDTH = 1000;
@@ -45,6 +47,8 @@ uint32_t key_start_timestamp;
  */
 clock_t last_clock = 0;
 
+SDL_Texture *img = NULL;
+
 /** Computes the center of the window in pixel coordinates */
 vector_t get_window_center(void) {
   int *width = malloc(sizeof(*width)), *height = malloc(sizeof(*height));
@@ -70,16 +74,16 @@ double get_scene_scale(vector_t window_center) {
 }
 
 vector_t get_scene_position(vector_t window_pos, vector_t window_center) {
-    vector_t pixel_center_offset = {
-        +window_pos.x - window_center.x,
-        -window_pos.y + window_center.y,
-    };
-    double scale = get_scene_scale(window_center);
-    vector_t scene_center_offset = vec_multiply(1.0 / scale, pixel_center_offset);
-    return scene_center_offset;
+  vector_t pixel_center_offset = {
+      +window_pos.x - window_center.x,
+      -window_pos.y + window_center.y,
+  };
+  double scale = get_scene_scale(window_center);
+  vector_t scene_center_offset = vec_multiply(1.0 / scale, pixel_center_offset);
+  return scene_center_offset;
 }
 
-//from pixel to scene coordinate
+// from pixel to scene coordinate
 vector_t sdl_mouse_position() {
   int x, y;
   SDL_GetMouseState(&x, &y);
@@ -202,22 +206,22 @@ bool sdl_is_done(state_t *state) {
   return false;
 }
 
-SDL_Texture *sdl_load_text(state_t *state, char *words, text_t *text, SDL_Color color, vector_t loc) {
+SDL_Texture *sdl_load_text(state_t *state, char *words, text_t *text,
+                           SDL_Color color, vector_t loc) {
   TTF_Font *font = text_get_font(text);
 
-  SDL_Surface *surfaceMessage =
-      TTF_RenderText_Solid(font, words, color);
+  SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font, words, color);
   SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
-  //scale from vector_t to pixel 
+  // scale from vector_t to pixel
   vector_t window_center = get_window_center();
   vector_t coords = get_window_position(loc, window_center);
 
   SDL_Rect Message_rect;              // create a rect
-  Message_rect.x = coords.x;  // controls the rect's x coordinate
-  Message_rect.y = coords.y; // controls the rect's y coordinte
+  Message_rect.x = coords.x;          // controls the rect's x coordinate
+  Message_rect.y = coords.y;          // controls the rect's y coordinte
   Message_rect.w = surfaceMessage->w; // controls the width of the rect
-  Message_rect.h = surfaceMessage->h; // controls the height of the rect 
+  Message_rect.h = surfaceMessage->h; // controls the height of the rect
 
   SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
 
@@ -282,10 +286,34 @@ void sdl_show(void) {
 void sdl_render_scene(scene_t *scene) {
   sdl_clear();
   size_t body_count = scene_bodies(scene);
+  int *w = malloc(sizeof(int));
+  int *h = malloc(sizeof(int));
   for (size_t i = 0; i < body_count; i++) {
     body_t *body = scene_get_body(scene, i);
     list_t *shape = body_get_shape(body);
-    sdl_draw_polygon(shape, body_get_color(body));
+    if (body_get_image_path(body) == NULL) {
+      sdl_draw_polygon(shape, body_get_color(body));
+    } else {
+      img = IMG_LoadTexture(renderer, body_get_image_path(body));
+      double angle = body_get_rotation(body) * -(180 / M_PI); // set the angle.
+      SDL_RendererFlip flip = SDL_FLIP_NONE; // the flip of the texture.
+      SDL_QueryTexture(img, NULL, NULL, w, h);
+      SDL_Rect texr;
+      vector_t window_center = get_window_center();
+      // vector_t coord = *((vector_t *) list_get(body_get_shape(body), 1));
+      vector_t coord = {body_get_centroid(body).x - 40,
+                        body_get_centroid(body).y + 50};
+      SDL_Point center = {16, 20};
+      vector_t pixel = get_window_position(coord, window_center);
+      texr.x = pixel.x;
+      texr.y = pixel.y;
+      texr.w = 40;
+      texr.h = 40;
+      // SDL_RenderClear(renderer);
+      // SDL_RenderCopy(renderer, img, NULL, &texr);
+      sdl_draw_polygon(shape, body_get_color(body));
+      SDL_RenderCopyEx(renderer, img, NULL, &texr, angle, &center, flip);
+    }
     list_free(shape);
   }
   sdl_show();

@@ -244,6 +244,10 @@ void body_set_ai_time(body_t *body, double time);
 
 void body_set_just_collided(body_t *body, bool just_collided);
 
+void body_set_image_path(body_t *body, char *image_path);
+
+char *body_get_image_path(body_t *body);
+
 body_t *init_default_tank(vector_t center, double side_length,
                           vector_t velocity, double mass, rgb_color_t color,
                           double max_health, size_t tank_type);

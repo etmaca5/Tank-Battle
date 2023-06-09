@@ -41,6 +41,7 @@ typedef struct body {
   size_t ai_mode;
   double ai_time;
   bool just_collided;
+  char *image_path;
 } body_t;
 
 body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
@@ -64,6 +65,7 @@ body_t *body_init(list_t *shape, double mass, rgb_color_t color) {
   body->ai_mode = 0;
   body->ai_time = 0;
   body->just_collided = false;
+  body->image_path = NULL;
   return body;
 }
 
@@ -240,6 +242,14 @@ void body_remove(body_t *body) {
 
 bool body_is_removed(body_t *body) { return body->is_removed; }
 
+void body_set_image_path(body_t *body, char *image_path) {
+  body->image_path = image_path;
+}
+
+char *body_get_image_path(body_t *body) {
+  return body->image_path;
+}
+
 // TANKS
 body_t *init_default_tank(vector_t center, double side_length,
                           vector_t velocity, double mass, rgb_color_t color,
@@ -277,6 +287,7 @@ body_t *init_default_tank(vector_t center, double side_length,
       body_init_with_info(tank_points, mass, color, type, (free_func_t)free);
   assert(tank != NULL);
   tank->health = max_health;
+  body_set_image_path(tank, "assets/tank.png");
   return tank;
 }
 
@@ -291,5 +302,6 @@ body_t *init_melee_tank(vector_t center, double side_length, size_t num_points,
       body_init_with_info(tank_points, mass, color, type, (free_func_t)free);
   assert(tank != NULL);
   tank->health = max_health;
+  body_set_image_path(tank, "assets/tank.png");
   return tank;
 }

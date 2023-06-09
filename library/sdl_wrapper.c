@@ -3,11 +3,13 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
+#include <stdio.h>
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
 #include "text.h"
+#include "body.h"
 
 const char WINDOW_TITLE[] = "CS 3";
 const int WINDOW_WIDTH = 1000;
@@ -44,6 +46,8 @@ uint32_t key_start_timestamp;
  * Initially 0.
  */
 clock_t last_clock = 0;
+
+SDL_Texture *img = NULL;
 
 /** Computes the center of the window in pixel coordinates */
 vector_t get_window_center(void) {
@@ -282,14 +286,39 @@ void sdl_show(void) {
 void sdl_render_scene(scene_t *scene) {
   sdl_clear();
   size_t body_count = scene_bodies(scene);
+  int *w = malloc(sizeof(int));
+  int *h = malloc(sizeof(int));
   for (size_t i = 0; i < body_count; i++) {
     body_t *body = scene_get_body(scene, i);
     list_t *shape = body_get_shape(body);
-    sdl_draw_polygon(shape, body_get_color(body));
+    if (body_get_image_path(body) == NULL) {
+      sdl_draw_polygon(shape, body_get_color(body));
+    }
+    else {
+      img = IMG_LoadTexture(renderer, body_get_image_path(body));
+      double angle = body_get_rotation(body) * -(180 / M_PI); // set the angle.
+      SDL_RendererFlip flip = SDL_FLIP_NONE; // the flip of the texture.
+      SDL_QueryTexture(img, NULL, NULL, w, h);
+      SDL_Rect texr;
+      vector_t window_center = get_window_center();
+      //vector_t coord = *((vector_t *) list_get(body_get_shape(body), 1));
+      vector_t coord = {body_get_centroid(body).x - 40, body_get_centroid(body).y + 50};
+      SDL_Point center = {16, 20};
+      vector_t pixel = get_window_position(coord, window_center);
+      texr.x = pixel.x;
+      texr.y = pixel.y;
+      texr.w = 40;
+      texr.h = 40;
+      //SDL_RenderClear(renderer);
+      //SDL_RenderCopy(renderer, img, NULL, &texr);
+      sdl_draw_polygon(shape, body_get_color(body));
+      SDL_RenderCopyEx(renderer, img, NULL, &texr, angle, &center, flip);
+    }
     list_free(shape);
   }
   sdl_show();
 }
+
 
 void sdl_on_key(key_handler_t handler) { key_handler = handler; }
 

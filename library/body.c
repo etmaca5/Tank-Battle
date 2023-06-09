@@ -292,14 +292,7 @@ body_t *init_default_tank(vector_t center, double side_length,
 body_t *init_melee_tank(vector_t center, double side_length, size_t num_points,
                         vector_t velocity, double mass, rgb_color_t color,
                         double max_health, size_t tank_type) {
-  list_t *tank_points = make_star(center, side_length, num_points);
-
-  size_t *type = malloc(sizeof(size_t));
-  *type = tank_type;
-  body_t *tank =
-      body_init_with_info(tank_points, mass, color, type, (free_func_t)free);
-  assert(tank != NULL);
-  tank->health = max_health;
-  body_set_image_path(tank, "assets/tank.png");
-  return tank;
+  body_t *melee_tank = init_default_tank(center, side_length, velocity, mass, color, max_health, tank_type);
+  body_set_image_path(melee_tank, "assets/tank.png");
+  return melee_tank;
 }

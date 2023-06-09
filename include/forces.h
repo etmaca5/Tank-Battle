@@ -10,6 +10,7 @@ extern const size_t SNIPER_BULLET_TYPE;
 extern const size_t DEFAULT_TANK_TYPE;
 extern const size_t MELEE_TANK_TYPE;
 extern const size_t SNIPER_TANK_TYPE;
+extern const size_t GRAVITY_TANK_TYPE;
 
 typedef struct store_force store_force_t;
 

@@ -138,13 +138,7 @@ void destructive_collision_handler(body_t *body1, body_t *body2, vector_t axis,
 void partial_destructive_collision_handler(body_t *body1, body_t *body2,
                                            vector_t axis, void *aux) {
   // need to be careful here to consider all cases
-  if (*(size_t *)body_get_info(body1) == MELEE_TANK_TYPE){
-    body_set_health(body2, body_get_health(body2) - MELEE_TANK_DAMAGE);
-  }
-  if (*(size_t *)body_get_info(body2) == MELEE_TANK_TYPE){
-    body_set_health(body1, body_get_health(body1) - MELEE_TANK_DAMAGE);
-  }
-  else if (*(size_t *)body_get_info(body2) == BULLET_TYPE) {
+  if (*(size_t *)body_get_info(body2) == BULLET_TYPE) {
     body_set_health(body1, body_get_health(body1) - BULLET_DAMAGE);
     body_remove(body2);
   }
@@ -152,7 +146,6 @@ void partial_destructive_collision_handler(body_t *body1, body_t *body2,
     body_set_health(body1, body_get_health(body1) - SNIPER_BULLET_DAMAGE);
     body_remove(body2);
   }
-
   
 }
 
@@ -198,6 +191,13 @@ void impulse_handler(body_t *body1, body_t *body2, vector_t axis, void *aux) {
 
   body_add_impulse(body1, impulse);
   body_add_impulse(body2, vec_negate(impulse));
+
+  if (*(size_t *)body_get_info(body1) == MELEE_TANK_TYPE && (*(size_t *)body_get_info(body2) == DEFAULT_TANK_TYPE ||*(size_t *)body_get_info(body2) == SNIPER_TANK_TYPE || *(size_t *)body_get_info(body2) == GRAVITY_TANK_TYPE )){
+    body_set_health(body2, body_get_health(body2) - MELEE_TANK_DAMAGE);
+  }
+  else if (*(size_t *)body_get_info(body2) == MELEE_TANK_TYPE && (*(size_t *)body_get_info(body1) == DEFAULT_TANK_TYPE ||*(size_t *)body_get_info(body1) == SNIPER_TANK_TYPE || *(size_t *)body_get_info(body1) == GRAVITY_TANK_TYPE )){
+    body_set_health(body1, body_get_health(body1) - MELEE_TANK_DAMAGE);
+  }
 
   if (*(size_t *)body_get_info(body1) == TRIANGLE_OBSTACLE_TYPE) {
     body_set_health(body2, body_get_health(body2) - TRIANGLE_DAMAGE);

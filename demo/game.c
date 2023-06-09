@@ -36,12 +36,12 @@ const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1300.0;
 
 // elasticity between tank
-double TANKS_ELASTICITY = 3.0;
+double TANKS_ELASTICITY = 5.0;
 
 // default tank stats
 double DEFAULT_TANK_VELOCITY = 100.0;
 double DEFAULT_TANK_SIDE_LENGTH = 80.0;
-double DEFAULT_TANK_MASS = 100.0;
+double DEFAULT_TANK_MASS = 1000.0;
 double DEFAULT_TANK_ROTATION_SPEED = M_PI / 2;
 double DEFAULT_TANK_MAX_HEALTH = 50.0;
 
@@ -50,7 +50,7 @@ double DEFAULT_TANK_MAX_HEALTH = 50.0;
 size_t MELEE_TANK_POINTS = 6;
 double MELEE_TANK_VELOCITY = 180.0;
 double MELEE_TANK_SIDE_LENGTH = 60.0;
-double MELEE_TANK_MASS = 100.0;
+double MELEE_TANK_MASS = 1000.0;
 double MELEE_TANK_ROTATION_SPEED = M_PI * 3 / 4;
 double MELEE_TANK_MAX_HEALTH = 50.0;
 
@@ -68,7 +68,7 @@ double SNIPER_RELOAD_SPEED = 2.5;
 
 //damage stored here
 const double BULLET_DAMAGE = 10.0;
-const double MELEE_TANK_DAMAGE = 25.0;
+const double MELEE_TANK_DAMAGE = 10.0;
 const double SNIPER_BULLET_DAMAGE = 25.0;
 
 double BULLET_HEIGHT = 25.0;
@@ -95,7 +95,7 @@ double OPTIONS_BUTTON_Y_MAX = 359.0;
 
 double GAMMA = 1.0;
 
-COLORS: 
+// COLORS: 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
@@ -297,7 +297,7 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
   }
 }
 
-void tank_handler(char key, key_event_type_t type, double held_time,
+void tank_handler2(char key, key_event_type_t type, double held_time,
                   state_t *state, body_t *player, rgb_color_t player_color) {
   if (*(size_t *)body_get_info(player) ==
       DEFAULT_TANK_TYPE) { // this is to handle the different tank types
@@ -375,7 +375,7 @@ void tank_handler(char key, key_event_type_t type, double held_time,
   }
 }
 
-void tank_handler2(char key, key_event_type_t type, double held_time,
+void tank_handler(char key, key_event_type_t type, double held_time,
                    state_t *state, body_t *player, rgb_color_t player_color) {
   if (*(size_t *)body_get_info(player) ==
       DEFAULT_TANK_TYPE) { // this is to handle the different tank types
@@ -693,6 +693,7 @@ void make_players(state_t *state) {
   body_set_health(player2, DEFAULT_TANK_MAX_HEALTH);
   scene_add_body(state->scene, player1);
   scene_add_body(state->scene, player2);
+  create_physics_collision(state->scene, TANKS_ELASTICITY, scene_get_body(state->scene, 0),scene_get_body(state->scene, 1));
 }
 
 void make_health_bars(state_t *state) {
@@ -739,7 +740,7 @@ void reset_game(state_t *state) {
   make_players(state);
   make_health_bars(state);
   map_init(state->scene);
-  for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+  for (size_t i = 2; i < scene_bodies(state->scene); i++) {
     body_t *body = scene_get_body(state->scene, i);
     if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
         *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
@@ -876,7 +877,7 @@ state_t *emscripten_init() {
 
   show_scoreboard(state, 0, 0);
 
-  for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+  for (size_t i = 2; i < scene_bodies(state->scene); i++) {
     body_t *body = scene_get_body(state->scene, i);
     if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
         *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {

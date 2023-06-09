@@ -22,11 +22,13 @@
 const size_t WALL_TYPE = 0;
 const size_t BULLET_TYPE = 1;
 const size_t SNIPER_BULLET_TYPE = 10;
+const size_t GATLING_BULLET_TYPE = 11;
 const size_t DEFAULT_TANK_TYPE = 2;
 const size_t MELEE_TANK_TYPE = 3;
 const size_t SNIPER_TANK_TYPE = 4;
 const size_t GRAVITY_TANK_TYPE = 5;
 const size_t HEALTH_BAR_TYPE = 6;
+const size_t GATLING_TANK_TYPE = 7;
 
 int FONT_SIZE = 50;
 int TITLE_SIZE = 100;
@@ -45,6 +47,10 @@ double DEFAULT_TANK_MASS = 1000.0;
 double DEFAULT_TANK_ROTATION_SPEED = M_PI / 2;
 double DEFAULT_TANK_MAX_HEALTH = 50.0;
 
+double BULLET_HEIGHT = 25.0;
+double BULLET_WIDTH = 10.0;
+double BULLET_VELOCITY = 300.0;
+double RELOAD_SPEED = 1.0;
 
 // MELEE tank stats
 size_t MELEE_TANK_POINTS = 6;
@@ -54,29 +60,45 @@ double MELEE_TANK_MASS = 1000.0;
 double MELEE_TANK_ROTATION_SPEED = M_PI * 3 / 4;
 double MELEE_TANK_MAX_HEALTH = 50.0;
 
+// SNIPER tank stats
+double SNIPER_TANK_VELOCITY = 75.0;
+double SNIPER_TANK_SIDE_LENGTH = 60.0;
+double SNIPER_TANK_MASS = 1000.0;
+double SNIPER_TANK_ROTATION_SPEED = M_PI * 2 / 5;
+double SNIPER_TANK_MAX_HEALTH = 50.0; // something wrong w/ health
+const double SNIPER_TANK_DAMAGE = 25.0;
 
-// // SNIPER tank stats
-// size_t MELEE_TANK_POINTS = 6;
-// double MELEE_TANK_VELOCITY = 180.0;
-// double MELEE_TANK_SIDE_LENGTH = 60.0;
-// double MELEE_TANK_MASS = 100.0;
-// double MELEE_TANK_ROTATION_SPEED = M_PI * 3 / 4;
-// double MELEE_TANK_MAX_HEALTH = 50.0;
-// const double MELEE_TANK_DAMAGE = 25.0;
 double SNIPER_RELOAD_SPEED = 2.5;
+double SNIPER_BULLET_HEIGHT = 25.0;
+double SNIPER_BULLET_WIDTH = 10.0;
+double SNIPER_BULLET_VELOCITY = 500.0;
+
+// GATLING tank stats
+double GATLING_TANK_VELOCITY = 60.0;
+double GATLING_TANK_SIDE_LENGTH = 60.0;
+double GATLING_TANK_MASS = 1000.0;
+double GATLING_TANK_ROTATION_SPEED = M_PI * 3 / 5;
+double GATLING_TANK_MAX_HEALTH = 50.0;
+const double GATLING_TANK_DAMAGE = 25.0;
+
+double GATLING_RELOAD_SPEED = 0.4;
+double GATLING_BULLET_HEIGHT = 25.0;
+double GATLING_BULLET_WIDTH = 10.0;
+double GATLING_BULLET_VELOCITY = 300.0;
 
 
-//damage stored here
+// bullet damage
 const double BULLET_DAMAGE = 10.0;
 const double MELEE_TANK_DAMAGE = 10.0;
 const double SNIPER_BULLET_DAMAGE = 25.0;
+const double GATLING_BULLET_DAMAGE = 5.0;
 
-double BULLET_HEIGHT = 25.0;
-double BULLET_WIDTH = 10.0;
+//default bullet characteristics
 double BULLET_MASS = 5.0;
-double BULLET_VELOCITY = 300.0;
-double RELOAD_SPEED = 1.0;
 double BULLET_DISAPPEAR_TIME = 10.0;
+
+
+
 
 double HEALTH_BAR_WIDTH = 500.0;
 double HEALTH_BAR_HEIGHT = 50.0;
@@ -95,7 +117,7 @@ double OPTIONS_BUTTON_Y_MAX = 359.0;
 
 double GAMMA = 1.0;
 
-// COLORS: 
+// COLORS:
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
@@ -259,7 +281,7 @@ list_t *make_bullet(vector_t edge) {
 void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
   body_set_time(player, 0.0);
   vector_t spawn_point = body_get_centroid(player);
-  list_t *bullet_points = make_bullet(spawn_point);
+  list_t *bullet_points = make_bullet(spawn_point); // can change make bullet later for sniper bullet and machine gun bullet
   polygon_rotate(bullet_points, body_get_rotation(player),
                  body_get_centroid(player));
   vector_t player_dir = {cos(body_get_rotation(player)),
@@ -268,11 +290,27 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
       vec_multiply(DEFAULT_TANK_SIDE_LENGTH / 2 + 10, player_dir);
   polygon_translate(bullet_points, move_up);
   size_t *type = malloc(sizeof(size_t));
-  *type = BULLET_TYPE;
+  double vel;
+  if(*(size_t *)body_get_info(player) == DEFAULT_TANK_TYPE ){
+    *type = BULLET_TYPE;
+    vel = BULLET_VELOCITY;
+  }
+  else if(*(size_t *)body_get_info(player) == SNIPER_TANK_TYPE){
+    *type = SNIPER_BULLET_TYPE;
+    vel = SNIPER_BULLET_VELOCITY;
+  }
+  else if(*(size_t *)body_get_info(player) == GATLING_TANK_TYPE){
+    *type = GATLING_BULLET_TYPE;
+    vel = GATLING_BULLET_VELOCITY;
+  }
+  else{ //default
+    *type = BULLET_TYPE;
+    vel = BULLET_VELOCITY;
+  }
   body_t *bullet = body_init_with_info(bullet_points, BULLET_MASS, color, type,
                                        (free_func_t)free);
   body_set_rotation_empty(bullet, body_get_rotation(player));
-  body_set_velocity(bullet, vec_multiply(BULLET_VELOCITY, player_dir));
+  body_set_velocity(bullet, vec_multiply(vel, player_dir));
   body_set_time(bullet, 0.0);
   scene_add_body(state->scene, bullet);
 
@@ -288,7 +326,7 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
   // create collision with walls and other bullets
   for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {
     body_t *body = scene_get_body(state->scene, i);
-    if (*(size_t *)body_get_info(body) == BULLET_TYPE) {
+    if (*(size_t *)body_get_info(body) == BULLET_TYPE || *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE || *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
       create_destructive_collision(state->scene, body, bullet);
     } else if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
                *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
@@ -297,86 +335,8 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
   }
 }
 
-void tank_handler2(char key, key_event_type_t type, double held_time,
-                  state_t *state, body_t *player, rgb_color_t player_color) {
-  if (*(size_t *)body_get_info(player) ==
-      DEFAULT_TANK_TYPE) { // this is to handle the different tank types
-    if (type == KEY_PRESSED) {
-      switch (key) {
-      case UP_ARROW: {
-        body_set_magnitude(player, DEFAULT_TANK_VELOCITY);
-        break;
-      }
-      case DOWN_ARROW: {
-        body_set_magnitude(player, -DEFAULT_TANK_VELOCITY);
-        break;
-      }
-      case RIGHT_ARROW: {
-        body_set_rotation_speed(player, -DEFAULT_TANK_ROTATION_SPEED);
-        break;
-      }
-      case LEFT_ARROW: {
-        body_set_rotation_speed(player, DEFAULT_TANK_ROTATION_SPEED);
-        break;
-      }
-      case SPACE: {
-        if (body_get_time(player) > RELOAD_SPEED) {
-          handle_bullet(state, player, player_color);
-        }
-      }
-      }
-    }
-  } else if (*(size_t *)body_get_info(player) ==
-             MELEE_TANK_TYPE) { // handles MELEE tank
-    if (type == KEY_PRESSED) {
-      switch (key) {
-      case UP_ARROW: {
-        body_set_magnitude(player, MELEE_TANK_VELOCITY);
-        break;
-      }
-      case DOWN_ARROW: {
-        body_set_magnitude(player, -MELEE_TANK_VELOCITY);
-        break;
-      }
-      case RIGHT_ARROW: {
-        body_set_rotation_speed(player, -MELEE_TANK_ROTATION_SPEED);
-        break;
-      }
-      case LEFT_ARROW: {
-        body_set_rotation_speed(player, MELEE_TANK_ROTATION_SPEED);
-        break;
-      }
-      }
-    }
-  } else {
-    // add other tanks after
-  }
-  if (type == KEY_RELEASED) {
-    switch (key) {
-    case UP_ARROW: {
-      body_set_velocity(player, VEC_ZERO);
-      body_set_magnitude(player, 0.0);
-      break;
-    }
-    case DOWN_ARROW: {
-      body_set_velocity(player, VEC_ZERO);
-      body_set_magnitude(player, 0.0);
-      break;
-    }
-    case RIGHT_ARROW: {
-      body_set_rotation_speed(player, 0.0);
-      break;
-    }
-    case LEFT_ARROW: {
-      body_set_rotation_speed(player, 0.0);
-      break;
-    }
-    }
-  }
-}
-
 void tank_handler(char key, key_event_type_t type, double held_time,
-                   state_t *state, body_t *player, rgb_color_t player_color) {
+                  state_t *state, body_t *player, rgb_color_t player_color) {
   if (*(size_t *)body_get_info(player) ==
       DEFAULT_TANK_TYPE) { // this is to handle the different tank types
     if (type == KEY_PRESSED) {
@@ -426,7 +386,63 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  } else {
+  } else if(*(size_t *)body_get_info(player) ==
+             SNIPER_TANK_TYPE){
+    if (type == KEY_PRESSED) {
+      switch (key) {
+      case 'w': {
+        body_set_magnitude(player, SNIPER_TANK_VELOCITY);
+        break;
+      }
+      case 's': {
+        body_set_magnitude(player, -SNIPER_TANK_VELOCITY);
+        break;
+      }
+      case 'd': {
+        body_set_rotation_speed(player, -SNIPER_TANK_ROTATION_SPEED);
+        break;
+      }
+      case 'a': {
+        body_set_rotation_speed(player, SNIPER_TANK_ROTATION_SPEED);
+        break;
+      }
+      case 'r': {
+        if (body_get_time(player) > SNIPER_RELOAD_SPEED) {
+          handle_bullet(state, player, player_color);
+        }
+      }
+      }
+    }
+  }
+  else if(*(size_t *)body_get_info(player) ==
+             GATLING_TANK_TYPE){
+    if (type == KEY_PRESSED) {
+      switch (key) {
+      case 'w': {
+        body_set_magnitude(player, GATLING_TANK_VELOCITY);
+        break;
+      }
+      case 's': {
+        body_set_magnitude(player, -GATLING_TANK_VELOCITY);
+        break;
+      }
+      case 'd': {
+        body_set_rotation_speed(player, -GATLING_TANK_ROTATION_SPEED);
+        break;
+      }
+      case 'a': {
+        body_set_rotation_speed(player, GATLING_TANK_ROTATION_SPEED);
+        break;
+      }
+      case 'r': {
+        if (body_get_time(player) > GATLING_RELOAD_SPEED) {
+          handle_bullet(state, player, player_color);
+        }
+      }
+      }
+    }
+  }
+  else {
     // add other tanks after
   }
   if (type == KEY_RELEASED) {
@@ -446,6 +462,140 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       break;
     }
     case 'a': {
+      body_set_rotation_speed(player, 0.0);
+      break;
+    }
+    }
+  }
+}
+void tank_handler2(char key, key_event_type_t type, double held_time,
+                   state_t *state, body_t *player, rgb_color_t player_color) {
+  if (*(size_t *)body_get_info(player) ==
+      DEFAULT_TANK_TYPE) { // this is to handle the different tank types
+    if (type == KEY_PRESSED) {
+      switch (key) {
+      case UP_ARROW: {
+        body_set_magnitude(player, DEFAULT_TANK_VELOCITY);
+        break;
+      }
+      case DOWN_ARROW: {
+        body_set_magnitude(player, -DEFAULT_TANK_VELOCITY);
+        break;
+      }
+      case RIGHT_ARROW: {
+        body_set_rotation_speed(player, -DEFAULT_TANK_ROTATION_SPEED);
+        break;
+      }
+      case LEFT_ARROW: {
+        body_set_rotation_speed(player, DEFAULT_TANK_ROTATION_SPEED);
+        break;
+      }
+      case SPACE: {
+        if (body_get_time(player) > RELOAD_SPEED) {
+          handle_bullet(state, player, player_color);
+        }
+      }
+      }
+    }
+  } else if (*(size_t *)body_get_info(player) ==
+             MELEE_TANK_TYPE) { // handles MELEE tank
+    if (type == KEY_PRESSED) {
+      switch (key) {
+      case UP_ARROW: {
+        body_set_magnitude(player, MELEE_TANK_VELOCITY);
+        break;
+      }
+      case DOWN_ARROW: {
+        body_set_magnitude(player, -MELEE_TANK_VELOCITY);
+        break;
+      }
+      case RIGHT_ARROW: {
+        body_set_rotation_speed(player, -MELEE_TANK_ROTATION_SPEED);
+        break;
+      }
+      case LEFT_ARROW: {
+        body_set_rotation_speed(player, MELEE_TANK_ROTATION_SPEED);
+        break;
+      }
+      }
+    }
+  }
+   else if (*(size_t *)body_get_info(player) ==
+      SNIPER_TANK_TYPE) { // this is to handle the different tank types
+    if (type == KEY_PRESSED) {
+      switch (key) {
+      case UP_ARROW: {
+        body_set_magnitude(player, SNIPER_TANK_VELOCITY);
+        break;
+      }
+      case DOWN_ARROW: {
+        body_set_magnitude(player, -SNIPER_TANK_VELOCITY);
+        break;
+      }
+      case RIGHT_ARROW: {
+        body_set_rotation_speed(player, -SNIPER_TANK_ROTATION_SPEED);
+        break;
+      }
+      case LEFT_ARROW: {
+        body_set_rotation_speed(player, SNIPER_TANK_ROTATION_SPEED);
+        break;
+      }
+      case SPACE: {
+        if (body_get_time(player) > SNIPER_RELOAD_SPEED) {
+          handle_bullet(state, player, player_color);
+        }
+      }
+      }
+    }
+  }
+  else if (*(size_t *)body_get_info(player) ==
+      GATLING_TANK_TYPE) { // this is to handle the different tank types
+    if (type == KEY_PRESSED) {
+      switch (key) {
+      case UP_ARROW: {
+        body_set_magnitude(player, GATLING_TANK_VELOCITY);
+        break;
+      }
+      case DOWN_ARROW: {
+        body_set_magnitude(player, -GATLING_TANK_VELOCITY);
+        break;
+      }
+      case RIGHT_ARROW: {
+        body_set_rotation_speed(player, -GATLING_TANK_ROTATION_SPEED);
+        break;
+      }
+      case LEFT_ARROW: {
+        body_set_rotation_speed(player, GATLING_TANK_ROTATION_SPEED);
+        break;
+      }
+      case SPACE: {
+        if (body_get_time(player) > GATLING_RELOAD_SPEED) {
+          handle_bullet(state, player, player_color);
+        }
+      }
+      }
+    }
+  }
+  else {
+    // add other tanks after
+  }
+  if (type == KEY_RELEASED) {
+    switch (key) {
+    case UP_ARROW: {
+      body_set_velocity(player, VEC_ZERO);
+      body_set_magnitude(player, 0.0);
+      break;
+    }
+    case DOWN_ARROW: {
+      body_set_velocity(player, VEC_ZERO);
+      body_set_magnitude(player, 0.0);
+      break;
+    }
+    case RIGHT_ARROW: {
+      body_set_rotation_speed(player, 0.0);
+      break;
+    }
+    case LEFT_ARROW: {
       body_set_rotation_speed(player, 0.0);
       break;
     }
@@ -668,10 +818,20 @@ body_t *handle_selected_tank(size_t tank_type, vector_t start_pos,
                              DEFAULT_TANK_MASS, color, DEFAULT_TANK_MAX_HEALTH,
                              DEFAULT_TANK_TYPE);
   } else if (tank_type == MELEE_TANK_TYPE) {
-    return init_melee_tank(start_pos, MELEE_TANK_SIDE_LENGTH, MELEE_TANK_POINTS,
+    return init_melee_tank(start_pos, MELEE_TANK_SIDE_LENGTH,
                            VEC_ZERO, MELEE_TANK_MASS, color,
                            MELEE_TANK_MAX_HEALTH, MELEE_TANK_TYPE);
-  } else {
+  }else if (tank_type == SNIPER_TANK_TYPE) {
+    return init_sniper_tank(start_pos, SNIPER_TANK_SIDE_LENGTH,
+                           VEC_ZERO, SNIPER_TANK_MASS, color,
+                           SNIPER_TANK_MAX_HEALTH, SNIPER_TANK_TYPE);
+  }
+  else if (tank_type == GATLING_TANK_TYPE) {
+    return init_gatling_tank(start_pos, GATLING_TANK_SIDE_LENGTH, 
+                           VEC_ZERO, GATLING_TANK_MASS, color,
+                           GATLING_TANK_MAX_HEALTH, GATLING_TANK_TYPE);
+  }
+  else {
     return init_default_tank(start_pos, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO,
                              DEFAULT_TANK_MASS, color, DEFAULT_TANK_MAX_HEALTH,
                              DEFAULT_TANK_TYPE);
@@ -693,7 +853,9 @@ void make_players(state_t *state) {
   body_set_health(player2, DEFAULT_TANK_MAX_HEALTH);
   scene_add_body(state->scene, player1);
   scene_add_body(state->scene, player2);
-  create_physics_collision(state->scene, TANKS_ELASTICITY, scene_get_body(state->scene, 0),scene_get_body(state->scene, 1));
+  create_physics_collision(state->scene, TANKS_ELASTICITY,
+                           scene_get_body(state->scene, 0),
+                           scene_get_body(state->scene, 1));
 }
 
 void make_health_bars(state_t *state) {
@@ -862,8 +1024,8 @@ state_t *emscripten_init() {
   state->scene = scene_init();
   state->player1_score = 0;
   state->player2_score = 0;
-  state->player1_tank_type = DEFAULT_TANK_TYPE;
-  state->player2_tank_type = MELEE_TANK_TYPE;
+  state->player1_tank_type = GATLING_TANK_TYPE;
+  state->player2_tank_type = SNIPER_TANK_TYPE;
   state->singleplayer = false;
 
   menu_init(state); // will have to add menu feature that allows selection of
@@ -915,10 +1077,10 @@ void emscripten_main(state_t *state) {
     }
 
     // add time to bullet bodies to see if they should disappear
-    for (size_t i = 0; i < scene_bodies(state->scene); i++) {
+    for (size_t i = 2; i < scene_bodies(state->scene); i++) {
       body_t *body = scene_get_body(state->scene, i);
       if (*(size_t *)body_get_info(body) == BULLET_TYPE ||
-          *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE) {
+          *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE || *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
         body_set_time(body, body_get_time(body) + dt);
         if (body_get_time(body) > BULLET_DISAPPEAR_TIME) {
           body_remove(body);

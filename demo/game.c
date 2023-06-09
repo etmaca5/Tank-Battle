@@ -800,6 +800,7 @@ void show_scoreboard(state_t *state, int player1_score, int player2_score) {
   sdl_show();
   SDL_DestroyTexture(scoreboard);
 }
+
 body_t *handle_selected_tank(size_t tank_type, vector_t start_pos,
                              rgb_color_t color) {
   // add rest of the tanks

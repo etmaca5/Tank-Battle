@@ -57,7 +57,7 @@ double OPTIONS_BUTTON_Y_MAX = 359.0;
 
 double GAMMA = 1.0;
 
-COLORS: 
+//COLORS: 
 rgb_color_t PLAYER1_COLOR = {1.0, 0.0, 0.0};
 rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};

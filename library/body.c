@@ -209,7 +209,7 @@ void body_tick(body_t *body, double dt) {
                                                  sin(body_get_rotation(body))});
   }
 
-  if (*(size_t *)body_get_info(body) == 1) {
+  if (*(size_t *)body_get_info(body) == BULLET_TYPE || *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE || *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
     double angle = atan(body->velocity.y / body->velocity.x);
     body_set_rotation(body, angle);
   }

@@ -12,6 +12,8 @@ extern const size_t WALL_TYPE;
 extern const size_t BULLET_TYPE;
 extern const size_t DEFAULT_TANK_TYPE;
 extern const size_t HEALTH_BAR_TYPE;
+extern const size_t SNIPER_BULLET_TYPE;
+extern const size_t GATLING_BULLET_TYPE;
 
 // ai modes
 extern const size_t AI_UP;

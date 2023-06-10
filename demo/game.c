@@ -65,7 +65,7 @@ double SNIPER_TANK_VELOCITY = 75.0;
 double SNIPER_TANK_SIDE_LENGTH = 60.0;
 double SNIPER_TANK_MASS = 1000.0;
 double SNIPER_TANK_ROTATION_SPEED = M_PI * 2 / 5;
-double SNIPER_TANK_MAX_HEALTH = 50.0; // something wrong w/ health
+double SNIPER_TANK_MAX_HEALTH = 40.0; // something wrong w/ health
 const double SNIPER_TANK_DAMAGE = 25.0;
 
 double SNIPER_RELOAD_SPEED = 2.5;
@@ -78,7 +78,7 @@ double GATLING_TANK_VELOCITY = 60.0;
 double GATLING_TANK_SIDE_LENGTH = 60.0;
 double GATLING_TANK_MASS = 1000.0;
 double GATLING_TANK_ROTATION_SPEED = M_PI * 3 / 5;
-double GATLING_TANK_MAX_HEALTH = 50.0;
+double GATLING_TANK_MAX_HEALTH = 80.0;
 const double GATLING_TANK_DAMAGE = 25.0;
 
 double GATLING_RELOAD_SPEED = 0.4;

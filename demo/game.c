@@ -124,6 +124,7 @@ rgb_color_t PLAYER2_COLOR_SIMILAR = {0.0, 0.5, 0.0};
 rgb_color_t LIGHT_GREY = {0.86, 0.86, 0.86};
 rgb_color_t GREEN = {0.0, 1.0, 0.0};
 rgb_color_t BLUE = {0.0, 0.0, 1.0};
+rgb_color_t BLACK = {0.0, 0.0, 0.0};
 rgb_color_t RED = {1.0, 0.0, 0.0};
 rgb_color_t FOREST_GREEN_POLY = {0.13, 0.55, 0.13};
 rgb_color_t TEAL = {0.0, 0.8, 0.8};
@@ -1017,14 +1018,12 @@ bool player2_gatling_pressed(vector_t mouse) {
   return false;
 }
 bool go_back_pressed(vector_t mouse) {
-  if (mouse.x >= 655.0 && mouse.x <= 735.0 && mouse.y >= 344.0 &&
-      mouse.y <= 389.0) {
+  if (mouse.x >= BUTTON_X_MIN && mouse.x <= BUTTON_X_MAX &&
+      mouse.y >= 410 && mouse.y <= 490) {
     return true;
   }
   return false;
 }
-
-
 
 void menu_init(state_t *state) {
   state->is_menu = true;
@@ -1177,6 +1176,14 @@ void options_pop_up(state_t *state) {
   SDL_Texture *tank8 =
       sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank8_loc);
 
+  // go back button
+  vector_t go_back_corner = {550.0, 220.0};
+  list_t *go_back_button = make_rectangle(go_back_corner, 500.0, 180.0);
+  sdl_draw_polygon(go_back_button, BLACK);
+  vector_t go_back_loc = {680.0, 220.0};
+  SDL_Texture *go_back =
+      sdl_load_text(state, "Back", state->text, SDL_WHITE, go_back_loc);
+
   sdl_show();
   SDL_DestroyTexture(oneplayer);
   SDL_DestroyTexture(twoplayer);
@@ -1192,6 +1199,27 @@ void options_pop_up(state_t *state) {
   SDL_DestroyTexture(tank6);
   SDL_DestroyTexture(tank7);
   SDL_DestroyTexture(tank8);
+  SDL_DestroyTexture(go_back);
+}
+
+void game_starter(state_t *state){
+  make_players(state);
+  make_health_bars(state);
+  map_init(state->scene);
+  show_scoreboard(state, 0, 0);
+  //creates collisions
+  for (size_t i = 2; i < scene_bodies(state->scene); i++) {
+    body_t *body = scene_get_body(state->scene, i);
+    if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
+        *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
+      create_physics_collision(state->scene, COLLISION_ELASTICITY,
+                               scene_get_body(state->scene, 0),
+                               scene_get_body(state->scene, i));
+      create_physics_collision(state->scene, COLLISION_ELASTICITY,
+                               scene_get_body(state->scene, 1),
+                               scene_get_body(state->scene, i));
+    }
+  }
 }
 
 void handler(char key, key_event_type_t type, double held_time, state_t *state,
@@ -1201,6 +1229,8 @@ void handler(char key, key_event_type_t type, double held_time, state_t *state,
     case MOUSE_CLICK: {
       if (start_button_pressed(loc)) {
         state->is_menu = false;
+        game_starter(state);
+         // make players here in order to be able to change the type in the menu
         break;
       } else if (options_button_pressed(loc)) {
         state->is_menu = false;
@@ -1215,49 +1245,38 @@ void handler(char key, key_event_type_t type, double held_time, state_t *state,
       if (single_player_pressed(loc)) {
         state->singleplayer = true;
         state->player2_tank_type = DEFAULT_TANK_TYPE;
-        state->is_options = false;
         break;
       } else if (multiplayer_pressed(loc)) {
         state->singleplayer = false;
-        state->is_options = false;
         break;
-      }
-      else if(player1_default_pressed(loc)){
-        //change later
-        state->is_options = false;
+      } else if (player1_default_pressed(loc)) {
+        // change later
+        state->player1_tank_type = DEFAULT_TANK_TYPE;
         break;
-      }
-      else if(player1_gravity_pressed(loc)){
-        state->is_options = false;
+      } else if (player1_gravity_pressed(loc)) {
+        state->player1_tank_type = MELEE_TANK_TYPE;
         break;
-      }
-      else if(player1_sniper_pressed(loc)){
-        state->is_options = false;
+      } else if (player1_sniper_pressed(loc)) {
+        state->player1_tank_type = SNIPER_TANK_TYPE;
         break;
-      }
-      else if(player1_gatling_pressed(loc)){
-        state->is_options = false;
+      } else if (player1_gatling_pressed(loc)) {
+        state->player1_tank_type = GATLING_TANK_TYPE;
         break;
-      }
-      else if(player2_default_pressed(loc)){
-        //change later
-        state->is_options = false;
+      } else if (player2_default_pressed(loc)) {
+        state->player2_tank_type = DEFAULT_TANK_TYPE;
         break;
-      }
-      else if(player2_gravity_pressed(loc)){
-        state->is_options = false;
+      } else if (player2_gravity_pressed(loc)) {
+        state->player2_tank_type = MELEE_TANK_TYPE;
         break;
-      }
-      else if(player2_sniper_pressed(loc)){
-        state->is_options = false;
+      } else if (player2_sniper_pressed(loc)) {
+        state->player2_tank_type = SNIPER_TANK_TYPE;
         break;
-      }
-      else if(player2_gatling_pressed(loc)){
-        state->is_options = false;
+      } else if (player2_gatling_pressed(loc)) {
+        state->player2_tank_type = GATLING_TANK_TYPE;
         break;
-      }
-      else if(go_back_pressed(loc)){
+      } else if (go_back_pressed(loc)) {
         state->is_options = false;
+        state->is_menu = true;
         break;
       }
     }
@@ -1283,33 +1302,12 @@ state_t *emscripten_init() {
   state->scene = scene_init();
   state->player1_score = 0;
   state->player2_score = 0;
-  state->player1_tank_type = DEFAULT_TANK_TYPE;
-  state->player2_tank_type = DEFAULT_TANK_TYPE;
-  state->singleplayer = false;
+  state->player1_tank_type = DEFAULT_TANK_TYPE; // 
+  state->player2_tank_type = DEFAULT_TANK_TYPE;// 
+  state->singleplayer = false; // could comment this out for it to work
   state->is_options = false;
 
   menu_init(state);
-
-  make_players(state);
-
-  make_health_bars(state);
-
-  map_init(state->scene);
-
-  show_scoreboard(state, 0, 0);
-
-  for (size_t i = 2; i < scene_bodies(state->scene); i++) {
-    body_t *body = scene_get_body(state->scene, i);
-    if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
-        *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
-      create_physics_collision(state->scene, COLLISION_ELASTICITY,
-                               scene_get_body(state->scene, 0),
-                               scene_get_body(state->scene, i));
-      create_physics_collision(state->scene, COLLISION_ELASTICITY,
-                               scene_get_body(state->scene, 1),
-                               scene_get_body(state->scene, i));
-    }
-  }
   return state;
 }
 

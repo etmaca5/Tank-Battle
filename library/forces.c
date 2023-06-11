@@ -146,6 +146,10 @@ void partial_destructive_collision_handler(body_t *body1, body_t *body2,
     body_set_health(body1, body_get_health(body1) - GATLING_BULLET_DAMAGE);
     body_remove(body2);
   }
+  else if (*(size_t *)body_get_info(body2) == GRAVITY_BULLET_TYPE) {
+    body_set_health(body1, body_get_health(body1) - GRAVITY_BULLET_DAMAGE);
+    body_remove(body2);
+  }
 }
 
 void create_destructive_collision(scene_t *scene, body_t *body1,
@@ -180,28 +184,10 @@ void impulse_handler(body_t *body1, body_t *body2, vector_t axis, void *aux) {
   double impulse_magnitude = reduced_mass * (1 + constant) * (u_b - u_a);
   vector_t impulse = vec_multiply(impulse_magnitude, axis);
 
-  // find difference of centroids, take dot product of this with collision axis
-  // if positive, then ok, otherwise negate
-  // vector_t diff = vec_subtract(body_get_centroid(body1),
-  // body_get_centroid(body2)); double dotprod = vec_dot(impulse, diff); if
-  // (dotprod < 0) {
-  //   impulse = vec_negate(impulse);
-  // }
 
   body_add_impulse(body1, impulse);
   body_add_impulse(body2, vec_negate(impulse));
 
-  // if (*(size_t *)body_get_info(body1) == MELEE_TANK_TYPE &&
-  //     (*(size_t *)body_get_info(body2) == DEFAULT_TANK_TYPE ||
-  //      *(size_t *)body_get_info(body2) == SNIPER_TANK_TYPE ||
-  //      *(size_t *)body_get_info(body2) == GATLING_TANK_TYPE)) {
-  //   body_set_health(body2, body_get_health(body2) - MELEE_TANK_DAMAGE);
-  // } else if (*(size_t *)body_get_info(body2) == MELEE_TANK_TYPE &&
-  //            (*(size_t *)body_get_info(body1) == DEFAULT_TANK_TYPE ||
-  //             *(size_t *)body_get_info(body1) == SNIPER_TANK_TYPE ||
-  //             *(size_t *)body_get_info(body1) == GATLING_TANK_TYPE)) {
-  //   body_set_health(body1, body_get_health(body1) - MELEE_TANK_DAMAGE);
-  // }
 
   if (*(size_t *)body_get_info(body1) == TRIANGLE_OBSTACLE_TYPE) {
     body_set_health(body2, body_get_health(body2) - TRIANGLE_DAMAGE);

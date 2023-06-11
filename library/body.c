@@ -291,13 +291,13 @@ body_t *init_default_tank(vector_t center, double side_length,
   return tank;
 }
 
-body_t *init_melee_tank(vector_t center, double side_length, vector_t velocity,
+body_t *init_gravity_tank(vector_t center, double side_length, vector_t velocity,
                         double mass, rgb_color_t color, double max_health,
                         size_t tank_type) {
-  body_t *melee_tank = init_default_tank(center, side_length, velocity, mass,
+  body_t *gravity_tank = init_default_tank(center, side_length, velocity, mass,
                                          color, max_health, tank_type);
-  body_set_image_path(melee_tank, "assets/tank.png");
-  return melee_tank;
+  body_set_image_path(gravity_tank, "assets/tank.png");
+  return gravity_tank;
 }
 
 body_t *init_sniper_tank(vector_t center, double side_length, vector_t velocity,

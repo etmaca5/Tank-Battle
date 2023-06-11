@@ -112,8 +112,7 @@ double START_BUTTON_Y_MAX = 262.0;
 double OPTIONS_BUTTON_Y_MIN = 289.0;
 double OPTIONS_BUTTON_Y_MAX = 359.0;
 
-//options stats
-
+// options stats
 
 double GAMMA = 1.0;
 
@@ -948,19 +947,83 @@ bool options_button_pressed(vector_t mouse) {
 }
 
 bool single_player_pressed(vector_t mouse) {
-  if (mouse.x >= 275.0 && mouse.x <= 460.0 &&
-      mouse.y >= 60.0 && mouse.y <= 140.0) {
+  if (mouse.x >= 275.0 && mouse.x <= 460.0 && mouse.y >= 60.0 &&
+      mouse.y <= 140.0) {
     return true;
   }
   return false;
 }
 bool multiplayer_pressed(vector_t mouse) {
-  if (mouse.x >= 540.0 && mouse.x <= 730.0 &&
-      mouse.y >= 60.0 && mouse.y <= 140.0) {
+  if (mouse.x >= 540.0 && mouse.x <= 730.0 && mouse.y >= 60.0 &&
+      mouse.y <= 140.0) {
     return true;
   }
   return false;
 }
+bool player1_default_pressed(vector_t mouse) {
+  if (mouse.x >= 240.0 && mouse.x <= 320.0 && mouse.y >= 265.0 &&
+      mouse.y <= 310.0) {
+    return true;
+  }
+  return false;
+}
+bool player1_gravity_pressed(vector_t mouse) {
+  if (mouse.x >= 365.0 && mouse.x <= 445.0 && mouse.y >= 265.0 &&
+      mouse.y <= 310.0) {
+    return true;
+  }
+  return false;
+}
+bool player1_sniper_pressed(vector_t mouse) {
+  if (mouse.x >= 240.0 && mouse.x <= 320.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+bool player1_gatling_pressed(vector_t mouse) {
+  if (mouse.x >= 365.0 && mouse.x <= 445.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+bool player2_default_pressed(vector_t mouse) {
+  if (mouse.x >= 525.0 && mouse.x <= 605.0 && mouse.y >= 265.0 &&
+      mouse.y <= 310.0) {
+    return true;
+  }
+  return false;
+}
+bool player2_gravity_pressed(vector_t mouse) {
+  if (mouse.x >= 655.0 && mouse.x <= 735.0 && mouse.y >= 265.0 &&
+      mouse.y <= 310.0) {
+    return true;
+  }
+  return false;
+}
+bool player2_sniper_pressed(vector_t mouse) {
+  if (mouse.x >= 525.0 && mouse.x <= 605.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+bool player2_gatling_pressed(vector_t mouse) {
+  if (mouse.x >= 655.0 && mouse.x <= 735.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+bool go_back_pressed(vector_t mouse) {
+  if (mouse.x >= 655.0 && mouse.x <= 735.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+
 
 
 void menu_init(state_t *state) {
@@ -1015,7 +1078,7 @@ void menu_pop_up(state_t *state) {
 }
 
 void options_pop_up(state_t *state) {
-  //background
+  // background
   vector_t corner1 = {0.0, MAX_HEIGHT_GAME};
   list_t *background = make_rectangle(corner1, MAX_WIDTH_GAME, MAX_HEIGHT_GAME);
   sdl_draw_polygon(background, LIGHT_GREY);
@@ -1025,81 +1088,94 @@ void options_pop_up(state_t *state) {
   list_t *oneplayer_button = make_rectangle(corner2, 500.0, 200.0);
   sdl_draw_polygon(oneplayer_button, FOREST_GREEN_POLY);
   vector_t one_player_loc = {250.0, 1130.0};
-  SDL_Texture *oneplayer = sdl_load_text(state, "1 PLAYER", state->text, SDL_WHITE, one_player_loc);
+  SDL_Texture *oneplayer =
+      sdl_load_text(state, "1 PLAYER", state->text, SDL_WHITE, one_player_loc);
 
   // 2 PLAYER button
   vector_t corner3 = {900.0, 1140.0};
   list_t *twoplayer_button = make_rectangle(corner3, 500.0, 200.0);
   sdl_draw_polygon(twoplayer_button, FOREST_GREEN_POLY);
   vector_t two_players_loc = {920.0, 1130.0};
-  SDL_Texture *twoplayer = sdl_load_text(state, "2 PLAYERS", state->text, SDL_WHITE, two_players_loc);
+  SDL_Texture *twoplayer = sdl_load_text(state, "2 PLAYERS", state->text,
+                                         SDL_WHITE, two_players_loc);
 
   // Gamemodes
   vector_t gamemode_loc = {540.0, 1320.0};
-  SDL_Texture *gamemode = sdl_load_text(state, "GAMEMODES", state->text, SDL_BLACK, gamemode_loc);
+  SDL_Texture *gamemode =
+      sdl_load_text(state, "GAMEMODES", state->text, SDL_BLACK, gamemode_loc);
 
   // Selects Tanks
-  vector_t select_title_loc = {540.0, 900.0};
-  SDL_Texture *select_tank = sdl_load_text(state, "Select Tanks", state->text, SDL_BLACK, select_title_loc);
+  vector_t select_title_loc = {540.0, 930.0};
+  SDL_Texture *select_tank = sdl_load_text(state, "Select Tanks", state->text,
+                                           SDL_BLACK, select_title_loc);
 
-  //player 1 and 2 locs
-  vector_t player1_loc = {250.0, 700.0};
-  SDL_Texture *player1_select = sdl_load_text(state, "player 1", state->text, SHADE_GREEN, player1_loc);
+  // player 1 and 2 locs
+  vector_t player1_loc = {250.0, 800.0};
+  SDL_Texture *player1_select =
+      sdl_load_text(state, "player 1", state->text, SHADE_GREEN, player1_loc);
 
-  vector_t player2_loc = {980.0, 700.0};
-  SDL_Texture *player2_select = sdl_load_text(state, "player 2", state->text, SDL_RED, player2_loc);
+  vector_t player2_loc = {980.0, 800.0};
+  SDL_Texture *player2_select =
+      sdl_load_text(state, "player 2", state->text, SDL_RED, player2_loc);
 
-  //player 1 tanks
-  vector_t tank1_corner = {120.0, 500.0};
+  // player 1 tanks
+  vector_t tank1_corner = {120.0, 600.0};
   list_t *tank1_box = make_rectangle(tank1_corner, 200.0, 100.0);
   sdl_draw_polygon(tank1_box, GREEN);
-  vector_t tank1_loc = {135.0, 500.0};
-  SDL_Texture *tank1 = sdl_load_text(state, "default", state->select_tank, SDL_WHITE, tank1_loc);
-      
-  vector_t tank2_corner = {460.0, 500.0};
+  vector_t tank1_loc = {135.0, 600.0};
+  SDL_Texture *tank1 =
+      sdl_load_text(state, "default", state->select_tank, SDL_WHITE, tank1_loc);
+
+  vector_t tank2_corner = {460.0, 600.0};
   list_t *tank2_box = make_rectangle(tank2_corner, 200.0, 100.0);
   sdl_draw_polygon(tank2_box, GREEN);
-  vector_t tank2_loc = {475.0, 500.0};
-  SDL_Texture *tank2 = sdl_load_text(state, "gravity", state->select_tank, SDL_WHITE, tank2_loc);
+  vector_t tank2_loc = {475.0, 600.0};
+  SDL_Texture *tank2 =
+      sdl_load_text(state, "gravity", state->select_tank, SDL_WHITE, tank2_loc);
 
-  vector_t tank3_corner = {120.0, 300.0};
+  vector_t tank3_corner = {120.0, 400.0};
   list_t *tank3_box = make_rectangle(tank3_corner, 200.0, 100.0);
   sdl_draw_polygon(tank3_box, GREEN);
-  vector_t tank3_loc = {145.0, 300.0};
-  SDL_Texture *tank3 = sdl_load_text(state, "sniper", state->select_tank, SDL_WHITE, tank3_loc);
-      
-  vector_t tank4_corner = {460.0, 300.0};
+  vector_t tank3_loc = {145.0, 400.0};
+  SDL_Texture *tank3 =
+      sdl_load_text(state, "sniper", state->select_tank, SDL_WHITE, tank3_loc);
+
+  vector_t tank4_corner = {460.0, 400.0};
   list_t *tank4_box = make_rectangle(tank4_corner, 200.0, 100.0);
   sdl_draw_polygon(tank4_box, GREEN);
-  vector_t tank4_loc = {475.0, 300.0};
-  SDL_Texture *tank4 =sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank4_loc);
+  vector_t tank4_loc = {475.0, 400.0};
+  SDL_Texture *tank4 =
+      sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank4_loc);
 
-  //player 2 tanks
+  // player 2 tanks
   double shiftx = 750.0;
-  vector_t tank5_corner = {120.0 + shiftx, 500.0};
+  vector_t tank5_corner = {120.0 + shiftx, 600.0};
   list_t *tank5_box = make_rectangle(tank5_corner, 200.0, 100.0);
   sdl_draw_polygon(tank5_box, RED);
-  vector_t tank5_loc = {135.0 + shiftx, 500.0};
-  SDL_Texture *tank5 = sdl_load_text(state, "default", state->select_tank, SDL_WHITE, tank5_loc);
-      
-  vector_t tank6_corner = {460.0 + shiftx, 500.0};
+  vector_t tank5_loc = {135.0 + shiftx, 600.0};
+  SDL_Texture *tank5 =
+      sdl_load_text(state, "default", state->select_tank, SDL_WHITE, tank5_loc);
+
+  vector_t tank6_corner = {460.0 + shiftx, 600.0};
   list_t *tank6_box = make_rectangle(tank6_corner, 200.0, 100.0);
   sdl_draw_polygon(tank6_box, RED);
-  vector_t tank6_loc = {475.0 + shiftx, 500.0};
-  SDL_Texture *tank6 = sdl_load_text(state, "gravity", state->select_tank, SDL_WHITE, tank6_loc);
+  vector_t tank6_loc = {475.0 + shiftx, 600.0};
+  SDL_Texture *tank6 =
+      sdl_load_text(state, "gravity", state->select_tank, SDL_WHITE, tank6_loc);
 
-  vector_t tank7_corner = {120.0 + shiftx, 300.0};
+  vector_t tank7_corner = {120.0 + shiftx, 400.0};
   list_t *tank7_box = make_rectangle(tank7_corner, 200.0, 100.0);
   sdl_draw_polygon(tank7_box, RED);
-  vector_t tank7_loc = {145.0 + shiftx, 300.0};
-  SDL_Texture *tank7 = sdl_load_text(state, "sniper", state->select_tank, SDL_WHITE, tank7_loc);
-      
-  vector_t tank8_corner = {460.0 + shiftx, 300.0};
+  vector_t tank7_loc = {145.0 + shiftx, 400.0};
+  SDL_Texture *tank7 =
+      sdl_load_text(state, "sniper", state->select_tank, SDL_WHITE, tank7_loc);
+
+  vector_t tank8_corner = {460.0 + shiftx, 400.0};
   list_t *tank8_box = make_rectangle(tank8_corner, 200.0, 100.0);
   sdl_draw_polygon(tank8_box, RED);
-  vector_t tank8_loc = {475.0 + shiftx, 300.0};
-  SDL_Texture *tank8 = sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank8_loc);
-  
+  vector_t tank8_loc = {475.0 + shiftx, 400.0};
+  SDL_Texture *tank8 =
+      sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank8_loc);
 
   sdl_show();
   SDL_DestroyTexture(oneplayer);
@@ -1118,7 +1194,6 @@ void options_pop_up(state_t *state) {
   SDL_DestroyTexture(tank8);
 }
 
-
 void handler(char key, key_event_type_t type, double held_time, state_t *state,
              vector_t loc) {
   if (state->is_menu) {
@@ -1134,31 +1209,61 @@ void handler(char key, key_event_type_t type, double held_time, state_t *state,
       }
     }
     }
-  }
-  else if(state->is_options){
-    //make options clicks go here (change bools)
-    //p
-    switch (key) {
-    case MOUSE_CLICK: {//make this for all the possible buttons pressed
-      if(single_player_pressed(loc)){
+  } else if (state->is_options) {
+    switch (key) { // for the options page
+    case MOUSE_CLICK: {
+      if (single_player_pressed(loc)) {
         state->singleplayer = true;
         state->player2_tank_type = DEFAULT_TANK_TYPE;
         state->is_options = false;
         break;
-      }
-      else if(multiplayer_pressed(loc)){
+      } else if (multiplayer_pressed(loc)) {
         state->singleplayer = false;
         state->is_options = false;
         break;
       }
-      // else if(player 1 defaul){
-        
-      // }
+      else if(player1_default_pressed(loc)){
+        //change later
+        state->is_options = false;
+        break;
+      }
+      else if(player1_gravity_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player1_sniper_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player1_gatling_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player2_default_pressed(loc)){
+        //change later
+        state->is_options = false;
+        break;
+      }
+      else if(player2_gravity_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player2_sniper_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player2_gatling_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(go_back_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
     }
     }
 
-  }
-  else {
+  } else {
     body_t *player1 = scene_get_body(state->scene, (size_t)0);
     body_t *player2 = scene_get_body(state->scene, (size_t)1);
     tank_handler(key, type, held_time, state, player1, PLAYER1_COLOR);
@@ -1183,7 +1288,7 @@ state_t *emscripten_init() {
   state->singleplayer = false;
   state->is_options = false;
 
-  menu_init(state); 
+  menu_init(state);
 
   make_players(state);
 
@@ -1213,12 +1318,10 @@ void emscripten_main(state_t *state) {
   if (state->is_menu) {
     menu_pop_up(state);
     sdl_on_key((key_handler_t)handler);
-  } 
-  else if(state->is_options){
+  } else if (state->is_options) {
     options_pop_up(state);
     sdl_on_key((key_handler_t)handler);
-  }
-  else {
+  } else {
     double dt = time_since_last_tick();
     sdl_on_key((key_handler_t)handler);
     state->time += dt;

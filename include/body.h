@@ -254,9 +254,9 @@ body_t *init_default_tank(vector_t center, double side_length,
                           vector_t velocity, double mass, rgb_color_t color,
                           double max_health, size_t tank_type);
 
-body_t *init_gravity_tank(vector_t center, double side_length, vector_t velocity,
-                        double mass, rgb_color_t color, double max_health,
-                        size_t tank_type);
+body_t *init_gravity_tank(vector_t center, double side_length,
+                          vector_t velocity, double mass, rgb_color_t color,
+                          double max_health, size_t tank_type);
 
 body_t *init_sniper_tank(vector_t center, double side_length, vector_t velocity,
                          double mass, rgb_color_t color, double max_health,

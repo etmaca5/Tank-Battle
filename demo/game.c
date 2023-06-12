@@ -316,28 +316,29 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
   } else if (*(size_t *)body_get_info(player) == GATLING_TANK_TYPE) {
     *type = GATLING_BULLET_TYPE;
     vel = GATLING_BULLET_VELOCITY;
-  } 
-  else if(*(size_t *)body_get_info(player) == GRAVITY_TANK_TYPE){
+  } else if (*(size_t *)body_get_info(player) == GRAVITY_TANK_TYPE) {
     *type = GRAVITY_BULLET_TYPE;
     vel = GRAVITY_BULLET_VELOCITY;
-  }
-  else { // default
+  } else { // default
     *type = BULLET_TYPE;
     vel = BULLET_VELOCITY;
   }
   body_t *bullet = body_init_with_info(bullet_points, BULLET_MASS, color, type,
                                        (free_func_t)free);
 
-  if(*(size_t *)body_get_info(player) == GRAVITY_TANK_TYPE){
-    if(scene_get_body(state->scene, 0) == player){
-      create_newtonian_gravity(state->scene, GRAVITY_TANK_STRENGTH,scene_get_body(state->scene, 1), bullet);
-      create_newtonian_gravity(state->scene, (-1 * GRAVITY_TANK_STRENGTH / 2) ,scene_get_body(state->scene, 0), bullet);
+  if (*(size_t *)body_get_info(player) == GRAVITY_TANK_TYPE) {
+    if (scene_get_body(state->scene, 0) == player) {
+      create_newtonian_gravity(state->scene, GRAVITY_TANK_STRENGTH,
+                               scene_get_body(state->scene, 1), bullet);
+      create_newtonian_gravity(state->scene, (-1 * GRAVITY_TANK_STRENGTH / 2),
+                               scene_get_body(state->scene, 0), bullet);
+    } else {
+      create_newtonian_gravity(state->scene, GRAVITY_TANK_STRENGTH,
+                               scene_get_body(state->scene, 0), bullet);
+      create_newtonian_gravity(state->scene, (-1 * GRAVITY_TANK_STRENGTH / 2),
+                               scene_get_body(state->scene, 1), bullet);
     }
-    else{
-      create_newtonian_gravity(state->scene, GRAVITY_TANK_STRENGTH,scene_get_body(state->scene, 0), bullet);
-      create_newtonian_gravity(state->scene, (-1 * GRAVITY_TANK_STRENGTH / 2) ,scene_get_body(state->scene, 1), bullet);
-    }
-  }                                     
+  }
   body_set_rotation_empty(bullet, body_get_rotation(player));
   body_set_velocity(bullet, vec_multiply(vel, player_dir));
   body_set_time(bullet, 0.0);
@@ -855,8 +856,8 @@ body_t *handle_selected_tank(size_t tank_type, vector_t start_pos,
                              DEFAULT_TANK_TYPE);
   } else if (tank_type == GRAVITY_TANK_TYPE) {
     return init_gravity_tank(start_pos, GRAVITY_TANK_SIDE_LENGTH, VEC_ZERO,
-                           GRAVITY_TANK_MASS, color, GRAVITY_TANK_MAX_HEALTH,
-                           GRAVITY_TANK_TYPE);
+                             GRAVITY_TANK_MASS, color, GRAVITY_TANK_MAX_HEALTH,
+                             GRAVITY_TANK_TYPE);
   } else if (tank_type == SNIPER_TANK_TYPE) {
     return init_sniper_tank(start_pos, SNIPER_TANK_SIDE_LENGTH, VEC_ZERO,
                             SNIPER_TANK_MASS, color, SNIPER_TANK_MAX_HEALTH,
@@ -1049,8 +1050,8 @@ bool player2_gatling_pressed(vector_t mouse) {
   return false;
 }
 bool go_back_pressed(vector_t mouse) {
-  if (mouse.x >= BUTTON_X_MIN && mouse.x <= BUTTON_X_MAX &&
-      mouse.y >= 410 && mouse.y <= 490) {
+  if (mouse.x >= BUTTON_X_MIN && mouse.x <= BUTTON_X_MAX && mouse.y >= 410 &&
+      mouse.y <= 490) {
     return true;
   }
   return false;
@@ -1233,12 +1234,12 @@ void options_pop_up(state_t *state) {
   SDL_DestroyTexture(go_back);
 }
 
-void game_starter(state_t *state){
+void game_starter(state_t *state) {
   make_players(state);
   make_health_bars(state);
   map_init(state->scene);
   show_scoreboard(state, 0, 0);
-  //creates collisions
+  // creates collisions
   for (size_t i = 2; i < scene_bodies(state->scene); i++) {
     body_t *body = scene_get_body(state->scene, i);
     if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
@@ -1261,7 +1262,7 @@ void handler(char key, key_event_type_t type, double held_time, state_t *state,
       if (start_button_pressed(loc)) {
         state->is_menu = false;
         game_starter(state);
-         // make players here in order to be able to change the type in the menu
+        // make players here in order to be able to change the type in the menu
         break;
       } else if (options_button_pressed(loc)) {
         state->is_menu = false;
@@ -1333,8 +1334,8 @@ state_t *emscripten_init() {
   state->scene = scene_init();
   state->player1_score = 0;
   state->player2_score = 0;
-  state->player1_tank_type = DEFAULT_TANK_TYPE; // 
-  state->player2_tank_type = DEFAULT_TANK_TYPE;// 
+  state->player1_tank_type = DEFAULT_TANK_TYPE; //
+  state->player2_tank_type = DEFAULT_TANK_TYPE; //
   state->singleplayer = false; // could comment this out for it to work
   state->is_options = false;
 

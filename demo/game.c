@@ -39,7 +39,7 @@ const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1300.0;
 
 // elasticity between tank
-double TANKS_ELASTICITY = 5.0;
+double TANKS_ELASTICITY = 3.0;
 
 // default tank stats
 double DEFAULT_TANK_VELOCITY = 100.0;

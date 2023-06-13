@@ -209,7 +209,9 @@ void body_tick(body_t *body, double dt) {
                                                  sin(body_get_rotation(body))});
   }
 
-  if (*(size_t *)body_get_info(body) == 1) {
+  if (*(size_t *)body_get_info(body) == BULLET_TYPE ||
+      *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE ||
+      *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
     double angle = atan(body->velocity.y / body->velocity.x);
     body_set_rotation(body, angle);
   }
@@ -289,29 +291,29 @@ body_t *init_default_tank(vector_t center, double side_length,
   return tank;
 }
 
-body_t *init_melee_tank(vector_t center, double side_length,
-                        vector_t velocity, double mass, rgb_color_t color,
-                        double max_health, size_t tank_type) {
+body_t *init_melee_tank(vector_t center, double side_length, vector_t velocity,
+                        double mass, rgb_color_t color, double max_health,
+                        size_t tank_type) {
   body_t *melee_tank = init_default_tank(center, side_length, velocity, mass,
                                          color, max_health, tank_type);
   body_set_image_path(melee_tank, "assets/tank.png");
   return melee_tank;
 }
 
-body_t *init_sniper_tank(vector_t center, double side_length, 
-                        vector_t velocity, double mass, rgb_color_t color,
-                        double max_health, size_t tank_type) {
+body_t *init_sniper_tank(vector_t center, double side_length, vector_t velocity,
+                         double mass, rgb_color_t color, double max_health,
+                         size_t tank_type) {
   body_t *sniper_tank = init_default_tank(center, side_length, velocity, mass,
-                                         color, max_health, tank_type);
+                                          color, max_health, tank_type);
   body_set_image_path(sniper_tank, "assets/tank.png");
   return sniper_tank;
 }
 
 body_t *init_gatling_tank(vector_t center, double side_length,
-                        vector_t velocity, double mass, rgb_color_t color,
-                        double max_health, size_t tank_type) {
+                          vector_t velocity, double mass, rgb_color_t color,
+                          double max_health, size_t tank_type) {
   body_t *gatling_tank = init_default_tank(center, side_length, velocity, mass,
-                                         color, max_health, tank_type);
+                                           color, max_health, tank_type);
   body_set_image_path(gatling_tank, "assets/tank.png");
   return gatling_tank;
 }

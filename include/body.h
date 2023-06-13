@@ -12,6 +12,8 @@ extern const size_t WALL_TYPE;
 extern const size_t BULLET_TYPE;
 extern const size_t DEFAULT_TANK_TYPE;
 extern const size_t HEALTH_BAR_TYPE;
+extern const size_t SNIPER_BULLET_TYPE;
+extern const size_t GATLING_BULLET_TYPE;
 
 // ai modes
 extern const size_t AI_UP;
@@ -252,16 +254,16 @@ body_t *init_default_tank(vector_t center, double side_length,
                           vector_t velocity, double mass, rgb_color_t color,
                           double max_health, size_t tank_type);
 
-body_t *init_melee_tank(vector_t center, double side_length,
-                        vector_t velocity, double mass, rgb_color_t color,
-                        double max_health, size_t tank_type);
+body_t *init_melee_tank(vector_t center, double side_length, vector_t velocity,
+                        double mass, rgb_color_t color, double max_health,
+                        size_t tank_type);
 
-body_t *init_sniper_tank(vector_t center, double side_length, 
-                        vector_t velocity, double mass, rgb_color_t color,
-                        double max_health, size_t tank_type);
+body_t *init_sniper_tank(vector_t center, double side_length, vector_t velocity,
+                         double mass, rgb_color_t color, double max_health,
+                         size_t tank_type);
 
 body_t *init_gatling_tank(vector_t center, double side_length,
-                        vector_t velocity, double mass, rgb_color_t color,
-                        double max_health, size_t tank_type);
+                          vector_t velocity, double mass, rgb_color_t color,
+                          double max_health, size_t tank_type);
 
 #endif // #ifndef __BODY_H__

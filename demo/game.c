@@ -32,6 +32,7 @@ const size_t GATLING_TANK_TYPE = 7;
 
 int FONT_SIZE = 50;
 int TITLE_SIZE = 100;
+int TANK_SELECT_SIZE = 25;
 double CIRCLE_POINTS = 300.0;
 
 const double MAX_WIDTH_GAME = 1600.0;
@@ -65,7 +66,7 @@ double SNIPER_TANK_VELOCITY = 75.0;
 double SNIPER_TANK_SIDE_LENGTH = 60.0;
 double SNIPER_TANK_MASS = 1000.0;
 double SNIPER_TANK_ROTATION_SPEED = M_PI * 2 / 5;
-double SNIPER_TANK_MAX_HEALTH = 50.0; // something wrong w/ health
+double SNIPER_TANK_MAX_HEALTH = 40.0; // something wrong w/ health
 const double SNIPER_TANK_DAMAGE = 25.0;
 
 double SNIPER_RELOAD_SPEED = 2.5;
@@ -78,7 +79,7 @@ double GATLING_TANK_VELOCITY = 60.0;
 double GATLING_TANK_SIDE_LENGTH = 60.0;
 double GATLING_TANK_MASS = 1000.0;
 double GATLING_TANK_ROTATION_SPEED = M_PI * 3 / 5;
-double GATLING_TANK_MAX_HEALTH = 50.0;
+double GATLING_TANK_MAX_HEALTH = 80.0;
 const double GATLING_TANK_DAMAGE = 25.0;
 
 double GATLING_RELOAD_SPEED = 0.4;
@@ -86,19 +87,15 @@ double GATLING_BULLET_HEIGHT = 25.0;
 double GATLING_BULLET_WIDTH = 10.0;
 double GATLING_BULLET_VELOCITY = 300.0;
 
-
 // bullet damage
 const double BULLET_DAMAGE = 10.0;
 const double MELEE_TANK_DAMAGE = 10.0;
 const double SNIPER_BULLET_DAMAGE = 25.0;
 const double GATLING_BULLET_DAMAGE = 5.0;
 
-//default bullet characteristics
+// default bullet characteristics
 double BULLET_MASS = 5.0;
 double BULLET_DISAPPEAR_TIME = 10.0;
-
-
-
 
 double HEALTH_BAR_WIDTH = 500.0;
 double HEALTH_BAR_HEIGHT = 50.0;
@@ -115,6 +112,8 @@ double START_BUTTON_Y_MAX = 262.0;
 double OPTIONS_BUTTON_Y_MIN = 289.0;
 double OPTIONS_BUTTON_Y_MAX = 359.0;
 
+// options stats
+
 double GAMMA = 1.0;
 
 // COLORS:
@@ -124,6 +123,7 @@ rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
 rgb_color_t PLAYER2_COLOR_SIMILAR = {0.0, 0.5, 0.0};
 rgb_color_t LIGHT_GREY = {0.86, 0.86, 0.86};
 rgb_color_t GREEN = {0.0, 1.0, 0.0};
+SDL_Color SDL_WHITE = {255, 255, 255, 255};
 rgb_color_t SLATE_GREY = {0.72, 0.79, 0.89};
 rgb_color_t BLACK = {0.0, 0.0, 0.0};
 
@@ -131,18 +131,24 @@ rgb_color_t BLACK = {0.0, 0.0, 0.0};
 SDL_Color SDL_WHITE = {255, 255, 255, 255};
 SDL_Color SDL_BLACK = {0, 0, 0, 255};
 SDL_Color FOREST_GREEN = {74, 103, 65, 255};
+SDL_Color SHADE_GREEN = {74, 170, 65, 255};
+SDL_Color SDL_RED = {255, 20, 20, 255};
+SDL_Color SDL_GREEN = {20, 255, 20, 255};
+SDL_Color NUM_PLAYERS_COLOR = {15, 15, 240, 255};
 
 typedef struct state {
   scene_t *scene;
   double time;
-  int player1_score;
   size_t player1_tank_type;
   size_t player2_tank_type;
+  int player1_score;
   int player2_score;
   bool singleplayer;
   bool is_menu;
+  bool is_options;
   text_t *text;
   text_t *title;
+  text_t *select_tank;
   text_t *scoreboard;
 } state_t;
 
@@ -284,7 +290,9 @@ list_t *make_bullet(vector_t edge) {
 void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
   body_set_time(player, 0.0);
   vector_t spawn_point = body_get_centroid(player);
-  list_t *bullet_points = make_bullet(spawn_point); // can change make bullet later for sniper bullet and machine gun bullet
+  list_t *bullet_points =
+      make_bullet(spawn_point); // can change make bullet later for sniper
+                                // bullet and machine gun bullet
   polygon_rotate(bullet_points, body_get_rotation(player),
                  body_get_centroid(player));
   vector_t player_dir = {cos(body_get_rotation(player)),
@@ -294,19 +302,16 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
   polygon_translate(bullet_points, move_up);
   size_t *type = malloc(sizeof(size_t));
   double vel;
-  if(*(size_t *)body_get_info(player) == DEFAULT_TANK_TYPE ){
+  if (*(size_t *)body_get_info(player) == DEFAULT_TANK_TYPE) {
     *type = BULLET_TYPE;
     vel = BULLET_VELOCITY;
-  }
-  else if(*(size_t *)body_get_info(player) == SNIPER_TANK_TYPE){
+  } else if (*(size_t *)body_get_info(player) == SNIPER_TANK_TYPE) {
     *type = SNIPER_BULLET_TYPE;
     vel = SNIPER_BULLET_VELOCITY;
-  }
-  else if(*(size_t *)body_get_info(player) == GATLING_TANK_TYPE){
+  } else if (*(size_t *)body_get_info(player) == GATLING_TANK_TYPE) {
     *type = GATLING_BULLET_TYPE;
     vel = GATLING_BULLET_VELOCITY;
-  }
-  else{ //default
+  } else { // default
     *type = BULLET_TYPE;
     vel = BULLET_VELOCITY;
   }
@@ -329,7 +334,9 @@ void handle_bullet(state_t *state, body_t *player, rgb_color_t color) {
   // create collision with walls and other bullets
   for (size_t i = 2; i < scene_bodies(state->scene) - 1; i++) {
     body_t *body = scene_get_body(state->scene, i);
-    if (*(size_t *)body_get_info(body) == BULLET_TYPE || *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE || *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
+    if (*(size_t *)body_get_info(body) == BULLET_TYPE ||
+        *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE ||
+        *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
       create_destructive_collision(state->scene, body, bullet);
     } else if (*(size_t *)body_get_info(body) == RECTANGLE_OBSTACLE_TYPE ||
                *(size_t *)body_get_info(body) == TRIANGLE_OBSTACLE_TYPE) {
@@ -389,8 +396,7 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  } else if(*(size_t *)body_get_info(player) ==
-             SNIPER_TANK_TYPE){
+  } else if (*(size_t *)body_get_info(player) == SNIPER_TANK_TYPE) {
     if (type == KEY_PRESSED) {
       switch (key) {
       case 'w': {
@@ -416,9 +422,7 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  }
-  else if(*(size_t *)body_get_info(player) ==
-             GATLING_TANK_TYPE){
+  } else if (*(size_t *)body_get_info(player) == GATLING_TANK_TYPE) {
     if (type == KEY_PRESSED) {
       switch (key) {
       case 'w': {
@@ -444,8 +448,7 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  }
-  else {
+  } else {
     // add other tanks after
   }
   if (type == KEY_RELEASED) {
@@ -522,9 +525,8 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  }
-   else if (*(size_t *)body_get_info(player) ==
-      SNIPER_TANK_TYPE) { // this is to handle the different tank types
+  } else if (*(size_t *)body_get_info(player) ==
+             SNIPER_TANK_TYPE) { // this is to handle the different tank types
     if (type == KEY_PRESSED) {
       switch (key) {
       case UP_ARROW: {
@@ -550,9 +552,8 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  }
-  else if (*(size_t *)body_get_info(player) ==
-      GATLING_TANK_TYPE) { // this is to handle the different tank types
+  } else if (*(size_t *)body_get_info(player) ==
+             GATLING_TANK_TYPE) { // this is to handle the different tank types
     if (type == KEY_PRESSED) {
       switch (key) {
       case UP_ARROW: {
@@ -578,8 +579,7 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       }
       }
     }
-  }
-  else {
+  } else {
     // add other tanks after
   }
   if (type == KEY_RELEASED) {
@@ -825,20 +825,18 @@ body_t *handle_selected_tank(size_t tank_type, vector_t start_pos,
                              DEFAULT_TANK_MASS, color, DEFAULT_TANK_MAX_HEALTH,
                              DEFAULT_TANK_TYPE);
   } else if (tank_type == MELEE_TANK_TYPE) {
-    return init_melee_tank(start_pos, MELEE_TANK_SIDE_LENGTH,
-                           VEC_ZERO, MELEE_TANK_MASS, color,
-                           MELEE_TANK_MAX_HEALTH, MELEE_TANK_TYPE);
-  }else if (tank_type == SNIPER_TANK_TYPE) {
-    return init_sniper_tank(start_pos, SNIPER_TANK_SIDE_LENGTH,
-                           VEC_ZERO, SNIPER_TANK_MASS, color,
-                           SNIPER_TANK_MAX_HEALTH, SNIPER_TANK_TYPE);
-  }
-  else if (tank_type == GATLING_TANK_TYPE) {
-    return init_gatling_tank(start_pos, GATLING_TANK_SIDE_LENGTH, 
-                           VEC_ZERO, GATLING_TANK_MASS, color,
-                           GATLING_TANK_MAX_HEALTH, GATLING_TANK_TYPE);
-  }
-  else {
+    return init_melee_tank(start_pos, MELEE_TANK_SIDE_LENGTH, VEC_ZERO,
+                           MELEE_TANK_MASS, color, MELEE_TANK_MAX_HEALTH,
+                           MELEE_TANK_TYPE);
+  } else if (tank_type == SNIPER_TANK_TYPE) {
+    return init_sniper_tank(start_pos, SNIPER_TANK_SIDE_LENGTH, VEC_ZERO,
+                            SNIPER_TANK_MASS, color, SNIPER_TANK_MAX_HEALTH,
+                            SNIPER_TANK_TYPE);
+  } else if (tank_type == GATLING_TANK_TYPE) {
+    return init_gatling_tank(start_pos, GATLING_TANK_SIDE_LENGTH, VEC_ZERO,
+                             GATLING_TANK_MASS, color, GATLING_TANK_MAX_HEALTH,
+                             GATLING_TANK_TYPE);
+  } else {
     return init_default_tank(start_pos, DEFAULT_TANK_SIDE_LENGTH, VEC_ZERO,
                              DEFAULT_TANK_MASS, color, DEFAULT_TANK_MAX_HEALTH,
                              DEFAULT_TANK_TYPE);
@@ -951,6 +949,86 @@ bool options_button_pressed(vector_t mouse) {
   return false;
 }
 
+bool single_player_pressed(vector_t mouse) {
+  if (mouse.x >= 275.0 && mouse.x <= 460.0 && mouse.y >= 60.0 &&
+      mouse.y <= 140.0) {
+    return true;
+  }
+  return false;
+}
+bool multiplayer_pressed(vector_t mouse) {
+  if (mouse.x >= 540.0 && mouse.x <= 730.0 && mouse.y >= 60.0 &&
+      mouse.y <= 140.0) {
+    return true;
+  }
+  return false;
+}
+bool player1_default_pressed(vector_t mouse) {
+  if (mouse.x >= 240.0 && mouse.x <= 320.0 && mouse.y >= 265.0 &&
+      mouse.y <= 310.0) {
+    return true;
+  }
+  return false;
+}
+bool player1_gravity_pressed(vector_t mouse) {
+  if (mouse.x >= 365.0 && mouse.x <= 445.0 && mouse.y >= 265.0 &&
+      mouse.y <= 310.0) {
+    return true;
+  }
+  return false;
+}
+bool player1_sniper_pressed(vector_t mouse) {
+  if (mouse.x >= 240.0 && mouse.x <= 320.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+bool player1_gatling_pressed(vector_t mouse) {
+  if (mouse.x >= 365.0 && mouse.x <= 445.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+bool player2_default_pressed(vector_t mouse) {
+  if (mouse.x >= 525.0 && mouse.x <= 605.0 && mouse.y >= 265.0 &&
+      mouse.y <= 310.0) {
+    return true;
+  }
+  return false;
+}
+bool player2_gravity_pressed(vector_t mouse) {
+  if (mouse.x >= 655.0 && mouse.x <= 735.0 && mouse.y >= 265.0 &&
+      mouse.y <= 310.0) {
+    return true;
+  }
+  return false;
+}
+bool player2_sniper_pressed(vector_t mouse) {
+  if (mouse.x >= 525.0 && mouse.x <= 605.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+bool player2_gatling_pressed(vector_t mouse) {
+  if (mouse.x >= 655.0 && mouse.x <= 735.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+bool go_back_pressed(vector_t mouse) {
+  if (mouse.x >= 655.0 && mouse.x <= 735.0 && mouse.y >= 344.0 &&
+      mouse.y <= 389.0) {
+    return true;
+  }
+  return false;
+}
+
+
+
 void menu_init(state_t *state) {
   state->is_menu = true;
 
@@ -961,6 +1039,10 @@ void menu_init(state_t *state) {
   TTF_Font *font2 = TTF_OpenFont("assets/font.ttf", TITLE_SIZE);
   text_t *title = text_init(font2, (free_func_t)free);
   state->title = title;
+
+  TTF_Font *font3 = TTF_OpenFont("assets/font.ttf", TANK_SELECT_SIZE);
+  text_t *select_tank = text_init(font3, (free_func_t)free);
+  state->select_tank = select_tank;
 }
 
 void menu_pop_up(state_t *state) {
@@ -998,6 +1080,123 @@ void menu_pop_up(state_t *state) {
   SDL_DestroyTexture(title);
 }
 
+void options_pop_up(state_t *state) {
+  // background
+  vector_t corner1 = {0.0, MAX_HEIGHT_GAME};
+  list_t *background = make_rectangle(corner1, MAX_WIDTH_GAME, MAX_HEIGHT_GAME);
+  sdl_draw_polygon(background, LIGHT_GREY);
+
+  // 1 PLAYER button
+  vector_t corner2 = {200.0, 1140.0};
+  list_t *oneplayer_button = make_rectangle(corner2, 500.0, 200.0);
+  sdl_draw_polygon(oneplayer_button, FOREST_GREEN_POLY);
+  vector_t one_player_loc = {250.0, 1130.0};
+  SDL_Texture *oneplayer =
+      sdl_load_text(state, "1 PLAYER", state->text, SDL_WHITE, one_player_loc);
+
+  // 2 PLAYER button
+  vector_t corner3 = {900.0, 1140.0};
+  list_t *twoplayer_button = make_rectangle(corner3, 500.0, 200.0);
+  sdl_draw_polygon(twoplayer_button, FOREST_GREEN_POLY);
+  vector_t two_players_loc = {920.0, 1130.0};
+  SDL_Texture *twoplayer = sdl_load_text(state, "2 PLAYERS", state->text,
+                                         SDL_WHITE, two_players_loc);
+
+  // Gamemodes
+  vector_t gamemode_loc = {540.0, 1320.0};
+  SDL_Texture *gamemode =
+      sdl_load_text(state, "GAMEMODES", state->text, SDL_BLACK, gamemode_loc);
+
+  // Selects Tanks
+  vector_t select_title_loc = {540.0, 930.0};
+  SDL_Texture *select_tank = sdl_load_text(state, "Select Tanks", state->text,
+                                           SDL_BLACK, select_title_loc);
+
+  // player 1 and 2 locs
+  vector_t player1_loc = {250.0, 800.0};
+  SDL_Texture *player1_select =
+      sdl_load_text(state, "player 1", state->text, SHADE_GREEN, player1_loc);
+
+  vector_t player2_loc = {980.0, 800.0};
+  SDL_Texture *player2_select =
+      sdl_load_text(state, "player 2", state->text, SDL_RED, player2_loc);
+
+  // player 1 tanks
+  vector_t tank1_corner = {120.0, 600.0};
+  list_t *tank1_box = make_rectangle(tank1_corner, 200.0, 100.0);
+  sdl_draw_polygon(tank1_box, GREEN);
+  vector_t tank1_loc = {135.0, 600.0};
+  SDL_Texture *tank1 =
+      sdl_load_text(state, "default", state->select_tank, SDL_WHITE, tank1_loc);
+
+  vector_t tank2_corner = {460.0, 600.0};
+  list_t *tank2_box = make_rectangle(tank2_corner, 200.0, 100.0);
+  sdl_draw_polygon(tank2_box, GREEN);
+  vector_t tank2_loc = {475.0, 600.0};
+  SDL_Texture *tank2 =
+      sdl_load_text(state, "gravity", state->select_tank, SDL_WHITE, tank2_loc);
+
+  vector_t tank3_corner = {120.0, 400.0};
+  list_t *tank3_box = make_rectangle(tank3_corner, 200.0, 100.0);
+  sdl_draw_polygon(tank3_box, GREEN);
+  vector_t tank3_loc = {145.0, 400.0};
+  SDL_Texture *tank3 =
+      sdl_load_text(state, "sniper", state->select_tank, SDL_WHITE, tank3_loc);
+
+  vector_t tank4_corner = {460.0, 400.0};
+  list_t *tank4_box = make_rectangle(tank4_corner, 200.0, 100.0);
+  sdl_draw_polygon(tank4_box, GREEN);
+  vector_t tank4_loc = {475.0, 400.0};
+  SDL_Texture *tank4 =
+      sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank4_loc);
+
+  // player 2 tanks
+  double shiftx = 750.0;
+  vector_t tank5_corner = {120.0 + shiftx, 600.0};
+  list_t *tank5_box = make_rectangle(tank5_corner, 200.0, 100.0);
+  sdl_draw_polygon(tank5_box, RED);
+  vector_t tank5_loc = {135.0 + shiftx, 600.0};
+  SDL_Texture *tank5 =
+      sdl_load_text(state, "default", state->select_tank, SDL_WHITE, tank5_loc);
+
+  vector_t tank6_corner = {460.0 + shiftx, 600.0};
+  list_t *tank6_box = make_rectangle(tank6_corner, 200.0, 100.0);
+  sdl_draw_polygon(tank6_box, RED);
+  vector_t tank6_loc = {475.0 + shiftx, 600.0};
+  SDL_Texture *tank6 =
+      sdl_load_text(state, "gravity", state->select_tank, SDL_WHITE, tank6_loc);
+
+  vector_t tank7_corner = {120.0 + shiftx, 400.0};
+  list_t *tank7_box = make_rectangle(tank7_corner, 200.0, 100.0);
+  sdl_draw_polygon(tank7_box, RED);
+  vector_t tank7_loc = {145.0 + shiftx, 400.0};
+  SDL_Texture *tank7 =
+      sdl_load_text(state, "sniper", state->select_tank, SDL_WHITE, tank7_loc);
+
+  vector_t tank8_corner = {460.0 + shiftx, 400.0};
+  list_t *tank8_box = make_rectangle(tank8_corner, 200.0, 100.0);
+  sdl_draw_polygon(tank8_box, RED);
+  vector_t tank8_loc = {475.0 + shiftx, 400.0};
+  SDL_Texture *tank8 =
+      sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank8_loc);
+
+  sdl_show();
+  SDL_DestroyTexture(oneplayer);
+  SDL_DestroyTexture(twoplayer);
+  SDL_DestroyTexture(gamemode);
+  SDL_DestroyTexture(select_tank);
+  SDL_DestroyTexture(player1_select);
+  SDL_DestroyTexture(player2_select);
+  SDL_DestroyTexture(tank1);
+  SDL_DestroyTexture(tank2);
+  SDL_DestroyTexture(tank3);
+  SDL_DestroyTexture(tank4);
+  SDL_DestroyTexture(tank5);
+  SDL_DestroyTexture(tank6);
+  SDL_DestroyTexture(tank7);
+  SDL_DestroyTexture(tank8);
+}
+
 void handler(char key, key_event_type_t type, double held_time, state_t *state,
              vector_t loc) {
   if (state->is_menu) {
@@ -1007,10 +1206,66 @@ void handler(char key, key_event_type_t type, double held_time, state_t *state,
         state->is_menu = false;
         break;
       } else if (options_button_pressed(loc)) {
-        // show tank options
+        state->is_menu = false;
+        state->is_options = true;
+        break;
       }
     }
     }
+  } else if (state->is_options) {
+    switch (key) { // for the options page
+    case MOUSE_CLICK: {
+      if (single_player_pressed(loc)) {
+        state->singleplayer = true;
+        state->player2_tank_type = DEFAULT_TANK_TYPE;
+        state->is_options = false;
+        break;
+      } else if (multiplayer_pressed(loc)) {
+        state->singleplayer = false;
+        state->is_options = false;
+        break;
+      }
+      else if(player1_default_pressed(loc)){
+        //change later
+        state->is_options = false;
+        break;
+      }
+      else if(player1_gravity_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player1_sniper_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player1_gatling_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player2_default_pressed(loc)){
+        //change later
+        state->is_options = false;
+        break;
+      }
+      else if(player2_gravity_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player2_sniper_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(player2_gatling_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+      else if(go_back_pressed(loc)){
+        state->is_options = false;
+        break;
+      }
+    }
+    }
+
   } else {
     body_t *player1 = scene_get_body(state->scene, (size_t)0);
     body_t *player2 = scene_get_body(state->scene, (size_t)1);
@@ -1031,12 +1286,12 @@ state_t *emscripten_init() {
   state->scene = scene_init();
   state->player1_score = 0;
   state->player2_score = 0;
-  state->player1_tank_type = GATLING_TANK_TYPE;
-  state->player2_tank_type = SNIPER_TANK_TYPE;
+  state->player1_tank_type = DEFAULT_TANK_TYPE;
+  state->player2_tank_type = DEFAULT_TANK_TYPE;
   state->singleplayer = false;
+  state->is_options = false;
 
-  menu_init(state); // will have to add menu feature that allows selection of
-                    // the tank type (from global vars)
+  menu_init(state);
 
   make_players(state);
 
@@ -1066,6 +1321,9 @@ void emscripten_main(state_t *state) {
   if (state->is_menu) {
     menu_pop_up(state);
     sdl_on_key((key_handler_t)handler);
+  } else if (state->is_options) {
+    options_pop_up(state);
+    sdl_on_key((key_handler_t)handler);
   } else {
     double dt = time_since_last_tick();
     sdl_on_key((key_handler_t)handler);
@@ -1087,7 +1345,8 @@ void emscripten_main(state_t *state) {
     for (size_t i = 2; i < scene_bodies(state->scene); i++) {
       body_t *body = scene_get_body(state->scene, i);
       if (*(size_t *)body_get_info(body) == BULLET_TYPE ||
-          *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE || *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
+          *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE ||
+          *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
         body_set_time(body, body_get_time(body) + dt);
         if (body_get_time(body) > BULLET_DISAPPEAR_TIME) {
           body_remove(body);

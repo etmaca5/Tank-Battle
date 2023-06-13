@@ -151,6 +151,7 @@ typedef struct state {
   bool singleplayer;
   bool is_menu;
   bool is_options;
+  bool is_round_end;
   text_t *text;
   text_t *title;
   text_t *select_tank;
@@ -951,16 +952,19 @@ void reset_game(state_t *state) {
   }
 }
 
-void check_game_end(state_t *state) {
+bool check_round_end(state_t *state) {
   body_t *player1 = scene_get_body(state->scene, 0);
   body_t *player2 = scene_get_body(state->scene, 1);
   if (body_get_health(player1) <= 0) {
     state->player2_score++;
-    reset_game(state);
+    body_set_image_path(player1, "assets/destroyed_tank.png");
+    return true;
   } else if (body_get_health(player2) <= 0) {
     state->player1_score++;
-    reset_game(state);
+    body_set_image_path(player2, "assets/destroyed_tank.png");
+    return true;
   }
+  return false;
 }
 
 bool start_button_pressed(vector_t mouse) {
@@ -1338,6 +1342,7 @@ state_t *emscripten_init() {
   state->player2_tank_type = DEFAULT_TANK_TYPE; //
   state->singleplayer = false; // could comment this out for it to work
   state->is_options = false;
+  state->is_round_end = false;
 
   menu_init(state);
   return state;
@@ -1355,7 +1360,13 @@ void emscripten_main(state_t *state) {
     double dt = time_since_last_tick();
     sdl_on_key((key_handler_t)handler);
     state->time += dt;
-    check_game_end(state);
+    if (state->is_round_end) {
+      while (dt < 3.0) {
+        dt += time_since_last_tick();
+      }
+      reset_game(state);
+    }
+    state->is_round_end = check_round_end(state);
 
     // add time to player bodies for reload
     body_t *player1 = scene_get_body(state->scene, 0);

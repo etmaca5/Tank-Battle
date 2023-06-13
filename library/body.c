@@ -21,6 +21,11 @@ const size_t AI_180 = 7;
 const size_t AI_90_LEFT = 8;
 const size_t AI_90_RIGHT = 9;
 
+char *DEFAULT_IMAGE_PATH = "assets/tank.png";
+char *GRAVITY_IMAGE_PATH = "assets/gravity_tank.png";
+char *SNIPER_IMAGE_PATH = "assets/sniper_tank.png";
+char *GATLING_IMAGE_PATH = "assets/gatling_tank.png";
+
 typedef struct body {
   graphic_t *graphic;
   double mass;
@@ -287,7 +292,7 @@ body_t *init_default_tank(vector_t center, double side_length,
       body_init_with_info(tank_points, mass, color, type, (free_func_t)free);
   assert(tank != NULL);
   tank->health = max_health;
-  body_set_image_path(tank, "assets/tank.png");
+  body_set_image_path(tank, DEFAULT_IMAGE_PATH);
   return tank;
 }
 
@@ -296,7 +301,7 @@ body_t *init_gravity_tank(vector_t center, double side_length,
                           double max_health, size_t tank_type) {
   body_t *gravity_tank = init_default_tank(center, side_length, velocity, mass,
                                            color, max_health, tank_type);
-  body_set_image_path(gravity_tank, "assets/tank.png");
+  body_set_image_path(gravity_tank, GRAVITY_IMAGE_PATH);
   return gravity_tank;
 }
 
@@ -305,7 +310,7 @@ body_t *init_sniper_tank(vector_t center, double side_length, vector_t velocity,
                          size_t tank_type) {
   body_t *sniper_tank = init_default_tank(center, side_length, velocity, mass,
                                           color, max_health, tank_type);
-  body_set_image_path(sniper_tank, "assets/tank.png");
+  body_set_image_path(sniper_tank, SNIPER_IMAGE_PATH);
   return sniper_tank;
 }
 
@@ -314,6 +319,6 @@ body_t *init_gatling_tank(vector_t center, double side_length,
                           double max_health, size_t tank_type) {
   body_t *gatling_tank = init_default_tank(center, side_length, velocity, mass,
                                            color, max_health, tank_type);
-  body_set_image_path(gatling_tank, "assets/tank.png");
+  body_set_image_path(gatling_tank, GATLING_IMAGE_PATH);
   return gatling_tank;
 }

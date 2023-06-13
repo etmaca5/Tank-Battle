@@ -207,7 +207,7 @@ list_t *make_health_bar_p1(double health) {
   if (health < 0) {
     health = 0.0;
   }
-  
+
   vector_t *point1 = malloc(sizeof(vector_t));
   assert(point1 != NULL);
   point1->x = health / DEFAULT_TANK_MAX_HEALTH * HEALTH_BAR_WIDTH +

@@ -126,12 +126,18 @@ rgb_color_t PLAYER1_COLOR_SIMILAR = {0.5, 0.0, 0.0};
 rgb_color_t PLAYER2_COLOR = {0.0, 1.0, 0.0};
 rgb_color_t PLAYER2_COLOR_SIMILAR = {0.0, 0.5, 0.0};
 rgb_color_t LIGHT_GREY = {0.86, 0.86, 0.86};
+rgb_color_t SELECTED_TANK = {0.3, 0.3, 0.3};
 rgb_color_t GREEN = {0.0, 1.0, 0.0};
 rgb_color_t BLUE = {0.0, 0.0, 1.0};
+rgb_color_t DARKER_BLUE = {0.0, 0.0, 0.6};
 rgb_color_t BLACK = {0.0, 0.0, 0.0};
 rgb_color_t RED = {1.0, 0.0, 0.0};
+rgb_color_t DARKER_RED = {0.6, 0.0, 0.0};
 rgb_color_t YELLOW = {0.9, 0.9, 0.1};
+rgb_color_t DARKER_YELLOW = {0.6, 0.6, 0.0};
 rgb_color_t FOREST_GREEN = {0.2, 0.6, 0.2};
+rgb_color_t DARKER_FOREST_GREEN = {0.00, 0.45, 0.0};
+rgb_color_t DARKER_FOREST_GREEN_POLY = {0.05, 0.35, 0.05};
 rgb_color_t FOREST_GREEN_POLY = {0.13, 0.55, 0.13};
 rgb_color_t TEAL = {0.0, 0.8, 0.8};
 SDL_Color SDL_WHITE = {255, 255, 255, 255};
@@ -1126,10 +1132,20 @@ void options_pop_up(state_t *state) {
   list_t *background = make_rectangle(corner1, MAX_WIDTH_GAME, MAX_HEIGHT_GAME);
   sdl_draw_polygon(background, LIGHT_GREY);
 
+  rgb_color_t singleplayer_color = FOREST_GREEN_POLY;
+  rgb_color_t twoplayer_color = FOREST_GREEN_POLY;
+
+  if(state->singleplayer){
+    singleplayer_color = DARKER_FOREST_GREEN_POLY;
+  }
+  else{
+    twoplayer_color = DARKER_FOREST_GREEN_POLY;
+  }
+
   // 1 PLAYER button
   vector_t corner2 = {200.0, 1140.0};
   list_t *oneplayer_button = make_rectangle(corner2, 500.0, 200.0);
-  sdl_draw_polygon(oneplayer_button, FOREST_GREEN_POLY);
+  sdl_draw_polygon(oneplayer_button, singleplayer_color);
   vector_t one_player_loc = {250.0, 1130.0};
   SDL_Texture *oneplayer =
       sdl_load_text(state, "1 PLAYER", state->text, SDL_WHITE, one_player_loc);
@@ -1137,7 +1153,7 @@ void options_pop_up(state_t *state) {
   // 2 PLAYER button
   vector_t corner3 = {900.0, 1140.0};
   list_t *twoplayer_button = make_rectangle(corner3, 500.0, 200.0);
-  sdl_draw_polygon(twoplayer_button, FOREST_GREEN_POLY);
+  sdl_draw_polygon(twoplayer_button, twoplayer_color);
   vector_t two_players_loc = {920.0, 1130.0};
   SDL_Texture *twoplayer = sdl_load_text(state, "2 PLAYERS", state->text,
                                          SDL_WHITE, two_players_loc);
@@ -1160,32 +1176,67 @@ void options_pop_up(state_t *state) {
   vector_t player2_loc = {980.0, 800.0};
   SDL_Texture *player2_select =
       sdl_load_text(state, "player 2", state->text, SDL_RED, player2_loc);
+  
+  rgb_color_t tank1_color = FOREST_GREEN;
+  rgb_color_t tank2_color = YELLOW;
+  rgb_color_t tank3_color = BLUE;
+  rgb_color_t tank4_color = RED;
+  rgb_color_t tank5_color = FOREST_GREEN;
+  rgb_color_t tank6_color = YELLOW;
+  rgb_color_t tank7_color = BLUE;
+  rgb_color_t tank8_color = RED;
+
+  if(state->player1_tank_type == DEFAULT_TANK_TYPE){
+    tank1_color = DARKER_FOREST_GREEN;
+  }
+  else if(state->player1_tank_type == GRAVITY_TANK_TYPE){
+    tank2_color = DARKER_YELLOW;
+  }
+  else if(state->player1_tank_type == SNIPER_TANK_TYPE){
+    tank3_color = DARKER_BLUE;
+  }
+  else{
+    tank4_color = DARKER_RED;
+  }
+
+  if(state->player2_tank_type == DEFAULT_TANK_TYPE){
+    tank5_color = DARKER_FOREST_GREEN;
+  }
+  else if(state->player2_tank_type == GRAVITY_TANK_TYPE){
+    tank6_color = DARKER_YELLOW;
+  }
+  else if(state->player2_tank_type == SNIPER_TANK_TYPE){
+    tank7_color = DARKER_BLUE;
+  }
+  else{
+    tank8_color = DARKER_RED;
+  }
 
   // player 1 tanks
   vector_t tank1_corner = {120.0, 600.0};
   list_t *tank1_box = make_rectangle(tank1_corner, 200.0, 100.0);
-  sdl_draw_polygon(tank1_box, FOREST_GREEN);
+  sdl_draw_polygon(tank1_box, tank1_color);
   vector_t tank1_loc = {135.0, 600.0};
   SDL_Texture *tank1 =
       sdl_load_text(state, "default", state->select_tank, SDL_WHITE, tank1_loc);
 
   vector_t tank2_corner = {460.0, 600.0};
   list_t *tank2_box = make_rectangle(tank2_corner, 200.0, 100.0);
-  sdl_draw_polygon(tank2_box, YELLOW);
+  sdl_draw_polygon(tank2_box, tank2_color);
   vector_t tank2_loc = {475.0, 600.0};
   SDL_Texture *tank2 =
       sdl_load_text(state, "gravity", state->select_tank, SDL_WHITE, tank2_loc);
 
   vector_t tank3_corner = {120.0, 400.0};
   list_t *tank3_box = make_rectangle(tank3_corner, 200.0, 100.0);
-  sdl_draw_polygon(tank3_box, BLUE);
+  sdl_draw_polygon(tank3_box, tank3_color);
   vector_t tank3_loc = {145.0, 400.0};
   SDL_Texture *tank3 =
       sdl_load_text(state, "sniper", state->select_tank, SDL_WHITE, tank3_loc);
 
   vector_t tank4_corner = {460.0, 400.0};
   list_t *tank4_box = make_rectangle(tank4_corner, 200.0, 100.0);
-  sdl_draw_polygon(tank4_box, RED);
+  sdl_draw_polygon(tank4_box, tank4_color);
   vector_t tank4_loc = {475.0, 400.0};
   SDL_Texture *tank4 =
       sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank4_loc);
@@ -1194,28 +1245,28 @@ void options_pop_up(state_t *state) {
   double shiftx = 750.0;
   vector_t tank5_corner = {120.0 + shiftx, 600.0};
   list_t *tank5_box = make_rectangle(tank5_corner, 200.0, 100.0);
-  sdl_draw_polygon(tank5_box, FOREST_GREEN);
+  sdl_draw_polygon(tank5_box, tank5_color);
   vector_t tank5_loc = {135.0 + shiftx, 600.0};
   SDL_Texture *tank5 =
       sdl_load_text(state, "default", state->select_tank, SDL_WHITE, tank5_loc);
 
   vector_t tank6_corner = {460.0 + shiftx, 600.0};
   list_t *tank6_box = make_rectangle(tank6_corner, 200.0, 100.0);
-  sdl_draw_polygon(tank6_box, YELLOW);
+  sdl_draw_polygon(tank6_box, tank6_color);
   vector_t tank6_loc = {475.0 + shiftx, 600.0};
   SDL_Texture *tank6 =
       sdl_load_text(state, "gravity", state->select_tank, SDL_WHITE, tank6_loc);
 
   vector_t tank7_corner = {120.0 + shiftx, 400.0};
   list_t *tank7_box = make_rectangle(tank7_corner, 200.0, 100.0);
-  sdl_draw_polygon(tank7_box, BLUE);
+  sdl_draw_polygon(tank7_box, tank7_color);
   vector_t tank7_loc = {145.0 + shiftx, 400.0};
   SDL_Texture *tank7 =
       sdl_load_text(state, "sniper", state->select_tank, SDL_WHITE, tank7_loc);
 
   vector_t tank8_corner = {460.0 + shiftx, 400.0};
   list_t *tank8_box = make_rectangle(tank8_corner, 200.0, 100.0);
-  sdl_draw_polygon(tank8_box, RED);
+  sdl_draw_polygon(tank8_box, tank8_color);
   vector_t tank8_loc = {475.0 + shiftx, 400.0};
   SDL_Texture *tank8 =
       sdl_load_text(state, "gatling", state->select_tank, SDL_WHITE, tank8_loc);

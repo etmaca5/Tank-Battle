@@ -300,7 +300,6 @@ void sdl_render_scene(scene_t *scene) {
       SDL_QueryTexture(img, NULL, NULL, w, h);
       SDL_Rect texr;
       vector_t window_center = get_window_center();
-      // vector_t coord = *((vector_t *) list_get(body_get_shape(body), 1));
       vector_t coord = {body_get_centroid(body).x - 40,
                         body_get_centroid(body).y + 50};
       SDL_Point center = {16, 20};
@@ -309,9 +308,6 @@ void sdl_render_scene(scene_t *scene) {
       texr.y = pixel.y;
       texr.w = 40;
       texr.h = 40;
-      // SDL_RenderClear(renderer);
-      // SDL_RenderCopy(renderer, img, NULL, &texr);
-      sdl_draw_polygon(shape, body_get_color(body));
       SDL_RenderCopyEx(renderer, img, NULL, &texr, angle, &center, flip);
     }
     list_free(shape);

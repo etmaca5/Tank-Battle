@@ -12,6 +12,7 @@
 #include "vector.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
@@ -34,6 +35,10 @@ int FONT_SIZE = 50;
 int TITLE_SIZE = 100;
 int TANK_SELECT_SIZE = 25;
 double CIRCLE_POINTS = 300.0;
+
+//DEATH animation time
+double DEATH_PAUSE_TIME = 0.2;
+
 
 const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1300.0;
@@ -278,6 +283,21 @@ list_t *make_health_bar_p2(double health) {
   list_add(shape, point4);
   return shape;
 }
+void init_sounds(){
+  SDL_Init(SDL_INIT_AUDIO);
+  Mix_Init(0);
+  Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+  Mix_Music *music = Mix_LoadMUS("assets/upbeat_music.wav");
+  Mix_PlayMusic(music, -1);
+}
+
+void bullet_shot_sound(){
+  Mix_Chunk *bullet_sound = Mix_LoadWAV("assets/default_tank_sound.wav");
+  Mix_PlayChannel(1, bullet_sound, 0);
+}
+void free_channel(int channel){
+  Mix_FreeChunk(Mix_GetChunk(channel));
+}
 
 list_t *make_bullet(vector_t edge) {
   list_t *shape = list_init(4, (free_func_t)free);
@@ -408,6 +428,7 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       case 'r': {
         if (body_get_time(player) > RELOAD_SPEED) {
           handle_bullet(state, player, player_color);
+          bullet_shot_sound();
         }
       }
       }
@@ -435,6 +456,7 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       case 'r': {
         if (body_get_time(player) > GRAVITY_TANK_RELOAD_SPEED) {
           handle_bullet(state, player, player_color);
+          bullet_shot_sound();
         }
       }
       }
@@ -461,6 +483,7 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       case 'r': {
         if (body_get_time(player) > SNIPER_RELOAD_SPEED) {
           handle_bullet(state, player, player_color);
+          bullet_shot_sound();
         }
       }
       }
@@ -487,6 +510,7 @@ void tank_handler(char key, key_event_type_t type, double held_time,
       case 'r': {
         if (body_get_time(player) > GATLING_RELOAD_SPEED) {
           handle_bullet(state, player, player_color);
+          bullet_shot_sound();
         }
       }
       }
@@ -542,6 +566,7 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       case SPACE: {
         if (body_get_time(player) > RELOAD_SPEED) {
           handle_bullet(state, player, player_color);
+          bullet_shot_sound();
         }
       }
       }
@@ -569,6 +594,7 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       case SPACE: {
         if (body_get_time(player) > GRAVITY_TANK_RELOAD_SPEED) {
           handle_bullet(state, player, player_color);
+          bullet_shot_sound();
         }
       }
       }
@@ -596,6 +622,7 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       case SPACE: {
         if (body_get_time(player) > SNIPER_RELOAD_SPEED) {
           handle_bullet(state, player, player_color);
+          bullet_shot_sound();
         }
       }
       }
@@ -623,6 +650,7 @@ void tank_handler2(char key, key_event_type_t type, double held_time,
       case SPACE: {
         if (body_get_time(player) > GATLING_RELOAD_SPEED) {
           handle_bullet(state, player, player_color);
+          bullet_shot_sound();
         }
       }
       }
@@ -948,6 +976,7 @@ void reset_game(state_t *state) {
     body_remove(body);
   }
   scene_tick(state->scene, 0.0);
+  Mix_ChannelFinished(free_channel);
 
   make_players(state);
   make_health_bars(state);
@@ -1135,10 +1164,9 @@ void options_pop_up(state_t *state) {
   rgb_color_t singleplayer_color = FOREST_GREEN_POLY;
   rgb_color_t twoplayer_color = FOREST_GREEN_POLY;
 
-  if(state->singleplayer){
+  if (state->singleplayer) {
     singleplayer_color = DARKER_FOREST_GREEN_POLY;
-  }
-  else{
+  } else {
     twoplayer_color = DARKER_FOREST_GREEN_POLY;
   }
 
@@ -1176,7 +1204,7 @@ void options_pop_up(state_t *state) {
   vector_t player2_loc = {980.0, 800.0};
   SDL_Texture *player2_select =
       sdl_load_text(state, "player 2", state->text, SDL_RED, player2_loc);
-  
+
   rgb_color_t tank1_color = FOREST_GREEN;
   rgb_color_t tank2_color = YELLOW;
   rgb_color_t tank3_color = BLUE;
@@ -1186,29 +1214,23 @@ void options_pop_up(state_t *state) {
   rgb_color_t tank7_color = BLUE;
   rgb_color_t tank8_color = RED;
 
-  if(state->player1_tank_type == DEFAULT_TANK_TYPE){
+  if (state->player1_tank_type == DEFAULT_TANK_TYPE) {
     tank1_color = DARKER_FOREST_GREEN;
-  }
-  else if(state->player1_tank_type == GRAVITY_TANK_TYPE){
+  } else if (state->player1_tank_type == GRAVITY_TANK_TYPE) {
     tank2_color = DARKER_YELLOW;
-  }
-  else if(state->player1_tank_type == SNIPER_TANK_TYPE){
+  } else if (state->player1_tank_type == SNIPER_TANK_TYPE) {
     tank3_color = DARKER_BLUE;
-  }
-  else{
+  } else {
     tank4_color = DARKER_RED;
   }
 
-  if(state->player2_tank_type == DEFAULT_TANK_TYPE){
+  if (state->player2_tank_type == DEFAULT_TANK_TYPE) {
     tank5_color = DARKER_FOREST_GREEN;
-  }
-  else if(state->player2_tank_type == GRAVITY_TANK_TYPE){
+  } else if (state->player2_tank_type == GRAVITY_TANK_TYPE) {
     tank6_color = DARKER_YELLOW;
-  }
-  else if(state->player2_tank_type == SNIPER_TANK_TYPE){
+  } else if (state->player2_tank_type == SNIPER_TANK_TYPE) {
     tank7_color = DARKER_BLUE;
-  }
-  else{
+  } else {
     tank8_color = DARKER_RED;
   }
 
@@ -1339,7 +1361,7 @@ void handler(char key, key_event_type_t type, double held_time, state_t *state,
     case MOUSE_CLICK: {
       if (single_player_pressed(loc)) {
         state->singleplayer = true;
-        state->player2_tank_type = DEFAULT_TANK_TYPE;
+        // state->player2_tank_type = DEFAULT_TANK_TYPE;
         break;
       } else if (multiplayer_pressed(loc)) {
         state->singleplayer = false;
@@ -1388,6 +1410,7 @@ void handler(char key, key_event_type_t type, double held_time, state_t *state,
 }
 
 state_t *emscripten_init() {
+  init_sounds();
   vector_t min = VEC_ZERO;
   vector_t max = {MAX_WIDTH_GAME, MAX_HEIGHT_GAME};
   sdl_init(min, max);
@@ -1420,7 +1443,7 @@ void emscripten_main(state_t *state) {
     sdl_on_key((key_handler_t)handler);
     state->time += dt;
     if (state->is_round_end) {
-      while (dt < 3.0) {
+      while (dt < DEATH_PAUSE_TIME) {
         dt += time_since_last_tick();
       }
       reset_game(state);

@@ -11,8 +11,8 @@
 #include "text.h"
 #include "vector.h"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
@@ -36,9 +36,8 @@ int TITLE_SIZE = 100;
 int TANK_SELECT_SIZE = 25;
 double CIRCLE_POINTS = 300.0;
 
-//DEATH animation time
+// DEATH animation time
 double DEATH_PAUSE_TIME = 0.2;
-
 
 const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1300.0;
@@ -283,7 +282,7 @@ list_t *make_health_bar_p2(double health) {
   list_add(shape, point4);
   return shape;
 }
-void init_sounds(){
+void init_sounds() {
   SDL_Init(SDL_INIT_AUDIO);
   Mix_Init(0);
   Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
@@ -291,13 +290,17 @@ void init_sounds(){
   Mix_PlayMusic(music, -1);
 }
 
-void bullet_shot_sound(){
+void bullet_shot_sound() {
   Mix_Chunk *bullet_sound = Mix_LoadWAV("assets/default_tank_sound.wav");
   Mix_PlayChannel(1, bullet_sound, 0);
 }
-void free_channel(int channel){
-  Mix_FreeChunk(Mix_GetChunk(channel));
+
+void death_sound() {
+  Mix_Chunk *death = Mix_LoadWAV("assets/death.wav");
+  Mix_PlayChannel(1, death, 0);
 }
+
+void free_channel(int channel) { Mix_FreeChunk(Mix_GetChunk(channel)); }
 
 list_t *make_bullet(vector_t edge) {
   list_t *shape = list_init(4, (free_func_t)free);
@@ -1443,6 +1446,7 @@ void emscripten_main(state_t *state) {
     sdl_on_key((key_handler_t)handler);
     state->time += dt;
     if (state->is_round_end) {
+      death_sound();
       while (dt < DEATH_PAUSE_TIME) {
         dt += time_since_last_tick();
       }

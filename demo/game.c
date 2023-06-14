@@ -856,9 +856,21 @@ void move_ai(state_t *state, double dt) {
     }
   }
 }
+void gameover_pop_up(state_t *state) {
+  // background
+  vector_t corner1 = {0.0, MAX_HEIGHT_GAME};
+  list_t *background = make_rectangle(corner1, MAX_WIDTH_GAME, MAX_HEIGHT_GAME);
+  sdl_draw_polygon(background, BLACK);
+
+  vector_t gameover_loc = {320.0, 850.0};
+  SDL_Texture *gamemode =
+      sdl_load_text(state, "GAMEOVER", state->title, SDL_RED, gameover_loc);
+  SDL_DestroyTexture(gamemode);
+}
 
 void check_end_game(state_t *state) {
   if (state->player1_score == 3 || state->player2_score == 3) {
+    gameover_pop_up(state);
     exit(0);
   }
 }
@@ -1435,9 +1447,6 @@ state_t *emscripten_init() {
 
 void emscripten_main(state_t *state) {
   sdl_clear();
-  if (state->player1_score == 3 || state->player2_score == 3) {
-    exit(0);
-  }
   if (state->is_menu) {
     menu_pop_up(state);
     sdl_on_key((key_handler_t)handler);

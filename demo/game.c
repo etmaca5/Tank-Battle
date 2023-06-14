@@ -861,10 +861,23 @@ void gameover_pop_up(state_t *state) {
   vector_t corner1 = {0.0, MAX_HEIGHT_GAME};
   list_t *background = make_rectangle(corner1, MAX_WIDTH_GAME, MAX_HEIGHT_GAME);
   sdl_draw_polygon(background, BLACK);
+  char* player1_wins = "Player 1 wins";
+  char* player2_wins = "Player 2 wins";
+  char* winning_message;
+  if(state->player1_score == 3){
+    winning_message = player1_wins;
+  }
+  else{
+    winning_message = player2_wins;
+  }
 
-  vector_t gameover_loc = {320.0, 850.0};
+  vector_t winner_loc = {500.0, 650.0};
+  SDL_Texture *winner =
+      sdl_load_text(state, winning_message, state->text, SDL_RED, winner_loc);
+  vector_t gameover_loc = {320.0, 950.0};
   SDL_Texture *gamemode =
       sdl_load_text(state, "GAMEOVER", state->title, SDL_RED, gameover_loc);
+  SDL_DestroyTexture(winner);
   SDL_DestroyTexture(gamemode);
 }
 

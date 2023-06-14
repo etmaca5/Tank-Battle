@@ -133,15 +133,19 @@ rgb_color_t LIGHT_GREY = {0.86, 0.86, 0.86};
 rgb_color_t SELECTED_TANK = {0.3, 0.3, 0.3};
 rgb_color_t GREEN = {0.0, 1.0, 0.0};
 rgb_color_t BLUE = {0.0, 0.0, 1.0};
+rgb_color_t DARKER_BLUE = {0.0, 0.0, 0.6};
+rgb_color_t BLACK = {0.0, 0.0, 0.0};
 rgb_color_t RED = {1.0, 0.0, 0.0};
+rgb_color_t DARKER_RED = {0.6, 0.0, 0.0};
+rgb_color_t YELLOW = {0.9, 0.9, 0.1};
+rgb_color_t DARKER_YELLOW = {0.6, 0.6, 0.0};
+rgb_color_t FOREST_GREEN = {0.2, 0.6, 0.2};
+rgb_color_t DARKER_FOREST_GREEN = {0.00, 0.45, 0.0};
+rgb_color_t DARKER_FOREST_GREEN_POLY = {0.05, 0.35, 0.05};
 rgb_color_t FOREST_GREEN_POLY = {0.13, 0.55, 0.13};
 rgb_color_t TEAL = {0.0, 0.8, 0.8};
 SDL_Color SDL_WHITE = {255, 255, 255, 255};
 rgb_color_t SLATE_GREY = {0.72, 0.79, 0.89};
-rgb_color_t BLACK = {0.0, 0.0, 0.0};
-
-//sdl colors
-SDL_Color SDL_WHITE = {255, 255, 255, 255};
 SDL_Color SDL_BLACK = {0, 0, 0, 255};
 SDL_Color SDL_FOREST_GREEN = {74, 103, 65, 255};
 SDL_Color SHADE_GREEN = {74, 170, 65, 255};
@@ -862,34 +866,31 @@ void check_end_game(state_t *state) {
 void show_scoreboard(state_t *state, int player1_score, int player2_score) {
   vector_t corner = {600.0, MAX_HEIGHT_GAME - 25.0};
   list_t *points = make_rectangle(corner, 400.0, 150.0);
-  sdl_draw_polygon(points, BLACK);
+  rgb_color_t black = {0.0, 0.0, 0.0};
+  sdl_draw_polygon(points, black);
 
-  // locations 
-  vector_t player1_score_loc = {675.0, MAX_HEIGHT_GAME - 13.0};
-  vector_t player2_score_loc = {885.0, MAX_HEIGHT_GAME - 13.0};
-  vector_t dash_loc = {790.0, MAX_HEIGHT_GAME - 13.0};
+  SDL_Color white = {255, 255, 255, 255};
+  // loc
+  vector_t score_loc = {675.0, MAX_HEIGHT_GAME - 13.0};
 
-  //init font 
-  TTF_Font *font = TTF_OpenFont("assets/font.ttf", FONT_SIZE);
-  text_t *text = text_init(font, (free_func_t)free);
+  char player1_str[20];
+  sprintf(player1_str, "%d", player1_score);
+  char player2_str[20];
+  sprintf(player2_str, "%d", player2_score);
+  char *final_str = (char *)malloc(
+      sizeof(char) * (strlen(player1_str) + strlen(player2_str) + 20));
+  strcpy(final_str, player1_str);
+  strcat(final_str, "   -   ");
+  strcat(final_str, player2_str);
+
+  TTF_Font *font1 = TTF_OpenFont("assets/font.ttf", FONT_SIZE);
+  text_t *text = text_init(font1, (free_func_t)free);
   state->scoreboard = text;
-
-  //make strings 
-  char str1[20];
-  sprintf(str1, "%d", player1_score);
-
-  char str2[20];
-  sprintf(str2, "%d", player2_score);
-
-  //load text
-  SDL_Texture *p1_score = sdl_load_text(state, str1, state->text, SDL_WHITE, player1_score_loc);
-  SDL_Texture *p2_score = sdl_load_text(state, str2, state->text, SDL_WHITE, player2_score_loc);
-  SDL_Texture *dash = sdl_load_text(state, "-" , state->text, SDL_WHITE, dash_loc);
+  SDL_Texture *scoreboard =
+      sdl_load_text(state, final_str, state->text, white, score_loc);
 
   sdl_show();
-  SDL_DestroyTexture(p1_score);
-  SDL_DestroyTexture(p2_score);
-  SDL_DestroyTexture(dash);
+  SDL_DestroyTexture(scoreboard);
 }
 
 body_t *handle_selected_tank(size_t tank_type, vector_t start_pos,

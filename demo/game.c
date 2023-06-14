@@ -23,7 +23,7 @@
 const size_t WALL_TYPE = 0;
 const size_t BULLET_TYPE = 1;
 const size_t SNIPER_BULLET_TYPE = 10;
-const size_t GRAVITY_BULLET_TYPE = 10;
+const size_t GRAVITY_BULLET_TYPE = 13;
 const size_t GATLING_BULLET_TYPE = 11;
 const size_t DEFAULT_TANK_TYPE = 2;
 const size_t GRAVITY_TANK_TYPE = 3;
@@ -46,7 +46,7 @@ const double MAX_HEIGHT_GAME = 1300.0;
 double TANKS_ELASTICITY = 3.0;
 
 // default tank stats
-double DEFAULT_TANK_VELOCITY = 100.0;
+double DEFAULT_TANK_VELOCITY = 160.0;
 double DEFAULT_TANK_SIDE_LENGTH = 80.0;
 double DEFAULT_TANK_MASS = 1000.0;
 double DEFAULT_TANK_ROTATION_SPEED = M_PI / 2;
@@ -59,7 +59,7 @@ double RELOAD_SPEED = 1.0;
 
 // GRAVITY tank stats
 size_t GRAVITY_TANK_POINTS = 6;
-double GRAVITY_TANK_VELOCITY = 180.0;
+double GRAVITY_TANK_VELOCITY = 140.0;
 double GRAVITY_TANK_SIDE_LENGTH = 60.0;
 double GRAVITY_TANK_MASS = 1000.0;
 double GRAVITY_TANK_ROTATION_SPEED = M_PI * 3 / 4;
@@ -70,7 +70,7 @@ double GRAVITY_BULLET_VELOCITY = 300.0;
 double GRAVITY_TANK_STRENGTH = 5000.0;
 
 // SNIPER tank stats
-double SNIPER_TANK_VELOCITY = 75.0;
+double SNIPER_TANK_VELOCITY = 100.0;
 double SNIPER_TANK_SIDE_LENGTH = 60.0;
 double SNIPER_TANK_MASS = 1000.0;
 double SNIPER_TANK_ROTATION_SPEED = M_PI * 2 / 5;
@@ -83,7 +83,7 @@ double SNIPER_BULLET_WIDTH = 10.0;
 double SNIPER_BULLET_VELOCITY = 500.0;
 
 // GATLING tank stats
-double GATLING_TANK_VELOCITY = 60.0;
+double GATLING_TANK_VELOCITY = 100.0;
 double GATLING_TANK_SIDE_LENGTH = 60.0;
 double GATLING_TANK_MASS = 1000.0;
 double GATLING_TANK_ROTATION_SPEED = M_PI * 3 / 5;
@@ -97,7 +97,7 @@ double GATLING_BULLET_VELOCITY = 400.0;
 
 // bullet damage
 const double BULLET_DAMAGE = 10.0;
-const double GRAVITY_BULLET_DAMAGE = 20.0;
+const double GRAVITY_BULLET_DAMAGE = 15.0;
 const double SNIPER_BULLET_DAMAGE = 25.0;
 const double GATLING_BULLET_DAMAGE = 5.0;
 

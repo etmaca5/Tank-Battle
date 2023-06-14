@@ -4,6 +4,7 @@
 #include "polygon.h"
 #include "sdl_wrapper.h"
 #include "star.h"
+#include "forces.h"
 #include "vector.h"
 #include <assert.h>
 #include <collision.h>
@@ -216,7 +217,8 @@ void body_tick(body_t *body, double dt) {
 
   if (*(size_t *)body_get_info(body) == BULLET_TYPE ||
       *(size_t *)body_get_info(body) == SNIPER_BULLET_TYPE ||
-      *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE) {
+      *(size_t *)body_get_info(body) == GATLING_BULLET_TYPE || 
+      *(size_t *)body_get_info(body) == GRAVITY_BULLET_TYPE) {
     double angle = atan(body->velocity.y / body->velocity.x);
     body_set_rotation(body, angle);
   }

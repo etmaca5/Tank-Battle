@@ -93,7 +93,7 @@ const double GATLING_TANK_DAMAGE = 25.0;
 double GATLING_RELOAD_SPEED = 0.4;
 double GATLING_BULLET_HEIGHT = 25.0;
 double GATLING_BULLET_WIDTH = 10.0;
-double GATLING_BULLET_VELOCITY = 300.0;
+double GATLING_BULLET_VELOCITY = 400.0;
 
 // bullet damage
 const double BULLET_DAMAGE = 10.0;
@@ -1435,6 +1435,9 @@ state_t *emscripten_init() {
 
 void emscripten_main(state_t *state) {
   sdl_clear();
+  if (state->player1_score == 3 || state->player2_score == 3) {
+    exit(0);
+  }
   if (state->is_menu) {
     menu_pop_up(state);
     sdl_on_key((key_handler_t)handler);

@@ -11,8 +11,8 @@
 #include "text.h"
 #include "vector.h"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
@@ -36,9 +36,8 @@ int TITLE_SIZE = 100;
 int TANK_SELECT_SIZE = 25;
 double CIRCLE_POINTS = 300.0;
 
-//DEATH animation time
+// DEATH animation time
 double DEATH_PAUSE_TIME = 0.2;
-
 
 const double MAX_WIDTH_GAME = 1600.0;
 const double MAX_HEIGHT_GAME = 1300.0;
@@ -134,19 +133,15 @@ rgb_color_t LIGHT_GREY = {0.86, 0.86, 0.86};
 rgb_color_t SELECTED_TANK = {0.3, 0.3, 0.3};
 rgb_color_t GREEN = {0.0, 1.0, 0.0};
 rgb_color_t BLUE = {0.0, 0.0, 1.0};
-rgb_color_t DARKER_BLUE = {0.0, 0.0, 0.6};
-rgb_color_t BLACK = {0.0, 0.0, 0.0};
 rgb_color_t RED = {1.0, 0.0, 0.0};
-rgb_color_t DARKER_RED = {0.6, 0.0, 0.0};
-rgb_color_t YELLOW = {0.9, 0.9, 0.1};
-rgb_color_t DARKER_YELLOW = {0.6, 0.6, 0.0};
-rgb_color_t FOREST_GREEN = {0.2, 0.6, 0.2};
-rgb_color_t DARKER_FOREST_GREEN = {0.00, 0.45, 0.0};
-rgb_color_t DARKER_FOREST_GREEN_POLY = {0.05, 0.35, 0.05};
 rgb_color_t FOREST_GREEN_POLY = {0.13, 0.55, 0.13};
 rgb_color_t TEAL = {0.0, 0.8, 0.8};
 SDL_Color SDL_WHITE = {255, 255, 255, 255};
 rgb_color_t SLATE_GREY = {0.72, 0.79, 0.89};
+rgb_color_t BLACK = {0.0, 0.0, 0.0};
+
+//sdl colors
+SDL_Color SDL_WHITE = {255, 255, 255, 255};
 SDL_Color SDL_BLACK = {0, 0, 0, 255};
 SDL_Color SDL_FOREST_GREEN = {74, 103, 65, 255};
 SDL_Color SHADE_GREEN = {74, 170, 65, 255};
@@ -283,7 +278,7 @@ list_t *make_health_bar_p2(double health) {
   list_add(shape, point4);
   return shape;
 }
-void init_sounds(){
+void init_sounds() {
   SDL_Init(SDL_INIT_AUDIO);
   Mix_Init(0);
   Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
@@ -291,13 +286,17 @@ void init_sounds(){
   Mix_PlayMusic(music, -1);
 }
 
-void bullet_shot_sound(){
+void bullet_shot_sound() {
   Mix_Chunk *bullet_sound = Mix_LoadWAV("assets/default_tank_sound.wav");
   Mix_PlayChannel(1, bullet_sound, 0);
 }
-void free_channel(int channel){
-  Mix_FreeChunk(Mix_GetChunk(channel));
+
+void death_sound() {
+  Mix_Chunk *death = Mix_LoadWAV("assets/death.wav");
+  Mix_PlayChannel(1, death, 0);
 }
+
+void free_channel(int channel) { Mix_FreeChunk(Mix_GetChunk(channel)); }
 
 list_t *make_bullet(vector_t edge) {
   list_t *shape = list_init(4, (free_func_t)free);
@@ -863,31 +862,34 @@ void check_end_game(state_t *state) {
 void show_scoreboard(state_t *state, int player1_score, int player2_score) {
   vector_t corner = {600.0, MAX_HEIGHT_GAME - 25.0};
   list_t *points = make_rectangle(corner, 400.0, 150.0);
-  rgb_color_t black = {0.0, 0.0, 0.0};
-  sdl_draw_polygon(points, black);
+  sdl_draw_polygon(points, BLACK);
 
-  SDL_Color white = {255, 255, 255, 255};
-  // loc
-  vector_t score_loc = {675.0, MAX_HEIGHT_GAME - 13.0};
+  // locations 
+  vector_t player1_score_loc = {675.0, MAX_HEIGHT_GAME - 13.0};
+  vector_t player2_score_loc = {885.0, MAX_HEIGHT_GAME - 13.0};
+  vector_t dash_loc = {790.0, MAX_HEIGHT_GAME - 13.0};
 
-  char player1_str[20];
-  sprintf(player1_str, "%d", player1_score);
-  char player2_str[20];
-  sprintf(player2_str, "%d", player2_score);
-  char *final_str = (char *)malloc(
-      sizeof(char) * (strlen(player1_str) + strlen(player2_str) + 20));
-  strcpy(final_str, player1_str);
-  strcat(final_str, "   -   ");
-  strcat(final_str, player2_str);
-
-  TTF_Font *font1 = TTF_OpenFont("assets/font.ttf", FONT_SIZE);
-  text_t *text = text_init(font1, (free_func_t)free);
+  //init font 
+  TTF_Font *font = TTF_OpenFont("assets/font.ttf", FONT_SIZE);
+  text_t *text = text_init(font, (free_func_t)free);
   state->scoreboard = text;
-  SDL_Texture *scoreboard =
-      sdl_load_text(state, final_str, state->text, white, score_loc);
+
+  //make strings 
+  char str1[20];
+  sprintf(str1, "%d", player1_score);
+
+  char str2[20];
+  sprintf(str2, "%d", player2_score);
+
+  //load text
+  SDL_Texture *p1_score = sdl_load_text(state, str1, state->text, SDL_WHITE, player1_score_loc);
+  SDL_Texture *p2_score = sdl_load_text(state, str2, state->text, SDL_WHITE, player2_score_loc);
+  SDL_Texture *dash = sdl_load_text(state, "-" , state->text, SDL_WHITE, dash_loc);
 
   sdl_show();
-  SDL_DestroyTexture(scoreboard);
+  SDL_DestroyTexture(p1_score);
+  SDL_DestroyTexture(p2_score);
+  SDL_DestroyTexture(dash);
 }
 
 body_t *handle_selected_tank(size_t tank_type, vector_t start_pos,
@@ -1443,6 +1445,7 @@ void emscripten_main(state_t *state) {
     sdl_on_key((key_handler_t)handler);
     state->time += dt;
     if (state->is_round_end) {
+      death_sound();
       while (dt < DEATH_PAUSE_TIME) {
         dt += time_since_last_tick();
       }
